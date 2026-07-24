@@ -9,8 +9,8 @@ export function Features() {
         <div className={styles.eyebrow}>Tudo em um só app</div>
         <h2 className={styles.sectionTitle}>Menos papel, mais presença</h2>
         <p className={styles.sectionLead}>
-          Cada recurso foi pensado para dar tranquilidade às famílias e leveza ao
-          dia da escola.
+          Cada recurso foi pensado para dar tranquilidade às famílias e leveza
+          ao dia da escola.
         </p>
       </div>
       <div className={styles.grid3}>

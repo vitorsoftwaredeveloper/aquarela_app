@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { normalizarBalanco, normalizarInadimplentes } from "./financeiroNormalize";
+import {
+  normalizarBalanco,
+  normalizarInadimplentes,
+} from "./financeiroNormalize";
 
 describe("normalizarBalanco", () => {
   it("passa o formato esperado { resumo, meses }", () => {
@@ -11,7 +14,9 @@ describe("normalizarBalanco", () => {
         criancasAtivas: 58,
         turmas: 6,
       },
-      meses: [{ ano: 2026, mes: 7, mesLabel: "Jul", entradas: 100, despesas: 40 }],
+      meses: [
+        { ano: 2026, mes: 7, mesLabel: "Jul", entradas: 100, despesas: 40 },
+      ],
     });
     expect(b.resumo.entradasMes).toBe(42300);
     expect(b.meses).toHaveLength(1);
@@ -52,6 +57,21 @@ describe("normalizarBalanco", () => {
     const b = normalizarBalanco({ resumo: {}, meses: "oops" });
     expect(b.meses).toEqual([]);
   });
+
+  it("deriva resumo do mês atual quando a API devolve o array de meses direto em data (sem envelope resumo)", () => {
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    const mesAtual = hoje.getMonth() + 1;
+    const b = normalizarBalanco({
+      data: [
+        { ano: anoAtual, mes: mesAtual, entradas: 1, despesas: 0, saldo: 1 },
+        { ano: anoAtual, mes: (mesAtual % 12) + 1, entradas: 5, despesas: 2 },
+      ],
+    });
+    expect(b.meses).toHaveLength(2);
+    expect(b.resumo.entradasMes).toBe(1);
+    expect(b.resumo.despesasMes).toBe(0);
+  });
 });
 
 describe("normalizarInadimplentes", () => {
@@ -59,12 +79,38 @@ describe("normalizarInadimplentes", () => {
     const lista = normalizarInadimplentes({
       data: [
         {
-          mensalidade: { _id: "m1", criancaId: "c1", ano: 2026, mes: 5, valor: 890, status: "atrasado" },
-          crianca: { _id: "c1", nome: "Lorena Souza", responsaveis: [{ nome: "Marina Souza", telefone: "(11) 99000-0000" }] },
+          mensalidade: {
+            _id: "m1",
+            criancaId: "c1",
+            ano: 2026,
+            mes: 5,
+            valor: 890,
+            status: "atrasado",
+          },
+          crianca: {
+            _id: "c1",
+            nome: "Lorena Souza",
+            responsaveis: [
+              { nome: "Marina Souza", telefone: "(11) 99000-0000" },
+            ],
+          },
         },
         {
-          mensalidade: { _id: "m2", criancaId: "c1", ano: 2026, mes: 6, valor: 890, status: "atrasado" },
-          crianca: { _id: "c1", nome: "Lorena Souza", responsaveis: [{ nome: "Marina Souza", telefone: "(11) 99000-0000" }] },
+          mensalidade: {
+            _id: "m2",
+            criancaId: "c1",
+            ano: 2026,
+            mes: 6,
+            valor: 890,
+            status: "atrasado",
+          },
+          crianca: {
+            _id: "c1",
+            nome: "Lorena Souza",
+            responsaveis: [
+              { nome: "Marina Souza", telefone: "(11) 99000-0000" },
+            ],
+          },
         },
       ],
     });

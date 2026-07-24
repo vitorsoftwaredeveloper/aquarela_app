@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, ChevronLeft } from "lucide-react";
+import { Skeleton } from "@/components";
 import { TagInput } from "@/features/admin/criancas/TagInput";
 import { PlanosAulaService } from "@/services/planosAula";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -52,7 +53,7 @@ export function PlanoAulaFormScreen({
         reset({
           titulo: p.titulo,
           descricao: p.descricao,
-          data: p.data,
+          data: p.data.slice(0, 10),
           objetivos: p.objetivos ?? [],
           materiais: p.materiais ?? [],
         });
@@ -100,9 +101,20 @@ export function PlanoAulaFormScreen({
       </div>
 
       {loading ? (
-        <div className={styles.state}>
-          <span className={styles.spinner} aria-hidden />
-          <span>Carregando…</span>
+        <div className={styles.form} role="status" aria-label="Carregando…">
+          <div className={styles.card}>
+            <Skeleton width={90} height={13} style={{ marginBottom: 16 }} />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} style={{ marginBottom: 14 }}>
+                <Skeleton
+                  width="25%"
+                  height={11}
+                  style={{ marginBottom: 8 }}
+                />
+                <Skeleton width="100%" height={40} radius="var(--radius-md)" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : loadError ? (
         <div className={styles.state}>
@@ -110,7 +122,11 @@ export function PlanoAulaFormScreen({
           <p>{loadError}</p>
         </div>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
           {submitError && (
             <div className={styles.saveError} role="alert">
               <AlertCircle size={17} /> <span>{submitError}</span>
@@ -132,7 +148,10 @@ export function PlanoAulaFormScreen({
             {errors.titulo && (
               <span
                 className={styles.cardHint}
-                style={{ display: "block", color: "var(--color-danger-strong)" }}
+                style={{
+                  display: "block",
+                  color: "var(--color-danger-strong)",
+                }}
               >
                 {errors.titulo.message}
               </span>
@@ -150,7 +169,10 @@ export function PlanoAulaFormScreen({
             {errors.descricao && (
               <span
                 className={styles.cardHint}
-                style={{ display: "block", color: "var(--color-danger-strong)" }}
+                style={{
+                  display: "block",
+                  color: "var(--color-danger-strong)",
+                }}
               >
                 {errors.descricao.message}
               </span>
@@ -169,7 +191,10 @@ export function PlanoAulaFormScreen({
             {errors.data && (
               <span
                 className={styles.cardHint}
-                style={{ display: "block", color: "var(--color-danger-strong)" }}
+                style={{
+                  display: "block",
+                  color: "var(--color-danger-strong)",
+                }}
               >
                 {errors.data.message}
               </span>
@@ -204,8 +229,16 @@ export function PlanoAulaFormScreen({
             />
           </div>
 
-          <button type="submit" className={styles.saveBtn} disabled={isSubmitting}>
-            {isSubmitting ? "Salvando…" : isEdit ? "Salvar alterações" : "Criar plano"}
+          <button
+            type="submit"
+            className={styles.saveBtn}
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? "Salvando…"
+              : isEdit
+                ? "Salvar alterações"
+                : "Criar plano"}
           </button>
         </form>
       )}

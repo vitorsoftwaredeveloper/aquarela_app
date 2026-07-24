@@ -146,8 +146,8 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 
 | ID | Tarefa | Prio | Pts | Camada | Dep. | AC |
 |---|---|---|---|---|---|---|
-| PED-01 | Modelo + CRUD **planos de aula** por turma (BE) | 🟡 | 3 | BE | CAD-06 | CRUD vinculado a turma/professor — **pendente** (modelo já documentado, rotas não implementadas) |
-| PED-02 | Tela **planos de aula** (professor) ✅ FE | 🟡 | 5 | FE | PED-01, INF-10 | Criar/editar/listar planos da turma — front pronto (`PlanosAulaScreen`/`PlanoAulaFormScreen`), roda hoje via `NEXT_PUBLIC_USE_MOCKS=true`; falta só o backend (PED-01) para produção |
+| PED-01 | Modelo + CRUD **planos de aula** por turma (BE) | 🟢 | 3 | BE | CAD-06 | CRUD vinculado a turma/professor — implementado em `aquarela_serverless` (`/planosAula`), ainda não commitado/deployado |
+| PED-02 | Tela **planos de aula** (professor) ✅ FE | 🟢 | 5 | FE | PED-01, INF-10 | Criar/editar/listar planos da turma — front pronto (`PlanosAulaScreen`/`PlanoAulaFormScreen`), já integrado ao contrato real do PED-01; `NEXT_PUBLIC_USE_MOCKS=true` continua disponível pra preview |
 | PED-03 | Visão do professor: **minhas turmas → alunos** | 🔴 | 3 | FE | CAD-06, CAD-11 | Professor vê suas turmas e alunos |
 | PED-04 | Calendário pedagógico de atividades | 🟢 | 5 | FS | PED-01 | Atividades por data — *Fase 3* |
 

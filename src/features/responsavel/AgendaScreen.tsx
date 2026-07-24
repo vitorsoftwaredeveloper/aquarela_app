@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -49,9 +50,20 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
       )}
 
       {agenda.loading ? (
-        <div className={styles.state}>
-          <span className={styles.spinner} aria-hidden />
-          <span>Carregando…</span>
+        <div className={styles.entries} role="status" aria-label="Carregando…">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.entry}>
+              <Skeleton width={40} height={40} radius={12} />
+              <span style={{ flex: 1 }}>
+                <Skeleton
+                  width="40%"
+                  height={13}
+                  style={{ marginBottom: 6 }}
+                />
+                <Skeleton width="80%" height={13} />
+              </span>
+            </div>
+          ))}
         </div>
       ) : agenda.error || !dia ? (
         <div className={styles.state}>

@@ -29,8 +29,11 @@ function formatBRL(v: number): string {
 /** Arredonda o topo do eixo para um número limpo. */
 function escalaMaxima(valores: number[]): number {
   const max = Math.max(...valores, 0);
-  if (max === 0) return 1000;
-  const passo = 10000;
+  if (max <= 0) return 1000;
+  // Passo escala com a ordem de grandeza do maior valor — um passo fixo de
+  // 10000 deixava barras de meses com valores pequenos (ex.: 1) invisíveis
+  // (altura de 0,01%), mesmo que o mês tivesse entrada/despesa real.
+  const passo = 10 ** Math.floor(Math.log10(max));
   return Math.ceil(max / passo) * passo;
 }
 

@@ -19,7 +19,7 @@ import { despesaSchema, type DespesaFormData } from "@/schemas/despesa";
 import { CATEGORIAS_DESPESA, type Despesa } from "@/types/financeiroAdmin";
 import { formatBRL } from "@/types/financeiro";
 import { exportToXlsx, hojeSufixo } from "@/utils/exportXlsx";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 type Aba = "despesas" | "inadimplentes";
@@ -126,7 +126,8 @@ function Despesas() {
         }}
       >
         <span style={{ fontSize: 14, color: "var(--text-dim)" }}>
-          Total lançado: <b style={{ color: "var(--text)" }}>{formatBRL(total)}</b>
+          Total lançado:{" "}
+          <b style={{ color: "var(--text)" }}>{formatBRL(total)}</b>
         </span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
           <Button
@@ -145,7 +146,7 @@ function Despesas() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={5} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : despesas.length === 0 ? (
@@ -232,7 +233,8 @@ function Despesas() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.descricao}</b> ({formatBRL(deleting?.valor ?? 0)})?
+          Remover <b>{deleting?.descricao}</b> (
+          {formatBRL(deleting?.valor ?? 0)})?
         </p>
         {actionError && (
           <div
@@ -280,11 +282,7 @@ function DespesaForm({
   }
 
   return (
-    <form
-      className={styles.form}
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-    >
+    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
       {submitError && (
         <div
           style={{
@@ -403,7 +401,7 @@ function Inadimplentes() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={4} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : lista.length === 0 ? (

@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, ChevronRight, RefreshCw } from "lucide-react";
+import { Bell, ChevronRight, RefreshCw, X } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
+import { iniciaisNome, type Crianca } from "@/types/crianca";
 import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
 
@@ -13,20 +16,81 @@ const AVISO_TONE = { bg: "#EAF3FC", fg: "#2F7FCB" };
 
 export function InicioScreen() {
   const { user } = useAuth();
-  const { criancas, active, activeId, setActive, loading } = useResponsavel();
+  const { criancas, active, activeId, setActive, loading, avatarColors } =
+    useResponsavel();
   const firstName = (user?.name ?? "").split(" ")[0] || "responsável";
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
-  function trocarFilho() {
-    if (criancas.length < 2 || !activeId) return;
-    const i = criancas.findIndex((c) => c._id === activeId);
-    setActive(criancas[(i + 1) % criancas.length]._id);
+  function abrirTrocaFilho() {
+    if (criancas.length < 2) return;
+    setSwitcherOpen(true);
   }
 
   if (loading) {
     return (
-      <div className={styles.state}>
-        <span className={styles.spinner} aria-hidden />
-        <span>Carregando…</span>
+      <div role="status" aria-label="Carregando…">
+        <div className={styles.gradHeader}>
+          <div className={styles.homeTop}>
+            <Skeleton
+              width={110}
+              height={12}
+              style={{ background: "rgba(255,255,255,0.3)" }}
+            />
+            <Skeleton
+              width={34}
+              height={34}
+              radius={10}
+              style={{ background: "rgba(255,255,255,0.3)" }}
+            />
+          </div>
+          <div className={styles.childCard}>
+            <Skeleton
+              width={48}
+              height={48}
+              radius={14}
+              style={{ background: "rgba(255,255,255,0.3)" }}
+            />
+            <span style={{ flex: 1 }}>
+              <Skeleton
+                width="50%"
+                height={17}
+                style={{
+                  marginBottom: 6,
+                  background: "rgba(255,255,255,0.3)",
+                }}
+              />
+              <Skeleton
+                width="35%"
+                height={12}
+                style={{ background: "rgba(255,255,255,0.25)" }}
+              />
+            </span>
+          </div>
+          <div style={{ height: 20 }} />
+        </div>
+
+        <div className={styles.block}>
+          <Skeleton width={90} height={15} style={{ marginBottom: 11 }} />
+          <div className={styles.todayCard} style={{ padding: "13px 14px" }}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className={styles.todayRow}
+                style={{ padding: "10px 0" }}
+              >
+                <Skeleton width={34} height={34} radius={10} />
+                <span style={{ flex: 1 }}>
+                  <Skeleton
+                    width="40%"
+                    height={11}
+                    style={{ marginBottom: 6 }}
+                  />
+                  <Skeleton width="70%" height={13} />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -49,12 +113,12 @@ export function InicioScreen() {
             <Bell size={18} />
           </button>
         </div>
-        <button className={styles.childCard} onClick={trocarFilho}>
+        <button className={styles.childCard} onClick={abrirTrocaFilho}>
           <span
             className={styles.childAvatar}
-            style={{ background: active.avatarBg }}
+            style={{ background: avatarColors[active._id] }}
           >
-            {active.iniciais}
+            {iniciaisNome(active.nome)}
           </span>
           <span style={{ flex: 1 }}>
             <span className={styles.childName} style={{ display: "block" }}>
@@ -64,7 +128,9 @@ export function InicioScreen() {
               {active.sub}
             </span>
           </span>
-          {criancas.length > 1 && <RefreshCw size={18} style={{ opacity: 0.9 }} />}
+          {criancas.length > 1 && (
+            <RefreshCw size={18} style={{ opacity: 0.9 }} />
+          )}
         </button>
         <div className={styles.childHint}>
           {criancas.length > 1
@@ -75,13 +141,153 @@ export function InicioScreen() {
 
       <Avisos />
       <AgendaHoje criancaId={active._id} />
+      <ChildSwitcherSheet
+        open={switcherOpen}
+        onClose={() => setSwitcherOpen(false)}
+        criancas={criancas}
+        activeId={activeId}
+        avatarColors={avatarColors}
+        onSelect={(id) => {
+          setActive(id);
+          setSwitcherOpen(false);
+        }}
+      />
+    </div>
+  );
+}
+
+function ChildSwitcherSheet({
+  open,
+  onClose,
+  criancas,
+  activeId,
+  avatarColors,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  criancas: Crianca[];
+  activeId: string | null;
+  avatarColors: Record<string, string>;
+  onSelect: (criancaId: string) => void;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className={styles.sheetOverlay}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className={styles.sheet}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Trocar de filho"
+      >
+        <span className={styles.sheetHandle} aria-hidden />
+        <div className={styles.sheetHead}>
+          <span className={styles.sheetTitle}>Trocar de filho</span>
+          <button
+            type="button"
+            className={styles.sheetClose}
+            onClick={onClose}
+            aria-label="Fechar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className={styles.sheetBody}>
+          {criancas.map((c) => {
+            const isActive = c._id === activeId;
+            return (
+              <button
+                key={c._id}
+                className={`${styles.profChild} ${isActive ? styles.profChildActive : ""}`}
+                onClick={() => onSelect(c._id)}
+              >
+                <span
+                  className={styles.profChildAvatar}
+                  style={{ background: avatarColors[c._id] }}
+                >
+                  {iniciaisNome(c.nome)}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span
+                    className={styles.childName}
+                    style={{
+                      display: "block",
+                      color: "var(--text)",
+                      fontSize: 14.5,
+                    }}
+                  >
+                    {c.nome}
+                  </span>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      color: "var(--text-dim)",
+                    }}
+                  >
+                    {c.sub}
+                  </span>
+                </span>
+                {isActive && (
+                  <span className={styles.emptyBadge}>Ativo</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
 
 function Avisos() {
-  const { data } = useFetch(() => AgendaService.getAvisos());
+  const { data, loading } = useFetch(() => AgendaService.getAvisos());
   const avisos = data ?? [];
+
+  if (loading) {
+    return (
+      <div className={styles.block} role="status" aria-label="Carregando…">
+        <div className={styles.blockHead}>
+          <Skeleton width={70} height={15} />
+        </div>
+        <div className={styles.stack}>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className={styles.aviso}>
+              <Skeleton width={38} height={38} radius={11} />
+              <span style={{ flex: 1 }}>
+                <Skeleton
+                  width="45%"
+                  height={13}
+                  style={{ marginBottom: 6 }}
+                />
+                <Skeleton width="90%" height={12} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (avisos.length === 0) return null;
 
   return (
@@ -114,8 +320,36 @@ function Avisos() {
 }
 
 function AgendaHoje({ criancaId }: { criancaId: string }) {
-  const { data } = useFetch(() => AgendaService.getDia(criancaId), [criancaId]);
+  const { data, loading } = useFetch(
+    () => AgendaService.getDia(criancaId),
+    [criancaId],
+  );
   const entries = (data?.entries ?? []).slice(0, 3);
+
+  if (loading) {
+    return (
+      <div className={styles.block} role="status" aria-label="Carregando…">
+        <div className={styles.blockHead}>
+          <Skeleton width={110} height={15} />
+        </div>
+        <div className={styles.todayCard}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className={styles.todayRow}>
+              <Skeleton width={34} height={34} radius={10} />
+              <span style={{ flex: 1 }}>
+                <Skeleton
+                  width="35%"
+                  height={11}
+                  style={{ marginBottom: 6 }}
+                />
+                <Skeleton width="65%" height={13} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.block}>

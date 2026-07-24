@@ -1,11 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { School } from "lucide-react";
-import { Skeleton } from "@/components";
-import { useAuth } from "@/contexts/AuthContext";
+import { BookOpen } from "lucide-react";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
+import { TurmaListSkeleton } from "./TurmasScreen";
 import styles from "./professor.module.css";
 
 const CORES = [
@@ -15,23 +14,21 @@ const CORES = [
   { bg: "#FFF3EE", fg: "#C7522B" },
 ];
 
-export function TurmasScreen() {
-  const { user } = useAuth();
+/** Entrada da tab "Planos" — escolhe a turma antes de ver os planos dela. */
+export function PlanosAulaTurmasScreen() {
   const router = useRouter();
   const { data, loading, error } = useFetch(() =>
     ProfessorService.listMinhasTurmas(),
   );
   const turmas = data ?? [];
-  const nome = user?.name ?? user?.email ?? "Professor(a)";
 
   return (
     <div>
       <div className={styles.header}>
         <div>
-          <div className={styles.headerWho}>{nome}</div>
-          <div className={styles.headerTitle}>Minhas turmas</div>
+          <div className={styles.headerWho}>Planos de aula</div>
+          <div className={styles.headerTitle}>Escolha a turma</div>
         </div>
-        <span className={styles.avatar}>{nome.charAt(0).toUpperCase()}</span>
       </div>
 
       {loading ? (
@@ -43,19 +40,20 @@ export function TurmasScreen() {
         </div>
       ) : turmas.length === 0 ? (
         <div className={styles.state}>
-          <School size={26} />
+          <BookOpen size={26} />
           <p>Você ainda não tem turmas vinculadas.</p>
         </div>
       ) : (
         <div className={styles.turmaList}>
           {turmas.map((t, i) => {
             const cor = CORES[i % CORES.length];
-            const emDia = t.agendasPendentes === 0;
             return (
               <button
                 key={t._id}
                 className={styles.turmaCard}
-                onClick={() => router.push(`/professor/turmas/${t._id}`)}
+                onClick={() =>
+                  router.push(`/professor/turmas/${t._id}/planos-aula`)
+                }
               >
                 <span
                   className={styles.turmaLetter}
@@ -79,35 +77,11 @@ export function TurmasScreen() {
                     {t.periodo ? ` · ${t.periodo}` : ""}
                   </span>
                 </span>
-                <span
-                  className={`${styles.pill} ${emDia ? styles.pillDone : styles.pillPend}`}
-                >
-                  {emDia
-                    ? "Tudo em dia"
-                    : `${t.agendasPendentes} pendente${t.agendasPendentes > 1 ? "s" : ""}`}
-                </span>
               </button>
             );
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-export function TurmaListSkeleton() {
-  return (
-    <div className={styles.turmaList} role="status" aria-label="Carregando…">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className={styles.turmaCard}>
-          <Skeleton width={50} height={50} radius={15} />
-          <span style={{ flex: 1 }}>
-            <Skeleton width="55%" height={16} style={{ marginBottom: 8 }} />
-            <Skeleton width="35%" height={12} />
-          </span>
-          <Skeleton width={70} height={22} radius={20} />
-        </div>
-      ))}
     </div>
   );
 }

@@ -5,16 +5,16 @@ import { unwrapList } from "./unwrap";
 import type { NovoPlanoAula, PlanoAula } from "@/types/planoAula";
 
 /**
- * CRUD de planos de aula por turma (professor autor). Rotas ainda não
- * documentadas em docs/03-Backend.md — seguem a convenção de subrecurso de
- * `turmas` (como `/turmas/{id}/criancas`); `professorId`/autoria vêm do JWT.
+ * CRUD de planos de aula. Rota real é `/planosAula` (não sub-recurso de
+ * turma): list filtra por `?turmaId=`, create/update levam `turmaId` no body.
+ * Sem GET por id no backend — `getById` busca na lista e filtra em memória.
  */
 export const PlanosAulaService = {
   async list(turmaId: string): Promise<PlanoAula[]> {
     if (IS_DEV_DATA) {
       return devPlanosAula.filter((p) => p.turmaId === turmaId);
     }
-    const { data } = await api.get(`/turmas/${turmaId}/planos-aula`);
+    const { data } = await api.get("/planosAula", { params: { turmaId } });
     return unwrapList<PlanoAula>(data);
   },
 
@@ -23,15 +23,22 @@ export const PlanosAulaService = {
       const found = devPlanosAula.find((p) => p._id === id);
       if (found) return found;
     }
-    const { data } = await api.get(`/turmas/${turmaId}/planos-aula/${id}`);
-    return data.data;
+    const planos = await this.list(turmaId);
+    const found = planos.find((p) => p._id === id);
+    if (!found) throw new Error("Plano de aula não encontrado.");
+    return found;
   },
 
   async create(turmaId: string, payload: NovoPlanoAula): Promise<PlanoAula> {
     if (IS_DEV_DATA) {
-      return { ...payload, _id: `dev-${Date.now()}`, turmaId, professorId: "dev" };
+      return {
+        ...payload,
+        _id: `dev-${Date.now()}`,
+        turmaId,
+        professorId: "dev",
+      };
     }
-    const { data } = await api.post(`/turmas/${turmaId}/planos-aula`, payload);
+    const { data } = await api.post("/planosAula", { ...payload, turmaId });
     return data.data;
   },
 
@@ -43,12 +50,15 @@ export const PlanosAulaService = {
     if (IS_DEV_DATA) {
       return { ...payload, _id: id, turmaId, professorId: "dev" };
     }
-    const { data } = await api.put(`/turmas/${turmaId}/planos-aula/${id}`, payload);
+    const { data } = await api.put(`/planosAula/${id}`, {
+      ...payload,
+      turmaId,
+    });
     return data.data;
   },
 
   async remove(turmaId: string, id: string): Promise<void> {
     if (IS_DEV_DATA) return;
-    await api.delete(`/turmas/${turmaId}/planos-aula/${id}`);
+    await api.delete(`/planosAula/${id}`);
   },
 };

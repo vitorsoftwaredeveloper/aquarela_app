@@ -62,13 +62,16 @@ const pagamento: Pagamento = {
   status: "pendente",
 };
 
-function mockResponsavel(overrides: Partial<ReturnType<typeof useResponsavel>> = {}) {
+function mockResponsavel(
+  overrides: Partial<ReturnType<typeof useResponsavel>> = {},
+) {
   vi.mocked(useResponsavel).mockReturnValue({
     criancas: [active],
     active,
     activeId: active._id,
     loading: false,
     error: null,
+    avatarColors: {},
     setActive: vi.fn(),
     reload: vi.fn(),
     ...overrides,
@@ -103,9 +106,7 @@ describe("FinanceiroScreen", () => {
     expect(await screen.findByText("Julho")).toBeInTheDocument();
     expect(screen.getByText("Junho")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pagar" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Recibo/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Recibo/ })).toBeInTheDocument();
   });
 
   it("opens PIX modal and shows QR + copia-e-cola after clicking Pagar", async () => {
@@ -119,7 +120,9 @@ describe("FinanceiroScreen", () => {
     render(<FinanceiroScreen />);
     await user.click(await screen.findByRole("button", { name: "Pagar" }));
 
-    expect(screen.getByRole("dialog", { name: "Pagamento via PIX" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Pagamento via PIX" }),
+    ).toBeInTheDocument();
     expect(
       await screen.findByText(pagamento.pixCopiaECola),
     ).toBeInTheDocument();
@@ -145,7 +148,9 @@ describe("FinanceiroScreen", () => {
     await user.click(screen.getByRole("button", { name: "Copiar" }));
 
     expect(writeText).toHaveBeenCalledWith(pagamento.pixCopiaECola);
-    expect(await screen.findByRole("button", { name: "Copiado!" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Copiado!" }),
+    ).toBeInTheDocument();
   });
 
   it("shows error with retry when criarPagamento fails, and recovers on retry", async () => {
@@ -177,7 +182,10 @@ describe("FinanceiroScreen", () => {
     vi.mocked(FinanceiroService.criarPagamento).mockRejectedValue(
       new AxiosError("conflict", "ERR_BAD_REQUEST", undefined, undefined, {
         status: 409,
-        data: { code: "MENSALIDADE_PAGA", message: "Esta mensalidade já está paga." },
+        data: {
+          code: "MENSALIDADE_PAGA",
+          message: "Esta mensalidade já está paga.",
+        },
       } as AxiosError["response"]),
     );
     const user = userEvent.setup();

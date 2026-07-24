@@ -1,4 +1,8 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  ReactNode,
+} from "react";
 import styles from "./Button.module.css";
 
 type Variant = "primary" | "secondary" | "ghost" | "onBrand" | "onBrandGhost";
@@ -11,7 +15,9 @@ interface BaseProps {
 }
 
 type ButtonAsButton = BaseProps &
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & { href?: undefined };
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+    href?: undefined;
+  };
 
 type ButtonAsLink = BaseProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children"> & { href: string };
@@ -42,7 +48,10 @@ export function Button({
   }
 
   return (
-    <button className={cls} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button
+      className={cls}
+      {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}
+    >
       {children}
     </button>
   );

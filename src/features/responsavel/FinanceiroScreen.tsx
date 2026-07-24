@@ -2,13 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import {
-  CheckCircle2,
-  Clock,
-  Download,
-  AlertTriangle,
-} from "lucide-react";
-import { Button, Modal } from "@/components";
+import { CheckCircle2, Clock, Download, AlertTriangle } from "lucide-react";
+import { Button, Modal, Skeleton } from "@/components";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
@@ -68,9 +63,54 @@ export function FinanceiroScreen() {
   // recria a cobrança — 409 → paid → reload → loop infinito reabrindo o modal.
   if (ctxLoading || (loading && !data)) {
     return (
-      <div className={styles.state}>
-        <span className={styles.spinner} aria-hidden />
-        <span>Carregando…</span>
+      <div role="status" aria-label="Carregando…">
+        <div className={`${styles.gradHeader} ${styles.finHeaderPad}`}>
+          <Skeleton
+            width={110}
+            height={21}
+            style={{ background: "rgba(255,255,255,0.3)", marginBottom: 6 }}
+          />
+          <Skeleton
+            width={70}
+            height={13}
+            style={{ background: "rgba(255,255,255,0.25)" }}
+          />
+          <div className={styles.finCards}>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className={styles.finCard}>
+                <Skeleton
+                  width="60%"
+                  height={11}
+                  style={{
+                    background: "rgba(255,255,255,0.3)",
+                    marginBottom: 6,
+                  }}
+                />
+                <Skeleton
+                  width="45%"
+                  height={18}
+                  style={{ background: "rgba(255,255,255,0.3)" }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className={styles.monthList}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.monthRow}>
+              <Skeleton width={42} height={42} radius={12} />
+              <span style={{ flex: 1 }}>
+                <Skeleton
+                  width="40%"
+                  height={14}
+                  style={{ marginBottom: 6 }}
+                />
+                <Skeleton width="55%" height={12} />
+              </span>
+              <Skeleton width={70} height={30} radius={12} />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -293,14 +333,13 @@ function PixContent({
           </span>
         </div>
         <div style={{ display: "flex", gap: 10, width: "100%", marginTop: 14 }}>
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            style={{ flex: 1 }}
-          >
+          <Button variant="secondary" onClick={onClose} style={{ flex: 1 }}>
             Fechar
           </Button>
-          <Button onClick={() => setTentativa((t) => t + 1)} style={{ flex: 1 }}>
+          <Button
+            onClick={() => setTentativa((t) => t + 1)}
+            style={{ flex: 1 }}
+          >
             Tentar de novo
           </Button>
         </div>
@@ -321,16 +360,14 @@ function PixContent({
           <div style={{ width: 188, height: 188 }} />
         )}
       </div>
-      <div className={styles.pixHint}>Escaneie o QR ou copie o código abaixo</div>
+      <div className={styles.pixHint}>
+        Escaneie o QR ou copie o código abaixo
+      </div>
       <div className={styles.pixCodeRow}>
         <span className={styles.pixCode}>
           {pagamento?.pixCopiaECola ?? "Gerando cobrança…"}
         </span>
-        <button
-          className={styles.copyBtn}
-          onClick={copy}
-          disabled={!pagamento}
-        >
+        <button className={styles.copyBtn} onClick={copy} disabled={!pagamento}>
           {copied ? "Copiado!" : "Copiar"}
         </button>
       </div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
-import { Modal } from "@/components";
+import { Modal, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { PlanosAulaService } from "@/services/planosAula";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -11,7 +11,7 @@ import type { PlanoAula } from "@/types/planoAula";
 import styles from "./professor.module.css";
 
 function formatData(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`);
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("pt-BR");
 }
 
@@ -48,7 +48,7 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
       <div className={styles.pushHeader}>
         <button
           className={styles.backBtn}
-          onClick={() => router.push(`/professor/turmas/${turmaId}`)}
+          onClick={() => router.push("/professor/planos-aula")}
           aria-label="Voltar"
         >
           <ChevronLeft size={20} />
@@ -56,12 +56,16 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
         <div style={{ flex: 1 }}>
           <div className={styles.pushTitle}>Planos de aula</div>
           <div className={styles.pushSub}>
-            {loading ? "Carregando…" : `${planos.length} plano${planos.length === 1 ? "" : "s"}`}
+            {loading
+              ? "Carregando…"
+              : `${planos.length} plano${planos.length === 1 ? "" : "s"}`}
           </div>
         </div>
         <button
           className={styles.backBtn}
-          onClick={() => router.push(`/professor/turmas/${turmaId}/planos-aula/novo`)}
+          onClick={() =>
+            router.push(`/professor/turmas/${turmaId}/planos-aula/novo`)
+          }
           aria-label="Novo plano de aula"
         >
           <Plus size={20} />
@@ -69,9 +73,20 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
       </div>
 
       {loading ? (
-        <div className={styles.state}>
-          <span className={styles.spinner} aria-hidden />
-          <span>Carregando…</span>
+        <div className={styles.planoList} role="status" aria-label="Carregando…">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className={styles.planoCard}>
+              <div className={styles.planoTop}>
+                <Skeleton width="50%" height={14} />
+                <Skeleton width={60} height={11} />
+              </div>
+              <Skeleton width="90%" height={12} style={{ marginTop: 8 }} />
+              <div className={styles.planoTags}>
+                <Skeleton width={54} height={20} radius={20} />
+                <Skeleton width={70} height={20} radius={20} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className={styles.state}>
@@ -113,7 +128,9 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
                 <button
                   className={styles.iconBtn}
                   onClick={() =>
-                    router.push(`/professor/turmas/${turmaId}/planos-aula/${p._id}`)
+                    router.push(
+                      `/professor/turmas/${turmaId}/planos-aula/${p._id}`,
+                    )
                   }
                   aria-label={`Editar ${p.titulo}`}
                 >
@@ -165,7 +182,13 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
           Remover <b>{deleting?.titulo}</b>?
         </p>
         {deleteError && (
-          <p style={{ color: "var(--color-danger-strong)", fontSize: 13, marginTop: 10 }}>
+          <p
+            style={{
+              color: "var(--color-danger-strong)",
+              fontSize: 13,
+              marginTop: 10,
+            }}
+          >
             {deleteError}
           </p>
         )}

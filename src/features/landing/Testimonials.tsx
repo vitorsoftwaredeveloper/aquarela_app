@@ -7,7 +7,9 @@ export function Testimonials() {
     <Container as="section" id="depoimentos" className={styles.section}>
       <div className={styles.sectionHead}>
         <div className={styles.eyebrow}>Depoimentos</div>
-        <h2 className={styles.sectionTitle}>Famílias mais perto do dia a dia</h2>
+        <h2 className={styles.sectionTitle}>
+          Famílias mais perto do dia a dia
+        </h2>
       </div>
       <div className={styles.grid3}>
         {testimonials.map((t) => (

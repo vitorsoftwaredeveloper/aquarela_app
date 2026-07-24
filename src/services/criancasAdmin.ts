@@ -52,7 +52,8 @@ export const CriancasAdminService = {
     id: string,
     payload: Omit<NovaCrianca, "cpf" | "turmaId">,
   ): Promise<CriancaCadastro> {
-    if (IS_DEV_DATA) return { ...payload, _id: id, cpf: "", turmaId: "", ativo: true };
+    if (IS_DEV_DATA)
+      return { ...payload, _id: id, cpf: "", turmaId: "", ativo: true };
     const { data } = await api.put(`/criancas/${id}`, payload);
     return data.data;
   },

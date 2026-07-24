@@ -19,7 +19,7 @@ import { CriancasAdminService } from "@/services/criancasAdmin";
 import { TurmasService } from "@/services/turmas";
 import { getApiErrorMessage } from "@/services/apiError";
 import { idadeEmAnos, type CriancaCadastro } from "@/types/criancaCadastro";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function CriancasScreen() {
@@ -157,7 +157,7 @@ export function CriancasScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={6} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : criancas.length === 0 ? (
@@ -210,7 +210,9 @@ export function CriancasScreen() {
                       <td>
                         <div>{resp?.nome ?? "—"}</div>
                         {resp?.parentesco && (
-                          <div className={styles.cellSub}>{resp.parentesco}</div>
+                          <div className={styles.cellSub}>
+                            {resp.parentesco}
+                          </div>
                         )}
                       </td>
                       <td>
@@ -255,7 +257,9 @@ export function CriancasScreen() {
                                 ? `Desativar ${c.nome}`
                                 : `Ativar ${c.nome}`
                             }
-                            title={c.ativo ? "Desativar acesso" : "Ativar acesso"}
+                            title={
+                              c.ativo ? "Desativar acesso" : "Ativar acesso"
+                            }
                           >
                             <Power size={16} />
                           </button>
@@ -293,19 +297,17 @@ export function CriancasScreen() {
               onClick={confirmDesativar}
               disabled={togglingId === desativando?._id}
             >
-              {togglingId === desativando?._id
-                ? "Desativando…"
-                : "Desativar"}
+              {togglingId === desativando?._id ? "Desativando…" : "Desativar"}
             </Button>
           </>
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Desativar <b>{desativando?.nome}</b>? Ela some das telas do
-          professor e do responsável (agenda, financeiro), mas o cadastro e
-          todo o histórico ficam preservados. Para reativar depois, use este
-          mesmo botão (<Power size={13} style={{ verticalAlign: -2 }} />) na
-          lista — a reativação é imediata, sem confirmação.
+          Desativar <b>{desativando?.nome}</b>? Ela some das telas do professor
+          e do responsável (agenda, financeiro), mas o cadastro e todo o
+          histórico ficam preservados. Para reativar depois, use este mesmo
+          botão (<Power size={13} style={{ verticalAlign: -2 }} />) na lista — a
+          reativação é imediata, sem confirmação.
         </p>
       </Modal>
 
@@ -320,21 +322,33 @@ export function CriancasScreen() {
             </Button>
             <Button
               onClick={confirmMover}
-              disabled={moveBusy || !moveTurmaId || moveTurmaId === moving?.turmaId}
+              disabled={
+                moveBusy || !moveTurmaId || moveTurmaId === moving?.turmaId
+              }
             >
               {moveBusy ? "Movendo…" : "Mover"}
             </Button>
           </>
         }
       >
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)", marginBottom: 14 }}>
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.6,
+            color: "var(--text-soft)",
+            marginBottom: 14,
+          }}
+        >
           Mover <b>{moving?.nome}</b> para outra turma. O vínculo anterior é
           substituído; agenda e histórico não são afetados.
         </p>
         <Select
           label="Nova turma"
           placeholder={turmas.loading ? "Carregando…" : "Selecione a turma"}
-          options={(turmas.data ?? []).map((t) => ({ value: t._id, label: t.nome }))}
+          options={(turmas.data ?? []).map((t) => ({
+            value: t._id,
+            label: t.nome,
+          }))}
           disabled={turmas.loading}
           value={moveTurmaId}
           onChange={(e) => setMoveTurmaId(e.target.value)}

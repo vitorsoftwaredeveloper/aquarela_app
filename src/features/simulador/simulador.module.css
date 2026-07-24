@@ -267,48 +267,6 @@
   font-weight: 600;
 }
 
-/* Comparativo */
-.bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  height: 130px;
-  padding: 0 4px;
-}
-.barCol {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  height: 100%;
-  justify-content: flex-end;
-}
-.barValue {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
-}
-.bar {
-  width: 100%;
-  background: var(--color-primary-soft);
-  border-radius: 9px 9px 4px 4px;
-  transition: height 0.3s ease;
-  min-height: 6px;
-}
-.barOn {
-  background: var(--grad-brand);
-}
-.barTick {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-dim);
-}
-.barValueOn,
-.barTickOn {
-  color: var(--color-primary-link);
-}
-
 /* CTA */
 .cta {
   margin-top: 24px;

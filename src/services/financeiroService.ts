@@ -20,7 +20,9 @@ const MESES: [string, string][] = [
 ];
 
 /** O backend devolve só `mes` (1-12) — deriva os rótulos que a UI usa. */
-function normalizarMensalidade(raw: Omit<Mensalidade, "mesLabel" | "mesShort">): Mensalidade {
+function normalizarMensalidade(
+  raw: Omit<Mensalidade, "mesLabel" | "mesShort">,
+): Mensalidade {
   const [mesLabel, mesShort] = MESES[raw.mes - 1] ?? ["", ""];
   return { ...raw, mesLabel, mesShort };
 }
@@ -34,7 +36,10 @@ const cobrancaEmVoo = new Map<string, Promise<Pagamento>>();
 
 /** Mensalidades e pagamentos PIX (responsável). Contrato: §5 e §7. */
 export const FinanceiroService = {
-  async listMensalidades(criancaId: string, ano = 2026): Promise<Mensalidade[]> {
+  async listMensalidades(
+    criancaId: string,
+    ano = 2026,
+  ): Promise<Mensalidade[]> {
     if (IS_DEV_DATA) return devMensalidades(criancaId);
     const { data } = await api.get("/mensalidades", {
       params: { criancaId, ano },

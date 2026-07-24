@@ -44,14 +44,38 @@ const DEMO_ROLES: {
   bg: string;
   fg: string;
 }[] = [
-  { role: "admin", label: "Admin", icon: <Shield size={18} />, bg: "#EAF3FC", fg: "#2F7FCB" },
-  { role: "professor", label: "Professor", icon: <GraduationCap size={18} />, bg: "#E7F7F1", fg: "#2E9E7B" },
-  { role: "responsavel", label: "Responsável", icon: <Users size={18} />, bg: "#FBEAF3", fg: "#C0468A" },
+  {
+    role: "admin",
+    label: "Admin",
+    icon: <Shield size={18} />,
+    bg: "#EAF3FC",
+    fg: "#2F7FCB",
+  },
+  {
+    role: "professor",
+    label: "Professor",
+    icon: <GraduationCap size={18} />,
+    bg: "#E7F7F1",
+    fg: "#2E9E7B",
+  },
+  {
+    role: "responsavel",
+    label: "Responsável",
+    icon: <Users size={18} />,
+    bg: "#FBEAF3",
+    fg: "#C0468A",
+  },
 ];
 
 export function LoginScreen() {
-  const { login, confirmNewPassword, isAuthenticated, role, isDevMode, devLogin } =
-    useAuth();
+  const {
+    login,
+    confirmNewPassword,
+    isAuthenticated,
+    role,
+    isDevMode,
+    devLogin,
+  } = useAuth();
   const router = useRouter();
 
   const [mode, setMode] = useState<Mode>("login");
@@ -101,7 +125,8 @@ export function LoginScreen() {
     setError(null);
     try {
       const step = await confirmNewPassword(password);
-      if (!step.done) setError("Não foi possível definir a senha. Tente de novo.");
+      if (!step.done)
+        setError("Não foi possível definir a senha. Tente de novo.");
     } catch (err) {
       setError(authErrorMessage(err));
     }
@@ -119,7 +144,10 @@ export function LoginScreen() {
     }
   }
 
-  async function handleForgotConfirm({ code, password }: ForgotConfirmFormData) {
+  async function handleForgotConfirm({
+    code,
+    password,
+  }: ForgotConfirmFormData) {
     setError(null);
     try {
       await confirmResetPassword({
@@ -173,12 +201,24 @@ export function LoginScreen() {
             </div>
           )}
 
-          {mode === "login" && <LoginForm onSubmit={handleLogin} onForgot={() => switchMode("forgotRequest")} />}
-          {mode === "newPassword" && <NewPasswordForm onSubmit={handleNewPassword} />}
-          {mode === "forgotRequest" && (
-            <ForgotRequestForm defaultEmail={pendingEmail} onSubmit={handleForgotRequest} />
+          {mode === "login" && (
+            <LoginForm
+              onSubmit={handleLogin}
+              onForgot={() => switchMode("forgotRequest")}
+            />
           )}
-          {mode === "forgotConfirm" && <ForgotConfirmForm onSubmit={handleForgotConfirm} />}
+          {mode === "newPassword" && (
+            <NewPasswordForm onSubmit={handleNewPassword} />
+          )}
+          {mode === "forgotRequest" && (
+            <ForgotRequestForm
+              defaultEmail={pendingEmail}
+              onSubmit={handleForgotRequest}
+            />
+          )}
+          {mode === "forgotConfirm" && (
+            <ForgotConfirmForm onSubmit={handleForgotConfirm} />
+          )}
 
           {mode === "login" && isDevMode && (
             <div className={styles.demo}>
@@ -208,11 +248,16 @@ export function LoginScreen() {
 
           {mode === "login" && (
             <div className={styles.footer}>
-              <Button href="/simulador" variant="secondary" className={styles.simBtn}>
+              <Button
+                href="/simulador"
+                variant="secondary"
+                className={styles.simBtn}
+              >
                 <KeyRound size={16} /> Simular mensalidade
               </Button>
               <div className={styles.footerNote}>
-                Ainda não é da Aquarela? <Link href="/#planos">Agende uma visita</Link>
+                Ainda não é da Aquarela?{" "}
+                <Link href="/#planos">Agende uma visita</Link>
               </div>
             </div>
           )}
@@ -240,7 +285,9 @@ function LoginForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className={styles.formTitle}>Entrar na conta</div>
-      <p className={styles.formHint}>Acesse a agenda e o financeiro do seu filho.</p>
+      <p className={styles.formHint}>
+        Acesse a agenda e o financeiro do seu filho.
+      </p>
       <div className={styles.fields}>
         <Input
           label="E-mail"
@@ -280,7 +327,9 @@ function NewPasswordForm({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<NewPasswordFormData>({ resolver: yupResolver(newPasswordSchema) });
+  } = useForm<NewPasswordFormData>({
+    resolver: yupResolver(newPasswordSchema),
+  });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>

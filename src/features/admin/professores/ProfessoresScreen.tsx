@@ -25,7 +25,7 @@ import {
 } from "@/schemas/professor";
 import { onlyDigits } from "@/utils/cpf";
 import type { Professor, ProfessorCriado } from "@/types/professor";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function ProfessoresScreen() {
@@ -81,7 +81,7 @@ export function ProfessoresScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={5} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : !data || data.length === 0 ? (
@@ -181,7 +181,11 @@ export function ProfessoresScreen() {
             <Button variant="secondary" onClick={() => setDeleting(null)}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={confirmDelete} disabled={deleteBusy}>
+            <Button
+              variant="primary"
+              onClick={confirmDelete}
+              disabled={deleteBusy}
+            >
               {deleteBusy ? "Removendo…" : "Remover"}
             </Button>
           </>
@@ -410,8 +414,18 @@ function CreateProfessorForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
       {submitError && <ErrorAlert message={submitError} />}
-      <Input label="Nome" placeholder="Nome completo" error={errors.nome?.message} {...register("nome")} />
-      <Input label="CPF" placeholder="000.000.000-00" error={errors.cpf?.message} {...register("cpf")} />
+      <Input
+        label="Nome"
+        placeholder="Nome completo"
+        error={errors.nome?.message}
+        {...register("nome")}
+      />
+      <Input
+        label="CPF"
+        placeholder="000.000.000-00"
+        error={errors.cpf?.message}
+        {...register("cpf")}
+      />
       <Input
         label="E-mail"
         type="email"
@@ -431,7 +445,11 @@ function CreateProfessorForm({
         error={errors.formacao?.message}
         {...register("formacao")}
       />
-      <FormActions onCancel={onCancel} isSubmitting={isSubmitting} submitLabel="Criar professor" />
+      <FormActions
+        onCancel={onCancel}
+        isSubmitting={isSubmitting}
+        submitLabel="Criar professor"
+      />
     </form>
   );
 }
@@ -474,7 +492,12 @@ function EditProfessorForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
       {submitError && <ErrorAlert message={submitError} />}
-      <Input label="Nome" placeholder="Nome completo" error={errors.nome?.message} {...register("nome")} />
+      <Input
+        label="Nome"
+        placeholder="Nome completo"
+        error={errors.nome?.message}
+        {...register("nome")}
+      />
       <Input
         label="E-mail"
         type="email"
@@ -495,7 +518,11 @@ function EditProfessorForm({
         error={errors.formacao?.message}
         {...register("formacao")}
       />
-      <FormActions onCancel={onCancel} isSubmitting={isSubmitting} submitLabel="Salvar" />
+      <FormActions
+        onCancel={onCancel}
+        isSubmitting={isSubmitting}
+        submitLabel="Salvar"
+      />
     </form>
   );
 }
@@ -510,7 +537,14 @@ function FormActions({
   submitLabel: string;
 }) {
   return (
-    <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: 10,
+        marginTop: 6,
+      }}
+    >
       <Button type="button" variant="secondary" onClick={onCancel}>
         Cancelar
       </Button>

@@ -1,10 +1,7 @@
 import * as yup from "yup";
 
 export const loginSchema = yup.object({
-  email: yup
-    .string()
-    .required("Informe seu e-mail")
-    .email("E-mail inválido"),
+  email: yup.string().required("Informe seu e-mail").email("E-mail inválido"),
   password: yup.string().required("Informe sua senha"),
 });
 
@@ -27,10 +24,7 @@ export const newPasswordSchema = yup.object({
 export type NewPasswordFormData = yup.InferType<typeof newPasswordSchema>;
 
 export const forgotRequestSchema = yup.object({
-  email: yup
-    .string()
-    .required("Informe seu e-mail")
-    .email("E-mail inválido"),
+  email: yup.string().required("Informe seu e-mail").email("E-mail inválido"),
 });
 
 export type ForgotRequestFormData = yup.InferType<typeof forgotRequestSchema>;

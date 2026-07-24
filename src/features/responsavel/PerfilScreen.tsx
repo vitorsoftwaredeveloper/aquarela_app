@@ -6,6 +6,7 @@ import { Bell, LogOut, Moon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { iniciaisNome } from "@/types/crianca";
 import styles from "./responsavel.module.css";
 
 function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
@@ -45,7 +46,7 @@ function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 
 export function PerfilScreen() {
   const { user, logout } = useAuth();
-  const { criancas, activeId, setActive } = useResponsavel();
+  const { criancas, activeId, setActive, avatarColors } = useResponsavel();
   const { mode, toggleTheme } = useTheme();
   const router = useRouter();
   const [notif, setNotif] = useState(true);
@@ -82,14 +83,18 @@ export function PerfilScreen() {
               >
                 <span
                   className={styles.profChildAvatar}
-                  style={{ background: c.avatarBg }}
+                  style={{ background: avatarColors[c._id] }}
                 >
-                  {c.iniciais}
+                  {iniciaisNome(c.nome)}
                 </span>
                 <span style={{ flex: 1 }}>
                   <span
                     className={styles.childName}
-                    style={{ display: "block", color: "var(--text)", fontSize: 14.5 }}
+                    style={{
+                      display: "block",
+                      color: "var(--text)",
+                      fontSize: 14.5,
+                    }}
                   >
                     {c.nome}
                   </span>

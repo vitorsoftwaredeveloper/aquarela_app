@@ -25,7 +25,7 @@ import {
   type UsuarioCriado,
 } from "@/types/usuario";
 import type { Role } from "@/types/user";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 const ROLE_TONE: Record<Role, "info" | "success" | "neutral"> = {
@@ -87,7 +87,7 @@ export function UsuariosScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={5} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : !data || data.length === 0 ? (
@@ -198,10 +198,10 @@ export function UsuariosScreen() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b> em definitivo? Isto <b>apaga o usuário
-          do banco e do Cognito</b> — <b>não dá para desfazer</b>. Para apenas
-          bloquear o acesso mantendo o cadastro, edite o usuário e defina o
-          status como <b>Inativo</b>.
+          Remover <b>{deleting?.nome}</b> em definitivo? Isto{" "}
+          <b>apaga o usuário do banco e do Cognito</b> —{" "}
+          <b>não dá para desfazer</b>. Para apenas bloquear o acesso mantendo o
+          cadastro, edite o usuário e defina o status como <b>Inativo</b>.
         </p>
         {deleteError && (
           <div

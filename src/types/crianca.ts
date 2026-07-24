@@ -16,6 +16,37 @@ export interface Crianca {
   };
 }
 
+/** Iniciais para o avatar: 1ª letra do nome + 1ª do sobrenome, ou 2 primeiras se não houver sobrenome. */
+export function iniciaisNome(nome: string): string {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "";
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}
+
+const AVATAR_PALETTE = [
+  "#F6D9C0",
+  "#CDE7F5",
+  "#EAD9F6",
+  "#D9F0DA",
+  "#F6E0EA",
+  "#FBE7B8",
+];
+
+/** Sorteia uma cor de fundo por criança (embaralha a paleta a cada chamada — ex.: a cada login). */
+export function sortearCoresAvatar(ids: string[]): Record<string, string> {
+  const cores = [...AVATAR_PALETTE];
+  for (let i = cores.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cores[i], cores[j]] = [cores[j], cores[i]];
+  }
+  const mapa: Record<string, string> = {};
+  ids.forEach((id, i) => {
+    mapa[id] = cores[i % cores.length];
+  });
+  return mapa;
+}
+
 /** Há alergias/medicações contínuas a destacar? */
 export function temCuidados(c: Crianca): boolean {
   return !!(

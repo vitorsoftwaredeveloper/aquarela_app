@@ -135,6 +135,14 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | DELETE | `/turmas/{id}/criancas/{criancaId}` | admin | **Desvincular** criança da turma |
 | PATCH | `/criancas/{id}/turma` | admin | **Mover** criança para outra turma (body: `turmaId`) |
 
+> **`GET /turmas/{id}/criancas` (visão professor) precisa devolver `agendaRegistrada: boolean`
+> por criança**, calculado a partir de `AgendaDiaria` da data de hoje (servidor). O front
+> (`AlunoTurma extends Crianca`, `services/professorService.ts`) já assume esse campo pra
+> pintar "Pendente"/"Registrada" na tela **Alunos da turma** — sem ele, o card fica preso em
+> "Pendente" mesmo depois do professor salvar a agenda do dia (confirmado em produção:
+> `POST /agenda` retorna sucesso, mas o `GET` seguinte não reflete o registro). Verificado que
+> não é bug de cache do front — o mesmo fluxo com dado mutável local atualiza corretamente.
+
 ### Crianças (CRUD completo)
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
@@ -165,18 +173,17 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 ### Planos de aula (PED-01/02)
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| GET | `/turmas/{turmaId}/planos-aula` | professor | Listar planos de aula da turma |
-| GET | `/turmas/{turmaId}/planos-aula/{id}` | professor | Detalhe |
-| POST | `/turmas/{turmaId}/planos-aula` | professor | Criar (`professorId` vem do JWT) |
-| PUT | `/turmas/{turmaId}/planos-aula/{id}` | professor | Atualizar |
-| DELETE | `/turmas/{turmaId}/planos-aula/{id}` | professor | Remover |
+| GET | `/planosAula?turmaId=` | admin/professor | Listar (sem `turmaId`: professor vê os próprios, filtrado por `professorId` do JWT) |
+| POST | `/planosAula` | admin/professor | Criar (`turmaId` no body; `professorId` derivado de `turma.professorId`, nunca do payload) |
+| PUT | `/planosAula/{id}` | admin/professor | Atualizar (trocar `turmaId` reatribui `professorId` à nova turma) |
+| DELETE | `/planosAula/{id}` | admin/professor | Remover (hard delete — sem campo `ativo` no schema) |
 
-> **Ainda não implementado no back (`aquarela_serverless`).** Modelo `planosAula`
-> já existe em docs/04-Banco-de-Dados.md §3; as rotas acima seguem a convenção
-> de subrecurso de `turmas` (como `/turmas/{id}/criancas`) para manter o
-> contrato consistente quando forem implementadas. O front (`PlanosAulaService`,
-> `src/services/planosAula.ts`) já está pronto e funciona hoje via
-> `NEXT_PUBLIC_USE_MOCKS=true` (fixtures em `devData.ts`).
+> **Implementado no back (`aquarela_serverless`, PED-01).** Sem GET por id —
+> o front (`PlanosAulaService.getById`) resolve via `list` + filtro em memória.
+> Ownership: professor só cria/edita planos das próprias turmas (reusa
+> `getTurmaByIdService`); admin sem restrição. `src/services/planosAula.ts`
+> já está no contrato real; `NEXT_PUBLIC_USE_MOCKS=true` ainda funciona para
+> preview sem depender do backend.
 
 ### Avisos (mural)
 | Método | Rota | Papel | Descrição |
@@ -223,7 +230,15 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 
 ### Simulador
 | GET | `/simulador?meses=&plano=` | público | Cálculo de estimativa (ou 100% no cliente) |
+| GET | `/config/precos/planos` | público | Lista de planos completa (`nome`, `tipo`, `valorMensal`, `valorDiario`, `descontos`) — sem token |
 | GET/PUT | `/config/precos` | admin | Valores base da mensalidade |
+
+> `/config/precos/planos` devolve `{ planos: [...] }` igual ao `GET /config/precos`
+> (inclusive `descontos`, de propósito — é o gancho de venda "quanto mais
+> meses, mais desconto" da landing/simulador), só que sem exigir token. O
+> front usa essa rota para montar a landing e o simulador e faz o cálculo de
+> desconto por meses **100% no cliente** com os dados reais do admin — o
+> `GET /simulador` deixou de ser necessário para isso.
 
 **Erros:** padrão `{ error: { code, message, details? } }` com HTTP status adequado (400 validação, 401/403 auth, 404, 409 conflito, 422 regra de negócio, 500).
 

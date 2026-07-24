@@ -1,12 +1,22 @@
 import { api } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
 import { devBalanco, devDespesas, devInadimplentes } from "./devData";
-import { normalizarBalanco, normalizarInadimplentes } from "./financeiroNormalize";
-import type { Balanco, Despesa, Inadimplente, NovaDespesa } from "@/types/financeiroAdmin";
+import {
+  normalizarBalanco,
+  normalizarInadimplentes,
+} from "./financeiroNormalize";
+import type {
+  Balanco,
+  Despesa,
+  Inadimplente,
+  NovaDespesa,
+} from "@/types/financeiroAdmin";
 
 /** Balanço, inadimplentes e despesas (admin). Contrato: docs/03-Backend §5. */
 export const FinanceiroAdminService = {
-  async getBalanco(periodo = String(new Date().getFullYear())): Promise<Balanco> {
+  async getBalanco(
+    periodo = String(new Date().getFullYear()),
+  ): Promise<Balanco> {
     if (IS_DEV_DATA) return devBalanco();
     const { data } = await api.get("/financeiro/balanco", {
       params: { periodo },

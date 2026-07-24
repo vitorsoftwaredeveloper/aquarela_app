@@ -511,11 +511,14 @@
 }
 
 /* ---------------- PRICING ---------------- */
+/* flex + wrap (não grid): linhas incompletas (1 ou 2 planos) ficam
+   centralizadas em vez de esticar ou colar à esquerda — `justify-content`
+   se aplica por linha, então a última linha centraliza sozinha. */
 .planGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
-  align-items: stretch;
 }
 .planCard {
   position: relative;
@@ -526,6 +529,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
+  flex: 1 1 320px;
+  max-width: 360px;
 }
 .planFeatured {
   background: linear-gradient(160deg, #123b63, #0e2e4d);
@@ -811,7 +816,6 @@
 
 @media (max-width: 720px) {
   .grid3,
-  .planGrid,
   .statsInner {
     grid-template-columns: 1fr;
   }

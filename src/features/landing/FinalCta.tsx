@@ -9,9 +9,7 @@ export function FinalCta() {
         <span className={styles.finalBlobA} aria-hidden />
         <span className={styles.finalBlobB} aria-hidden />
         <div className={styles.finalInner}>
-          <h2 className={styles.finalTitle}>
-            Venha conhecer a Aquarela Kids
-          </h2>
+          <h2 className={styles.finalTitle}>Venha conhecer a Aquarela Kids</h2>
           <p className={styles.finalLead}>
             Agende uma visita e veja de perto como cuidamos de cada detalhe do
             dia do seu filho.

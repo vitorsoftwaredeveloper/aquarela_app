@@ -10,7 +10,12 @@ import {
   INTERCORRENCIA_TIPO,
   REFEICAO_CODIGO,
 } from "@/types/professorAgenda";
-import type { AgendaDia, AgendaEntry, Aviso, HistoricoDia } from "@/types/agenda";
+import type {
+  AgendaDia,
+  AgendaEntry,
+  Aviso,
+  HistoricoDia,
+} from "@/types/agenda";
 
 /** Documento cru devolvido por GET /agenda e GET /agenda/historico (docs §6) — mesma forma do POST. */
 interface AgendaRaw {
@@ -142,7 +147,8 @@ function toEntries(raw: AgendaRaw): AgendaEntry[] {
   for (const inc of raw.intercorrencias ?? []) {
     entries.push({
       tipo: "intercorrencia",
-      title: inc.descricao || INTERCORRENCIA_LABEL[inc.tipo] || "Intercorrência",
+      title:
+        inc.descricao || INTERCORRENCIA_LABEL[inc.tipo] || "Intercorrência",
       text: inc.hora,
       destaque: true,
     });
@@ -178,8 +184,7 @@ function toHistoricoDia(raw: AgendaRaw): HistoricoDia {
 
   const humorInfo = raw.humor ? HUMOR_INFO[raw.humor] : undefined;
   const alerta =
-    (raw.intercorrencias ?? []).map((i) => i.descricao).join(", ") ||
-    undefined;
+    (raw.intercorrencias ?? []).map((i) => i.descricao).join(", ") || undefined;
 
   return {
     data: raw.data.slice(0, 10),
@@ -200,7 +205,10 @@ export const AgendaService = {
    * Sem registro no dia a API responde `404` (comum, não é erro de verdade):
    * devolve agenda vazia em vez de propagar.
    */
-  async getDia(criancaId: string, data: string = hojeISO()): Promise<AgendaDia> {
+  async getDia(
+    criancaId: string,
+    data: string = hojeISO(),
+  ): Promise<AgendaDia> {
     if (IS_DEV_DATA) {
       const dia = devAgendaByChild[criancaId];
       if (dia) return dia;

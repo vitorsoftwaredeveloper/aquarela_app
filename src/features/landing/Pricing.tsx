@@ -1,9 +1,17 @@
 import { ArrowRight, Check } from "lucide-react";
 import { Button, Container } from "@/components";
+import { ConfigPrecosService } from "@/services/configPrecosService";
+import {
+  SUBTITULO_TIPO,
+  formatBRLCompacto,
+  inferirModo,
+} from "@/features/simulador/precos";
 import styles from "./landing.module.css";
-import { plans } from "./landing.data";
+import { FEATURE_ITEMS } from "./landing.data";
 
-export function Pricing() {
+export async function Pricing() {
+  const planosConfig = await ConfigPrecosService.listPlanos();
+
   return (
     <Container as="section" id="planos" className={styles.section}>
       <div className={styles.sectionHead}>
@@ -16,39 +24,59 @@ export function Pricing() {
       </div>
 
       <div className={styles.planGrid}>
-        {plans.map((p) => (
-          <div
-            key={p.name}
-            className={`${styles.planCard} ${p.featured ? styles.planFeatured : ""}`}
-          >
-            {p.badge && <div className={styles.planBadge}>{p.badge}</div>}
-            <div className={styles.planName}>{p.name}</div>
-            <div className={styles.planTagline}>{p.tagline}</div>
-            <div className={styles.planPrice}>
-              <span className={styles.planPriceValue}>{p.price}</span>
-              <span className={styles.planPer}>/ mês</span>
+        {planosConfig.map((p) => {
+          // O nome do plano já diz se é mensal ou por diária (mesma regra do
+          // simulador) — decide a unidade de preço mostrada aqui também.
+          const modo = inferirModo(p.nome);
+          const valor =
+            modo === "dias"
+              ? (p.valorDiario ?? Math.round(p.valorMensal / 30))
+              : p.valorMensal;
+          // "Mais escolhido" é copy fixa, marcada no plano integral mensal —
+          // não vem da API (não há dado de popularidade).
+          const featured = p.tipo === "integral" && modo === "meses";
+          return (
+            <div
+              key={p.nome}
+              className={`${styles.planCard} ${featured ? styles.planFeatured : ""}`}
+            >
+              {featured && (
+                <div className={styles.planBadge}>Mais escolhido</div>
+              )}
+              <div className={styles.planName}>{p.nome}</div>
+              <div className={styles.planTagline}>
+                {SUBTITULO_TIPO[p.tipo]}
+              </div>
+              <div className={styles.planPrice}>
+                <span className={styles.planPriceValue}>
+                  {formatBRLCompacto(valor)}
+                </span>
+                <span className={styles.planPer}>
+                  / {modo === "dias" ? "dia" : "mês"}
+                </span>
+              </div>
+              <div className={styles.planItems}>
+                {FEATURE_ITEMS[p.tipo].map((it) => (
+                  <div key={it} className={styles.planItem}>
+                    <span className={styles.planTick}>
+                      <Check size={18} />
+                    </span>
+                    {it}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.planCtaWrap}>
+                <Button
+                  href="#"
+                  variant={featured ? "onBrand" : "primary"}
+                  style={{ width: "100%" }}
+                >
+                  Agende uma visita
+                </Button>
+              </div>
             </div>
-            <div className={styles.planItems}>
-              {p.items.map((it) => (
-                <div key={it} className={styles.planItem}>
-                  <span className={styles.planTick}>
-                    <Check size={18} />
-                  </span>
-                  {it}
-                </div>
-              ))}
-            </div>
-            <div className={styles.planCtaWrap}>
-              <Button
-                href="#"
-                variant={p.featured ? "onBrand" : "primary"}
-                style={{ width: "100%" }}
-              >
-                Agende uma visita
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className={styles.simCta}>

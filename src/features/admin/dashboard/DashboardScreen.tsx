@@ -1,36 +1,42 @@
 "use client";
 
-import Link from "next/link";
 import {
-  Baby,
-  GraduationCap,
-  School,
   TrendingDown,
   TrendingUp,
   TriangleAlert,
-  UserCog,
   Wallet,
 } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
+import { CriancasAdminService } from "@/services/criancasAdmin";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
+import { TurmasService } from "@/services/turmas";
 import { formatBRL } from "@/types/financeiro";
-import { ErrorState, LoadingState } from "../ListState";
+import { ErrorState } from "../ListState";
 import { BalancoChart } from "./BalancoChart";
 import adminStyles from "../admin.module.css";
 import styles from "./dashboard.module.css";
 
-const ATALHOS = [
-  { href: "/admin/criancas", label: "Crianças", icon: Baby },
-  { href: "/admin/turmas", label: "Turmas", icon: School },
-  { href: "/admin/professores", label: "Professores", icon: GraduationCap },
-  { href: "/admin/usuarios", label: "Usuários", icon: UserCog },
-  { href: "/admin/financeiro", label: "Financeiro", icon: Wallet },
-];
-
 export function DashboardScreen() {
-  const { data, loading, error, reload } = useFetch(() =>
-    FinanceiroAdminService.getBalanco(),
-  );
+  // `/financeiro/balanco` não devolve inadimplentes/crianças ativas/turmas —
+  // esses contadores vêm de endpoints dedicados, não do resumo do balanço.
+  const { data, loading, error, reload } = useFetch(async () => {
+    const [balanco, inadimplentes, criancas, turmas] = await Promise.all([
+      FinanceiroAdminService.getBalanco(),
+      FinanceiroAdminService.getInadimplentes(),
+      CriancasAdminService.list(),
+      TurmasService.list(),
+    ]);
+    return {
+      ...balanco,
+      resumo: {
+        ...balanco.resumo,
+        inadimplentes: inadimplentes.length,
+        criancasAtivas: criancas.filter((c) => c.ativo).length,
+        turmas: turmas.length,
+      },
+    };
+  });
 
   return (
     <div className={adminStyles.page}>
@@ -44,9 +50,7 @@ export function DashboardScreen() {
       </div>
 
       {loading ? (
-        <div className={adminStyles.card}>
-          <LoadingState />
-        </div>
+        <DashboardSkeleton />
       ) : error || !data ? (
         <div className={adminStyles.card}>
           <ErrorState message={error ?? "Sem dados."} onRetry={reload} />
@@ -72,7 +76,9 @@ export function DashboardScreen() {
             />
             <Kpi
               label="Saldo do mês"
-              value={formatBRL(data.resumo.entradasMes - data.resumo.despesasMes)}
+              value={formatBRL(
+                data.resumo.entradasMes - data.resumo.despesasMes,
+              )}
               icon={<Wallet size={16} />}
               bg="var(--color-primary-soft)"
               fg="var(--color-primary-link)"
@@ -89,20 +95,38 @@ export function DashboardScreen() {
           </div>
 
           <BalancoChart meses={data.meses} />
-
-          <h2 className={styles.sectionTitle}>Atalhos</h2>
-          <div className={styles.shortcuts}>
-            {ATALHOS.map(({ href, label, icon: Icon }) => (
-              <Link key={href} href={href} className={styles.shortcut}>
-                <span className={styles.shortcutIcon}>
-                  <Icon size={18} />
-                </span>
-                {label}
-              </Link>
-            ))}
-          </div>
         </>
       )}
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div role="status" aria-label="Carregando…">
+      <div className={styles.kpiRow}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className={styles.kpi}>
+            <div className={styles.kpiHead}>
+              <Skeleton width={28} height={28} radius={9} />
+              <Skeleton width="60%" height={11} />
+            </div>
+            <Skeleton width="70%" height={26} style={{ marginBottom: 5 }} />
+            <Skeleton width="85%" height={11} />
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.chartFigure}>
+        <div className={styles.chartHead}>
+          <div>
+            <Skeleton width={160} height={16} style={{ marginBottom: 6 }} />
+            <Skeleton width={120} height={11} />
+          </div>
+          <Skeleton width={140} height={12} />
+        </div>
+        <Skeleton width="100%" height={180} radius="var(--radius-md)" />
+      </div>
     </div>
   );
 }

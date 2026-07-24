@@ -9,6 +9,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import type { PlanoTipo } from "@/types/configPrecos";
 
 /** Avatares empilhados na prova social do hero. */
 export const heroAvatars = [
@@ -28,10 +29,34 @@ export interface AgendaEntry {
 
 /** Mock de agenda exibido no mockup do celular. */
 export const mockAgenda: AgendaEntry[] = [
-  { icon: Utensils, bg: "#FDECEC", fg: "#C0342E", title: "Almoço completo", time: "11:20" },
-  { icon: Moon, bg: "#EAF3FC", fg: "#2F7FCB", title: "Soneca tranquila", time: "13:00" },
-  { icon: Camera, bg: "#E7F7F1", fg: "#2E9E7B", title: "Nova foto da turma", time: "15:10" },
-  { icon: Heart, bg: "#FBEAF3", fg: "#C0468A", title: "Dia feliz", time: "16:40" },
+  {
+    icon: Utensils,
+    bg: "#FDECEC",
+    fg: "#C0342E",
+    title: "Almoço completo",
+    time: "11:20",
+  },
+  {
+    icon: Moon,
+    bg: "#EAF3FC",
+    fg: "#2F7FCB",
+    title: "Soneca tranquila",
+    time: "13:00",
+  },
+  {
+    icon: Camera,
+    bg: "#E7F7F1",
+    fg: "#2E9E7B",
+    title: "Nova foto da turma",
+    time: "15:10",
+  },
+  {
+    icon: Heart,
+    bg: "#FBEAF3",
+    fg: "#C0468A",
+    title: "Dia feliz",
+    time: "16:40",
+  },
 ];
 
 export const stats = [
@@ -112,57 +137,26 @@ export const steps = [
   },
 ];
 
-export interface Plan {
-  name: string;
-  tagline: string;
-  price: string;
-  badge: string | null;
-  featured: boolean;
-  items: string[];
-}
-
-export const plans: Plan[] = [
-  {
-    name: "Meio período",
-    tagline: "Manhã ou tarde",
-    price: "R$ 890",
-    badge: null,
-    featured: false,
-    items: [
-      "4h por dia",
-      "Agenda diária e fotos",
-      "Avisos e recados",
-      "Financeiro no app",
-    ],
-  },
-  {
-    name: "Integral",
-    tagline: "O dia inteiro com a gente",
-    price: "R$ 1.490",
-    badge: "Mais escolhido",
-    featured: true,
-    items: [
-      "Até 10h por dia",
-      "Todas as refeições",
-      "Agenda, fotos e avisos",
-      "Canal direto com a educadora",
-      "Financeiro no app",
-    ],
-  },
-  {
-    name: "Avulso",
-    tagline: "Dias flexíveis",
-    price: "R$ 95",
-    badge: null,
-    featured: false,
-    items: [
-      "Por dia utilizado",
-      "Ideal para eventuais",
-      "Agenda diária e fotos",
-      "Sem mensalidade fixa",
-    ],
-  },
-];
+/**
+ * Itens de cada card de plano na landing — copy fixa, casada por `tipo`.
+ * Quais planos existem, nome e valores vêm da API
+ * (`ConfigPrecosService.listPlanos`, ver `Pricing.tsx`).
+ */
+export const FEATURE_ITEMS: Record<PlanoTipo, string[]> = {
+  integral: [
+    "Até 10h por dia",
+    "Todas as refeições",
+    "Agenda, fotos e avisos",
+    "Canal direto com a educadora",
+    "Financeiro no app",
+  ],
+  meioPeriodo: [
+    "4h por dia",
+    "Agenda diária e fotos",
+    "Avisos e recados",
+    "Financeiro no app",
+  ],
+};
 
 export interface Testimonial {
   stars: number;
@@ -211,6 +205,11 @@ export const footerCols = [
   },
   {
     title: "Contato",
-    links: ["WhatsApp", "Instagram", "contato@aquarelakids.com", "(11) 4000-0000"],
+    links: [
+      "WhatsApp",
+      "Instagram",
+      "contato@aquarelakids.com",
+      "(11) 4000-0000",
+    ],
   },
 ];

@@ -1,52 +1,29 @@
 /**
- * Tabela de referência do simulador.
+ * Cálculo do simulador — 100% no cliente a partir do `configPrecos` público
+ * (`ConfigPrecosService.listPlanos`, rota `GET /config/precos/planos`).
  *
- * A doc do backend permite o cálculo "100% no cliente" (docs/03-Backend §5).
- * Enquanto o `configPrecos` não estiver populado, estes valores são a fonte —
- * `simuladorService` tenta a API primeiro e cai aqui automaticamente.
+ * Os planos (nome, valores, descontos) não são mais fixos aqui: vêm do
+ * backend, com `PLANOS_PADRAO` (types/configPrecos.ts) como referência
+ * enquanto a lista carrega ou se a API estiver fora do ar.
  */
+import type { DescontoConfig, PlanoConfig, PlanoTipo } from "@/types/configPrecos";
 
-export type PlanoId = "integral" | "meio";
 export type Modo = "meses" | "dias";
 
-export interface PlanoPreco {
-  id: PlanoId;
-  label: string;
-  sub: string;
-  /** Valor cheio da mensalidade. */
-  mensal: number;
-  /** Valor da diária avulsa. */
-  diaria: number;
+/** Texto complementar por tipo — não vem do config (é só copy da landing). */
+export const SUBTITULO_TIPO: Record<PlanoTipo, string> = {
+  integral: "Até 10h por dia",
+  meioPeriodo: "Manhã ou tarde",
+};
+
+/**
+ * O nome do plano (ex.: "Diária Integral" vs "Mensal Integral") já indica o
+ * modo de cálculo — escolher um desses planos na tela decide "por meses" ou
+ * "dias avulsos" junto, sem precisar mexer no segmentado à parte.
+ */
+export function inferirModo(nome: string): Modo {
+  return /di[áa]ria/i.test(nome) ? "dias" : "meses";
 }
-
-export const PLANOS: PlanoPreco[] = [
-  {
-    id: "integral",
-    label: "Integral",
-    sub: "Até 10h por dia",
-    mensal: 1490,
-    diaria: 95,
-  },
-  {
-    id: "meio",
-    label: "Meio período",
-    sub: "Manhã ou tarde",
-    mensal: 890,
-    diaria: 65,
-  },
-];
-
-/** Descontos progressivos por período contratado (do maior para o menor). */
-const DESCONTOS_MESES: { min: number; pct: number; rotulo: string }[] = [
-  { min: 12, pct: 0.15, rotulo: "plano anual" },
-  { min: 6, pct: 0.1, rotulo: "plano semestral" },
-  { min: 3, pct: 0.05, rotulo: "plano trimestral" },
-];
-
-const DESCONTOS_DIAS: { min: number; pct: number; rotulo: string }[] = [
-  { min: 20, pct: 0.1, rotulo: "pacote de 20+ dias" },
-  { min: 10, pct: 0.05, rotulo: "pacote de 10+ dias" },
-];
 
 export const PRESETS: Record<Modo, number[]> = {
   meses: [1, 3, 6, 12],
@@ -65,18 +42,47 @@ export interface ResultadoSimulacao {
   descontoRotulo: string | null;
 }
 
+function rotuloDesconto(meses: number): string {
+  if (meses >= 12) return "plano anual";
+  if (meses >= 6) return "plano semestral";
+  if (meses >= 3) return "plano trimestral";
+  return `plano de ${meses} meses`;
+}
+
+/** Maior desconto aplicável (meses de corte mais alto que a quantidade cobre). */
+function melhorDesconto(
+  descontos: DescontoConfig[] | null | undefined,
+  qtd: number,
+): DescontoConfig | undefined {
+  return [...(descontos ?? [])]
+    .sort((a, b) => b.meses - a.meses)
+    .find((d) => qtd >= d.meses);
+}
+
 export function calcularSimulacao(
-  planoId: PlanoId,
+  plano: PlanoConfig,
   modo: Modo,
   quantidade: number,
 ): ResultadoSimulacao {
-  const plano = PLANOS.find((p) => p.id === planoId) ?? PLANOS[0];
   const qtd = Math.max(1, Math.floor(quantidade || 1));
-  const base = modo === "meses" ? plano.mensal : plano.diaria;
-  const tabela = modo === "meses" ? DESCONTOS_MESES : DESCONTOS_DIAS;
+  const base =
+    modo === "meses"
+      ? plano.valorMensal
+      : (plano.valorDiario ?? Math.round(plano.valorMensal / 30));
 
-  const faixa = tabela.find((d) => qtd >= d.min);
-  const descontoPct = faixa?.pct ?? 0;
+  // Desconto só existe para "meses" — é o que o admin configura
+  // (`plano.descontos`). "Dias" avulsos não tem desconto na API: não inventa
+  // um aqui, mesmo que fosse plausível.
+  let descontoPct = 0;
+  let descontoRotulo: string | null = null;
+
+  if (modo === "meses") {
+    const melhor = melhorDesconto(plano.descontos, qtd);
+    if (melhor) {
+      descontoPct = melhor.percentual / 100;
+      descontoRotulo = rotuloDesconto(melhor.meses);
+    }
+  }
 
   const totalCheio = base * qtd;
   const total = Math.round(totalCheio * (1 - descontoPct));
@@ -87,7 +93,7 @@ export function calcularSimulacao(
     totalCheio,
     economia: totalCheio - total,
     descontoPct,
-    descontoRotulo: faixa?.rotulo ?? null,
+    descontoRotulo,
   };
 }
 

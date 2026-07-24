@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -19,6 +19,7 @@ import {
   Thermometer,
   Utensils,
 } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
@@ -42,16 +43,31 @@ function toggle<T>(list: T[], item: T): T[] {
   return list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
 }
 
+/** `refeicao` vem em código da API (docs §6) — os chips usam o rótulo pt-BR. */
+const REFEICAO_LABEL: Record<string, string> = Object.fromEntries(
+  Object.entries(REFEICAO_CODIGO).map(([label, code]) => [code, label]),
+);
+
 export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
-  const crianca = useFetch(() => CriancasService.getById(criancaId), [criancaId]);
+  const crianca = useFetch(
+    () => CriancasService.getById(criancaId),
+    [criancaId],
+  );
+  const agendaExistente = useFetch(
+    () => ProfessorService.getAgendaDoDia(criancaId),
+    [criancaId],
+  );
   const c = crianca.data;
 
+  const [agendaId, setAgendaId] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
+
   const [refeicoes, setRefeicoes] = useState<string[]>([]);
-  const [aceitacao, setAceitacao] = useState<Aceitacao | null>(null);
-  const [sonoOn, setSonoOn] = useState(false);
-  const [sonoDe, setSonoDe] = useState("12:30");
-  const [sonoAte, setSonoAte] = useState("14:00");
+  const [aceitacaoPorRefeicao, setAceitacaoPorRefeicao] = useState<
+    Partial<Record<string, Aceitacao>>
+  >({});
+  const [sonecas, setSonecas] = useState<{ inicio: string; fim: string }[]>([]);
   const [atividades, setAtividades] = useState<string[]>([]);
   const [humor, setHumor] = useState<string | null>(null);
   const [fraldas, setFraldas] = useState(0);
@@ -66,22 +82,87 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const medicacoes = c?.cuidados?.medicacoes ?? [];
   const temCuidado = alergias.length > 0 || medicacoes.length > 0;
 
+  const carregando = crianca.loading || agendaExistente.loading;
+  const erroCarregar = crianca.error || agendaExistente.error;
+
+  // Pré-preenche o form quando já existe agenda hoje, para editar em vez de duplicar.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (prefilled || agendaExistente.loading) return;
+    const raw = agendaExistente.data;
+    if (!raw) {
+      setPrefilled(true);
+      return;
+    }
+
+    const refeicoesCarregadas: string[] = [];
+    const aceitacaoCarregada: Partial<Record<string, Aceitacao>> = {};
+    for (const item of raw.alimentacao ?? []) {
+      const label = REFEICAO_LABEL[item.refeicao] ?? item.refeicao;
+      refeicoesCarregadas.push(label);
+      aceitacaoCarregada[label] = item.aceitacao;
+    }
+
+    setAgendaId(raw._id);
+    setRefeicoes(refeicoesCarregadas);
+    setAceitacaoPorRefeicao(aceitacaoCarregada);
+    setSonecas(raw.sono ?? []);
+    setAtividades(raw.atividades ?? []);
+    setHumor(raw.humor ?? null);
+    setFraldas(raw.higiene?.fraldas ?? 0);
+    setIntercorrencias((raw.intercorrencias ?? []).map((i) => i.descricao));
+    setObservacoes(raw.observacoes ?? "");
+    setPrefilled(true);
+  }, [agendaExistente.loading, agendaExistente.data, prefilled]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  function toggleRefeicao(refeicao: string) {
+    setRefeicoes((prev) => toggle(prev, refeicao));
+    setAceitacaoPorRefeicao((prev) => {
+      if (!(refeicao in prev)) return prev;
+      const next = { ...prev };
+      delete next[refeicao];
+      return next;
+    });
+  }
+
+  function setAceitacaoDaRefeicao(refeicao: string, valor: Aceitacao) {
+    setAceitacaoPorRefeicao((prev) => ({
+      ...prev,
+      [refeicao]: prev[refeicao] === valor ? undefined : valor,
+    }));
+  }
+
+  function addSoneca() {
+    setSonecas((prev) => [...prev, { inicio: "12:30", fim: "14:00" }]);
+  }
+
+  function removeSoneca(index: number) {
+    setSonecas((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateSoneca(index: number, campo: "inicio" | "fim", valor: string) {
+    setSonecas((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, [campo]: valor } : s)),
+    );
+  }
+
   async function salvar() {
     setSaving(true);
     setSaveError(null);
-    // Salvamento otimista: o professor não espera a resposta.
-    setSaved(true);
+
+    const alimentacao = refeicoes
+      .filter((r) => aceitacaoPorRefeicao[r])
+      .map((refeicao) => ({
+        refeicao: REFEICAO_CODIGO[refeicao as keyof typeof REFEICAO_CODIGO],
+        aceitacao: aceitacaoPorRefeicao[refeicao]!,
+      }));
 
     const payload: AgendaRegistroPayload = {
       criancaId,
       data: hojeISO(),
-      alimentacao: aceitacao
-        ? refeicoes.map((refeicao) => ({
-            refeicao: REFEICAO_CODIGO[refeicao as keyof typeof REFEICAO_CODIGO],
-            aceitacao,
-          }))
-        : undefined,
-      sono: sonoOn ? [{ inicio: sonoDe, fim: sonoAte }] : undefined,
+      alimentacao: alimentacao.length ? alimentacao : undefined,
+      sono: sonecas.length ? sonecas : undefined,
       atividades: atividades.length ? atividades : undefined,
       humor: humor ?? undefined,
       higiene: fraldas > 0 ? { fraldas } : undefined,
@@ -98,9 +179,14 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     };
 
     try {
-      await ProfessorService.salvarAgenda(payload);
+      if (agendaId) {
+        await ProfessorService.atualizarAgenda(agendaId, payload);
+      } else {
+        await ProfessorService.salvarAgenda(payload);
+      }
+      setSaved(true);
+      setTimeout(() => router.back(), 700);
     } catch (err) {
-      setSaved(false);
       setSaveError(getApiErrorMessage(err));
     } finally {
       setSaving(false);
@@ -135,252 +221,294 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
           </div>
           <div className={styles.pushSub}>
             {c?.turmaNome ? `Turma ${c.turmaNome} · hoje` : "hoje"}
+            {agendaId && " · editando registro já salvo"}
           </div>
         </div>
       </div>
 
-      {temCuidado && (
-        <div className={styles.careStrip}>
-          {alergias.length > 0 && (
-            <span className={styles.careItem}>
-              <ShieldAlert size={14} /> Alergia: {alergias.join(", ")}
-            </span>
-          )}
-          {medicacoes.length > 0 && (
-            <span className={styles.careItem}>
-              <Pill size={14} /> {medicacoes.join(" · ")}
-            </span>
-          )}
+      {carregando ? (
+        <div className={styles.form} role="status" aria-label="Carregando agenda…">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <section key={i} className={styles.card}>
+              <Skeleton width={130} height={15} style={{ marginBottom: 14 }} />
+              <div className={styles.chipRow}>
+                {Array.from({ length: 4 }).map((_, c) => (
+                  <Skeleton key={c} width={72} height={34} radius={20} />
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
-      )}
+      ) : erroCarregar ? (
+        <div className={styles.state}>
+          <span className={styles.emptyBadge}>Erro</span>
+          <p>{erroCarregar}</p>
+        </div>
+      ) : (
+        <>
+          {temCuidado && (
+            <div className={styles.careStrip}>
+              {alergias.length > 0 && (
+                <span className={styles.careItem}>
+                  <ShieldAlert size={14} /> Alergia: {alergias.join(", ")}
+                </span>
+              )}
+              {medicacoes.length > 0 && (
+                <span className={styles.careItem}>
+                  <Pill size={14} /> {medicacoes.join(" · ")}
+                </span>
+              )}
+            </div>
+          )}
 
-      <div className={styles.form}>
-        {/* Alimentação */}
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <Utensils size={17} color="#2168B8" /> Alimentação
-          </div>
-          <div className={styles.chipRow}>
-            {REFEICOES.map((r) => (
-              <button
-                key={r}
-                type="button"
-                aria-pressed={refeicoes.includes(r)}
-                className={`${styles.chip} ${refeicoes.includes(r) ? styles.chipOn : ""}`}
-                onClick={() => setRefeicoes((prev) => toggle(prev, r))}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-          <div className={styles.subLabel}>Aceitação</div>
-          <div className={styles.chipRow}>
-            {ACEITACAO_OPTS.map((a) => (
-              <button
-                key={a.value}
-                type="button"
-                aria-pressed={aceitacao === a.value}
-                className={`${styles.chip} ${aceitacao === a.value ? styles.chipOn : ""}`}
-                onClick={() =>
-                  setAceitacao((prev) => (prev === a.value ? null : a.value))
-                }
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
-        </section>
+          <div className={styles.form}>
+            {/* Alimentação */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <Utensils size={17} color="#2168B8" /> Alimentação
+              </div>
+              <div className={styles.chipRow}>
+                {REFEICOES.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    aria-pressed={refeicoes.includes(r)}
+                    className={`${styles.chip} ${refeicoes.includes(r) ? styles.chipOn : ""}`}
+                    onClick={() => toggleRefeicao(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              {refeicoes.map((r) => (
+                <div key={r} className={styles.mealRow}>
+                  <div className={styles.mealLabel}>Aceitação · {r}</div>
+                  <div className={styles.chipRow}>
+                    {ACEITACAO_OPTS.map((a) => (
+                      <button
+                        key={a.value}
+                        type="button"
+                        aria-pressed={aceitacaoPorRefeicao[r] === a.value}
+                        className={`${styles.chip} ${aceitacaoPorRefeicao[r] === a.value ? styles.chipOn : ""}`}
+                        onClick={() => setAceitacaoDaRefeicao(r, a.value)}
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </section>
 
-        {/* Sono */}
-        <section className={styles.card}>
-          <div className={`${styles.cardHead} ${styles.cardHeadRow}`}>
-            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Moon size={17} color="#2168B8" /> Sono
-            </span>
-            {sonoOn && (
+            {/* Sono */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <Moon size={17} color="#2168B8" /> Sono
+              </div>
+              {sonecas.length > 0 && (
+                <div className={styles.sleepBlock}>
+                  {sonecas.map((s, i) => (
+                    <div key={i} className={styles.sleepRow}>
+                      <input
+                        type="time"
+                        className={styles.timeInput}
+                        value={s.inicio}
+                        onChange={(e) =>
+                          updateSoneca(i, "inicio", e.target.value)
+                        }
+                        aria-label={`Início da soneca ${i + 1}`}
+                      />
+                      <span className={styles.sleepSep}>até</span>
+                      <input
+                        type="time"
+                        className={styles.timeInput}
+                        value={s.fim}
+                        onChange={(e) => updateSoneca(i, "fim", e.target.value)}
+                        aria-label={`Fim da soneca ${i + 1}`}
+                      />
+                      <button
+                        type="button"
+                        className={styles.removeBtn}
+                        onClick={() => removeSoneca(i)}
+                      >
+                        remover
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <button
                 type="button"
-                className={styles.removeBtn}
-                onClick={() => setSonoOn(false)}
+                className={styles.addBtn}
+                onClick={addSoneca}
               >
-                remover
+                + adicionar {sonecas.length > 0 ? "outra soneca" : "soneca"}
               </button>
+            </section>
+
+            {/* Atividades */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <Palette size={17} color="#2E9E7B" /> Atividades
+              </div>
+              <div className={styles.chipWrap}>
+                {ATIVIDADES.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    aria-pressed={atividades.includes(a)}
+                    className={`${styles.chip} ${styles.chipPill} ${
+                      atividades.includes(a) ? styles.chipOnGreen : ""
+                    }`}
+                    onClick={() => setAtividades((prev) => toggle(prev, a))}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Humor */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <Smile size={17} color="#2E9E7B" /> Humor
+              </div>
+              <div className={styles.chipRow}>
+                {HUMORES.map((h) => (
+                  <button
+                    key={h.value}
+                    type="button"
+                    aria-pressed={humor === h.value}
+                    className={`${styles.moodBtn} ${humor === h.value ? styles.chipOnGreen : ""}`}
+                    onClick={() =>
+                      setHumor((prev) => (prev === h.value ? null : h.value))
+                    }
+                  >
+                    {humor === h.value && (
+                      <span className={styles.moodCheck} aria-hidden>
+                        <Check size={11} />
+                      </span>
+                    )}
+                    <span className={styles.moodEmoji} aria-hidden>
+                      {h.emoji}
+                    </span>
+                    <span className={styles.moodLabel}>{h.label}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Higiene */}
+            <section className={`${styles.card} ${styles.counterCard}`}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Baby size={17} color="#2168B8" />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13.5 }}>Higiene</div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-dim)",
+                      marginTop: 1,
+                    }}
+                  >
+                    Trocas de fralda
+                  </div>
+                </div>
+              </div>
+              <div className={styles.counter}>
+                <button
+                  type="button"
+                  className={styles.counterBtn}
+                  onClick={() => setFraldas((n) => Math.max(0, n - 1))}
+                  aria-label="Menos uma troca"
+                >
+                  <Minus size={17} />
+                </button>
+                <span className={styles.counterValue} aria-live="polite">
+                  {fraldas}
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.counterBtn} ${styles.counterBtnPlus}`}
+                  onClick={() => setFraldas((n) => n + 1)}
+                  aria-label="Mais uma troca"
+                >
+                  <Plus size={17} />
+                </button>
+              </div>
+            </section>
+
+            {/* Intercorrência */}
+            <section className={styles.card}>
+              <div className={styles.cardHead} style={{ marginBottom: 0 }}>
+                <Thermometer size={17} color="#C0342E" /> Intercorrência
+              </div>
+              <div className={styles.cardHint}>
+                Marque se algo aconteceu — o responsável é avisado.
+              </div>
+              <div className={styles.chipWrap}>
+                {INTERCORRENCIAS.map((i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-pressed={intercorrencias.includes(i)}
+                    className={`${styles.chip} ${styles.chipPill} ${
+                      intercorrencias.includes(i) ? styles.chipOnRed : ""
+                    }`}
+                    onClick={() =>
+                      setIntercorrencias((prev) => toggle(prev, i))
+                    }
+                  >
+                    {i}
+                  </button>
+                ))}
+              </div>
+              {intercorrencias.length > 0 && (
+                <div className={styles.incidentAlert}>
+                  <Bell size={15} /> Um alerta será enviado ao responsável ao
+                  salvar.
+                </div>
+              )}
+            </section>
+
+            {/* Observações */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <FileText size={17} color="var(--text-dim)" /> Observações
+              </div>
+              <textarea
+                className={styles.textarea}
+                placeholder="Um recado carinhoso para a família…"
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+              />
+            </section>
+
+            <button
+              type="button"
+              className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ""}`}
+              onClick={salvar}
+              disabled={saving || saved}
+            >
+              {saved ? (
+                <>
+                  <Check size={18} /> Agenda salva
+                </>
+              ) : saving ? (
+                "Salvando…"
+              ) : (
+                "Salvar agenda"
+              )}
+            </button>
+
+            {saveError && (
+              <div className={styles.saveError} role="alert">
+                <AlertCircle size={16} /> <span>{saveError}</span>
+              </div>
             )}
           </div>
-          {sonoOn ? (
-            <div className={styles.sleepRow}>
-              <input
-                type="time"
-                className={styles.timeInput}
-                value={sonoDe}
-                onChange={(e) => setSonoDe(e.target.value)}
-                aria-label="Início da soneca"
-              />
-              <span className={styles.sleepSep}>até</span>
-              <input
-                type="time"
-                className={styles.timeInput}
-                value={sonoAte}
-                onChange={(e) => setSonoAte(e.target.value)}
-                aria-label="Fim da soneca"
-              />
-            </div>
-          ) : (
-            <button
-              type="button"
-              className={styles.addBtn}
-              onClick={() => setSonoOn(true)}
-            >
-              + adicionar soneca
-            </button>
-          )}
-        </section>
-
-        {/* Atividades */}
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <Palette size={17} color="#2E9E7B" /> Atividades
-          </div>
-          <div className={styles.chipWrap}>
-            {ATIVIDADES.map((a) => (
-              <button
-                key={a}
-                type="button"
-                aria-pressed={atividades.includes(a)}
-                className={`${styles.chip} ${styles.chipPill} ${
-                  atividades.includes(a) ? styles.chipOnGreen : ""
-                }`}
-                onClick={() => setAtividades((prev) => toggle(prev, a))}
-              >
-                {a}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Humor */}
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <Smile size={17} color="#2E9E7B" /> Humor
-          </div>
-          <div className={styles.chipRow}>
-            {HUMORES.map((h) => (
-              <button
-                key={h.value}
-                type="button"
-                aria-pressed={humor === h.value}
-                className={`${styles.moodBtn} ${humor === h.value ? styles.chipOnGreen : ""}`}
-                onClick={() =>
-                  setHumor((prev) => (prev === h.value ? null : h.value))
-                }
-              >
-                <span className={styles.moodEmoji} aria-hidden>
-                  {h.emoji}
-                </span>
-                <span className={styles.moodLabel}>{h.label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Higiene */}
-        <section className={`${styles.card} ${styles.counterCard}`}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Baby size={17} color="#2168B8" />
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 13.5 }}>Higiene</div>
-              <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 1 }}>
-                Trocas de fralda
-              </div>
-            </div>
-          </div>
-          <div className={styles.counter}>
-            <button
-              type="button"
-              className={styles.counterBtn}
-              onClick={() => setFraldas((n) => Math.max(0, n - 1))}
-              aria-label="Menos uma troca"
-            >
-              <Minus size={17} />
-            </button>
-            <span className={styles.counterValue} aria-live="polite">
-              {fraldas}
-            </span>
-            <button
-              type="button"
-              className={`${styles.counterBtn} ${styles.counterBtnPlus}`}
-              onClick={() => setFraldas((n) => n + 1)}
-              aria-label="Mais uma troca"
-            >
-              <Plus size={17} />
-            </button>
-          </div>
-        </section>
-
-        {/* Intercorrência */}
-        <section className={styles.card}>
-          <div className={styles.cardHead} style={{ marginBottom: 0 }}>
-            <Thermometer size={17} color="#C0342E" /> Intercorrência
-          </div>
-          <div className={styles.cardHint}>
-            Marque se algo aconteceu — o responsável é avisado.
-          </div>
-          <div className={styles.chipWrap}>
-            {INTERCORRENCIAS.map((i) => (
-              <button
-                key={i}
-                type="button"
-                aria-pressed={intercorrencias.includes(i)}
-                className={`${styles.chip} ${styles.chipPill} ${
-                  intercorrencias.includes(i) ? styles.chipOnRed : ""
-                }`}
-                onClick={() => setIntercorrencias((prev) => toggle(prev, i))}
-              >
-                {i}
-              </button>
-            ))}
-          </div>
-          {intercorrencias.length > 0 && (
-            <div className={styles.incidentAlert}>
-              <Bell size={15} /> Um alerta será enviado ao responsável ao salvar.
-            </div>
-          )}
-        </section>
-
-        {/* Observações */}
-        <section className={styles.card}>
-          <div className={styles.cardHead}>
-            <FileText size={17} color="var(--text-dim)" /> Observações
-          </div>
-          <textarea
-            className={styles.textarea}
-            placeholder="Um recado carinhoso para a família…"
-            value={observacoes}
-            onChange={(e) => setObservacoes(e.target.value)}
-          />
-        </section>
-
-        <button
-          type="button"
-          className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ""}`}
-          onClick={salvar}
-          disabled={saving}
-        >
-          {saved ? (
-            <>
-              <Check size={18} /> Agenda salva
-            </>
-          ) : (
-            "Salvar agenda"
-          )}
-        </button>
-
-        {saveError && (
-          <div className={styles.saveError} role="alert">
-            <AlertCircle size={16} /> <span>{saveError}</span>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

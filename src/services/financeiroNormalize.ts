@@ -1,8 +1,18 @@
 import type { Balanco, Inadimplente } from "@/types/financeiroAdmin";
 
 const MESES_CURTO = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
 ];
 
 const num = (v: unknown): number => {
@@ -19,10 +29,15 @@ const num = (v: unknown): number => {
  */
 export function normalizarBalanco(bruto: unknown): Balanco {
   const raiz = (bruto ?? {}) as Record<string, unknown>;
-  const corpo = (raiz.data ?? raiz) as Record<string, unknown>;
+  const corpoBruto = (raiz.data ?? raiz) as unknown;
+  // A API pode devolver o array de meses direto em `data`, sem envelope
+  // `{ resumo, meses }` — nesse caso não existe objeto `resumo` nenhum.
+  const arrayDireto = Array.isArray(corpoBruto) ? corpoBruto : undefined;
+  const corpo = (arrayDireto ? {} : corpoBruto) as Record<string, unknown>;
   const resumoBruto = (corpo.resumo ?? corpo) as Record<string, unknown>;
 
-  const mesesBrutos = (corpo.meses ??
+  const mesesBrutos = (arrayDireto ??
+    corpo.meses ??
     corpo.balanco ??
     corpo.mensal ??
     []) as unknown[];
@@ -40,10 +55,19 @@ export function normalizarBalanco(bruto: unknown): Balanco {
     };
   });
 
+  const hoje = new Date();
+  const mesAtual = meses.find(
+    (m) => m.ano === hoje.getFullYear() && m.mes === hoje.getMonth() + 1,
+  );
+
   return {
     resumo: {
-      entradasMes: num(resumoBruto.entradasMes ?? resumoBruto.entradas),
-      despesasMes: num(resumoBruto.despesasMes ?? resumoBruto.despesas),
+      entradasMes:
+        num(resumoBruto.entradasMes ?? resumoBruto.entradas) ||
+        (mesAtual?.entradas ?? 0),
+      despesasMes:
+        num(resumoBruto.despesasMes ?? resumoBruto.despesas) ||
+        (mesAtual?.despesas ?? 0),
       inadimplentes: num(resumoBruto.inadimplentes),
       criancasAtivas: num(resumoBruto.criancasAtivas),
       turmas: num(resumoBruto.turmas),

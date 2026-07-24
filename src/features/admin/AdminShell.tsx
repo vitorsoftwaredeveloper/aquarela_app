@@ -25,7 +25,11 @@ const NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/admin/usuarios", label: "Usuários", icon: UserCog },
   { href: "/admin/avisos", label: "Avisos", icon: Megaphone },
   { href: "/admin/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "/admin/simulador", label: "Valores do simulador", icon: SlidersHorizontal },
+  {
+    href: "/admin/simulador",
+    label: "Valores do simulador",
+    icon: SlidersHorizontal,
+  },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

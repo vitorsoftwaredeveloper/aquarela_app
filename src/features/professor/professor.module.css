@@ -433,12 +433,35 @@
   color: var(--color-danger-strong);
 }
 
+/* Alimentação — aceitação por refeição */
+.mealRow {
+  margin-top: 11px;
+}
+.mealRow + .mealRow {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-07);
+}
+.mealLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 7px;
+}
+
 /* Sono */
+.sleepBlock {
+  margin-top: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .sleepRow {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin-top: 11px;
 }
 .timeInput {
   flex: 1;
@@ -478,6 +501,7 @@
 
 /* Humor */
 .moodBtn {
+  position: relative;
   flex: 1;
   border: 1.5px solid var(--border-12);
   background: var(--surface-2);
@@ -497,6 +521,26 @@
 .moodLabel {
   font-size: 10.5px;
   font-weight: 600;
+}
+.moodBtn.chipOnGreen {
+  border-width: 2px;
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary-strong);
+}
+.moodCheck {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-secondary-strong);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
 }
 
 /* Higiene (contador) */

@@ -25,7 +25,10 @@ export const ProfessoresService = {
     return data.data;
   },
 
-  async update(id: string, payload: Partial<EditProfessor>): Promise<Professor> {
+  async update(
+    id: string,
+    payload: Partial<EditProfessor>,
+  ): Promise<Professor> {
     const { data } = await api.put(`/professores/${id}`, payload);
     return data.data;
   },

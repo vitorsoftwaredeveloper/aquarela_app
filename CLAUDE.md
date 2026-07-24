@@ -160,17 +160,24 @@ responsável→`/inicio` (`HOME_BY_ROLE`).
 
 **Épico B/F — Professor (front):** T-09 (Minhas turmas, com pendências do dia),
 T-10 (Alunos da turma, com marcador de alergia e status da agenda) e **T-11
-Registrar agenda** ✅ — chips de refeição/aceitação, soneca, atividades, humor,
-contador de fraldas, intercorrências (com aviso de alerta ao responsável),
-observações e **salvamento otimista**. Consomem `services/professorService.ts`.
+Registrar agenda** ✅ — chips de refeição com **aceitação por refeição**
+(cada refeição marcada abre seu próprio seletor de aceitação), **múltiplas
+sonecas** (lista com "+ adicionar outra soneca"), atividades, humor, contador
+de fraldas, intercorrências (com aviso de alerta ao responsável), observações.
+Botão segue o mesmo padrão `isSubmitting ? "Salvando…" : …` das telas admin
+(`saving`/`saved` reais, não otimista) e volta (`router.back()`) para a lista
+de alunos da turma ao concluir. Consomem `services/professorService.ts`.
 
 **PED-02 Planos de aula (professor)** ✅ FE — CRUD (`PlanosAulaScreen` +
 `PlanoAulaFormScreen`) acessível pelo ícone de livro na tela de Alunos da turma;
 título/descrição/data + chips de objetivos/materiais (`TagInput` reaproveitado
-de `features/admin/criancas`). Consome `services/planosAula.ts`. **PED-01 (rotas
-no back) ainda não existe** — contrato assumido documentado em
-`docs/03-Backend.md` (`/turmas/{turmaId}/planos-aula`); a tela funciona hoje via
-`NEXT_PUBLIC_USE_MOCKS=true`.
+de `features/admin/criancas`). Consome `services/planosAula.ts`. **PED-01
+implementado** no `aquarela_serverless` (ainda não commitado/deployado lá) —
+rota real é `/planosAula` (não sub-recurso de turma): `GET ?turmaId=`,
+`POST`/`PUT` com `turmaId` no body, sem GET por id (`getById` do front filtra
+a lista em memória). Contrato atualizado em `docs/03-Backend.md`. A tela
+também funciona via `NEXT_PUBLIC_USE_MOCKS=true` para preview sem depender do
+deploy do backend.
 
 > **Rotas por papel (sem colisão):** admin em `/admin/*`, professor em
 > `/professor/*`, responsável na raiz (`/inicio`, `/agenda/[id]`, `/financeiro`…).
@@ -190,16 +197,28 @@ Consomem `services/financeiroAdminService.ts`.
 > cor da série) e tooltip por marca acessível via hover **e** teclado.
 
 **Épico E — Simulador (front):** SIM-03/SIM-04 ✅ — tela pública `/simulador` com
-plano (Integral/Meio período), modo **por meses ou dias avulsos**, contador +
-presets, resultado com **desconto progressivo por período** e comparativo em
-barras. Tabela de referência em `features/simulador/precos.ts`;
-`simuladorService` tenta `GET /simulador` e cai no cálculo local (previsto na
-doc) enquanto o `configPrecos` não estiver populado.
+plano (lista dinâmica, não mais fixa em Integral/Meio período), modo **por
+meses ou dias avulsos**, contador + presets, resultado com **desconto
+progressivo por período** e comparativo em barras. Planos e cálculo vêm de
+`ConfigPrecosService.listPlanos()` (`GET /config/precos/planos`, rota pública,
+sem token) — `PLANOS_PADRAO` (`types/configPrecos.ts`) só serve de valor
+instantâneo enquanto a lista carrega ou se a API estiver fora do ar. O cálculo
+de desconto por meses é **100% no cliente** (`features/simulador/precos.ts`)
+usando só os `descontos` reais do admin — **dias avulsos nunca tem desconto**,
+mesmo em quantidade alta, porque o `configPrecos` só cobre meses e a tela não
+inventa desconto que a API não informou. A landing (`Pricing.tsx`) consome a
+mesma lista para os cards de preço, casando por `tipo` — uma única chamada em
+vez de uma por plano.
 
-> A API é **sondada no máximo uma vez por carregamento**: o estado da sondagem é
-> marcado de forma síncrona (antes do `await`). Sem isso, o efeito duplicado do
-> StrictMode + cliques nos controles disparavam 8+ requisições 404 em paralelo,
-> porque todas partiam antes de a primeira falhar.
+> **Selecionar um plano decide o modo junto:** o nome do plano (`inferirModo`
+> em `precos.ts`) diz se é "Diária" (→ modo dias) ou "Mensal" (→ modo meses) —
+> clicar num plano diário já troca o segmentado para "Dias avulsos" e
+> vice-versa, sem o usuário ter que ajustar os dois separadamente.
+
+> O antigo `simuladorService` (que sondava `GET /simulador` com uma máquina de
+> estado pra evitar corrida do StrictMode) foi removido: com os planos
+> completos (inclusive `descontos`) públicos, o front não precisa mais tentar
+> a rota de cálculo do backend e cair no local — já calcula certo direto.
 
 > **Preview sem backend (`NEXT_PUBLIC_USE_MOCKS=true`):** liga login demo + fixtures
 > locais (`services/devData.ts`) mesmo com Cognito já configurado, para prever as

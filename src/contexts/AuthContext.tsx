@@ -20,8 +20,7 @@ import type { AppUser, Role } from "@/types/user";
 
 /** Resultado normalizado de um passo de autenticação. */
 export type AuthStep =
-  | { done: true }
-  | { done: false; challenge: "NEW_PASSWORD" | "UNSUPPORTED" };
+  { done: true } | { done: false; challenge: "NEW_PASSWORD" | "UNSUPPORTED" };
 
 interface AuthContextData {
   user: AppUser | null;

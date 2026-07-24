@@ -11,7 +11,7 @@ import { ProfessoresService } from "@/services/professores";
 import { getApiErrorMessage } from "@/services/apiError";
 import { turmaSchema, type TurmaFormData } from "@/schemas/turma";
 import { formatFaixa, type Turma } from "@/types/turma";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function TurmasScreen() {
@@ -64,7 +64,7 @@ export function TurmasScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={6} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : !data || data.length === 0 ? (
@@ -162,15 +162,20 @@ export function TurmasScreen() {
             <Button variant="secondary" onClick={() => setDeleting(null)}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={confirmDelete} disabled={deleteBusy}>
+            <Button
+              variant="primary"
+              onClick={confirmDelete}
+              disabled={deleteBusy}
+            >
               {deleteBusy ? "Removendo…" : "Remover"}
             </Button>
           </>
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b>? Se houver crianças ativas, realoque-as
-          antes (o backend bloqueia a remoção). Soft delete preserva o histórico.
+          Remover <b>{deleting?.nome}</b>? Se houver crianças ativas,
+          realoque-as antes (o backend bloqueia a remoção). Soft delete preserva
+          o histórico.
         </p>
         {deleteError && (
           <div
@@ -309,7 +314,14 @@ function TurmaForm({
           Cadastre um professor antes de criar a turma.
         </p>
       )}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 10,
+          marginTop: 6,
+        }}
+      >
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancelar
         </Button>

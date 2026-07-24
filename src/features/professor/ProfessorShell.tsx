@@ -2,12 +2,39 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { School, User, type LucideIcon } from "lucide-react";
+import { BookOpen, School, User, type LucideIcon } from "lucide-react";
 import styles from "./professor.module.css";
 
-const TABS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/professor/turmas", label: "Turmas", icon: School },
-  { href: "/professor/perfil", label: "Perfil", icon: User },
+const TABS: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  isActive: (pathname: string) => boolean;
+}[] = [
+  {
+    href: "/professor/turmas",
+    label: "Turmas",
+    icon: School,
+    // Planos de aula é sub-rota de turmas na URL, mas pertence à tab "Planos".
+    isActive: (pathname) =>
+      !pathname.includes("/planos-aula") &&
+      (pathname === "/professor/turmas" ||
+        pathname.startsWith("/professor/turmas/")),
+  },
+  {
+    href: "/professor/planos-aula",
+    label: "Planos",
+    icon: BookOpen,
+    isActive: (pathname) => pathname.includes("/planos-aula"),
+  },
+  {
+    href: "/professor/perfil",
+    label: "Perfil",
+    icon: User,
+    isActive: (pathname) =>
+      pathname === "/professor/perfil" ||
+      pathname.startsWith("/professor/perfil/"),
+  },
 ];
 
 export function ProfessorShell({ children }: { children: React.ReactNode }) {
@@ -18,8 +45,8 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
       <div className={styles.viewport}>
         <div className={styles.scroll}>{children}</div>
         <nav className={styles.tabbar} aria-label="Navegação">
-          {TABS.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || pathname.startsWith(href + "/");
+          {TABS.map(({ href, label, icon: Icon, isActive }) => {
+            const active = isActive(pathname);
             return (
               <Link
                 key={href}

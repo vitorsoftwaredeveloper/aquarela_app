@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -32,9 +33,20 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
       </div>
 
       {historico.loading ? (
-        <div className={styles.state}>
-          <span className={styles.spinner} aria-hidden />
-          <span>Carregando…</span>
+        <div className={styles.histList} role="status" aria-label="Carregando…">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.histCard}>
+              <div className={styles.histHead}>
+                <Skeleton width={80} height={13} />
+                <Skeleton width={60} height={12} />
+              </div>
+              <div className={styles.histChips}>
+                <Skeleton width={54} height={19} radius={20} />
+                <Skeleton width={70} height={19} radius={20} />
+                <Skeleton width={46} height={19} radius={20} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : dias.length === 0 ? (
         <div className={styles.state}>

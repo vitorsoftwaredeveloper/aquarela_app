@@ -10,3 +10,4 @@ export { SignOutButton } from "./SignOutButton/SignOutButton";
 export { Logo } from "./Logo/Logo";
 export { ThemeToggle } from "./ThemeToggle/ThemeToggle";
 export { RoleGuard } from "./RoleGuard/RoleGuard";
+export { Skeleton } from "./Skeleton/Skeleton";

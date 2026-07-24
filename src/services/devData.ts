@@ -9,26 +9,32 @@ import type { Mensalidade } from "@/types/financeiro";
 import type { Turma } from "@/types/turma";
 import type { CriancaCadastro } from "@/types/criancaCadastro";
 import type { PlanoAula } from "@/types/planoAula";
-import type {
-  Balanco,
-  Despesa,
-  Inadimplente,
-} from "@/types/financeiroAdmin";
+import type { Balanco, Despesa, Inadimplente } from "@/types/financeiroAdmin";
 
 const MESES_CURTO = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
 ];
 
 /** 12 meses de entradas × despesas para o gráfico do dashboard. */
 export function devBalanco(): Balanco {
   const entradasBase = [
-    38200, 39800, 41100, 40500, 42800, 43600,
-    42300, 44100, 45200, 44800, 46300, 47100,
+    38200, 39800, 41100, 40500, 42800, 43600, 42300, 44100, 45200, 44800, 46300,
+    47100,
   ];
   const despesasBase = [
-    17400, 18100, 17900, 19200, 18600, 19800,
-    18900, 20100, 19400, 21000, 20300, 21600,
+    17400, 18100, 17900, 19200, 18600, 19800, 18900, 20100, 19400, 21000, 20300,
+    21600,
   ];
   const meses = MESES_CURTO.map((mesLabel, i) => ({
     ano: 2026,
@@ -80,10 +86,34 @@ export const devInadimplentes: Inadimplente[] = [
 ];
 
 export const devDespesas: Despesa[] = [
-  { _id: "d1", descricao: "Compra de alimentos — semana 3", categoria: "Alimentação", valor: 2340, data: "2026-07-15" },
-  { _id: "d2", descricao: "Folha de pagamento — julho", categoria: "Pessoal", valor: 12800, data: "2026-07-05" },
-  { _id: "d3", descricao: "Tinta e papel para atividades", categoria: "Material pedagógico", valor: 480, data: "2026-07-11" },
-  { _id: "d4", descricao: "Conta de energia", categoria: "Contas (água/luz/internet)", valor: 920, data: "2026-07-08" },
+  {
+    _id: "d1",
+    descricao: "Compra de alimentos — semana 3",
+    categoria: "Alimentação",
+    valor: 2340,
+    data: "2026-07-15",
+  },
+  {
+    _id: "d2",
+    descricao: "Folha de pagamento — julho",
+    categoria: "Pessoal",
+    valor: 12800,
+    data: "2026-07-05",
+  },
+  {
+    _id: "d3",
+    descricao: "Tinta e papel para atividades",
+    categoria: "Material pedagógico",
+    valor: 480,
+    data: "2026-07-11",
+  },
+  {
+    _id: "d4",
+    descricao: "Conta de energia",
+    categoria: "Contas (água/luz/internet)",
+    valor: 920,
+    data: "2026-07-08",
+  },
 ];
 
 export const devTurmas: Turma[] = [
@@ -115,7 +145,8 @@ export const devPlanosAula: PlanoAula[] = [
     turmaId: "t-girassol",
     professorId: "p-alice",
     titulo: "Cores primárias",
-    descricao: "Exploração sensorial com tintas atóxicas nas cores azul, vermelho e amarelo.",
+    descricao:
+      "Exploração sensorial com tintas atóxicas nas cores azul, vermelho e amarelo.",
     data: "2026-07-21",
     objetivos: ["Reconhecer cores", "Coordenação motora"],
     materiais: ["Tinta guache", "Papel kraft"],
@@ -165,7 +196,12 @@ export const devCriancasCadastro: CriancaCadastro[] = [
       alergias: ["amendoim"],
       restricoesAlimentares: ["sem lactose"],
       medicacoesContinuas: [
-        { nome: "Dipirona", dose: "10 gotas", horario: "09:00", observacao: "se febre" },
+        {
+          nome: "Dipirona",
+          dose: "10 gotas",
+          horario: "09:00",
+          observacao: "se febre",
+        },
       ],
       condicoesAtipicas: [],
       cuidadosEspeciais: "",
@@ -233,7 +269,11 @@ const agendaLorena: AgendaDia = {
       title: "Alimentação",
       text: "Comeu bem no almoço, recusou o lanche da tarde.",
     },
-    { tipo: "sono", title: "Soneca", text: "Dormiu das 12:30 às 14:00, tranquila." },
+    {
+      tipo: "sono",
+      title: "Soneca",
+      text: "Dormiu das 12:30 às 14:00, tranquila.",
+    },
     {
       tipo: "atividade",
       title: "Atividades",
@@ -260,9 +300,21 @@ const agendaTheo: AgendaDia = {
   dataLabel: "Terça, 16 jul",
   registradoPor: "Prof. Bruno",
   entries: [
-    { tipo: "alimentacao", title: "Alimentação", text: "Comeu tudo, repetiu o almoço." },
-    { tipo: "sono", title: "Soneca", text: "Não dormiu, brincou no cantinho da leitura." },
-    { tipo: "atividade", title: "Atividades", text: "Circuito motor e contação de história." },
+    {
+      tipo: "alimentacao",
+      title: "Alimentação",
+      text: "Comeu tudo, repetiu o almoço.",
+    },
+    {
+      tipo: "sono",
+      title: "Soneca",
+      text: "Não dormiu, brincou no cantinho da leitura.",
+    },
+    {
+      tipo: "atividade",
+      title: "Atividades",
+      text: "Circuito motor e contação de história.",
+    },
     { tipo: "humor", title: "Humor", text: "Animado e comunicativo." },
   ],
 };

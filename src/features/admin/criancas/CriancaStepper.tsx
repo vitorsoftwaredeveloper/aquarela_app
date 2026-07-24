@@ -21,7 +21,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Button, Input, Modal, Select, Stepper } from "@/components";
+import { Button, Input, Modal, Select, Skeleton, Stepper } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { UsuariosService } from "@/services/usuarios";
@@ -43,7 +43,7 @@ import {
 import { maskCPF, maskPhone } from "@/utils/cpf";
 import { formatBRL } from "@/types/financeiro";
 import { TagInput } from "./TagInput";
-import { ErrorState, LoadingState } from "../ListState";
+import { ErrorState } from "../ListState";
 import adminStyles from "../admin.module.css";
 import styles from "./criancas.module.css";
 
@@ -217,8 +217,26 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
       </div>
 
       {editing && existente.loading ? (
-        <div className={styles.stepCard}>
-          <LoadingState />
+        <div className={styles.stepperWrap} style={{ marginBottom: 0 }}>
+          <div className={styles.stepCard}>
+            <Skeleton width={140} height={18} style={{ marginBottom: 18 }} />
+            <div className={styles.fields}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i}>
+                  <Skeleton
+                    width="30%"
+                    height={11}
+                    style={{ marginBottom: 8 }}
+                  />
+                  <Skeleton
+                    width="100%"
+                    height={44}
+                    radius="var(--radius-md)"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : editing && existente.error ? (
         <div className={styles.stepCard}>
@@ -231,105 +249,45 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className={styles.stepCard}>
-          {submitError && (
-            <div className={styles.alert} role="alert">
-              <AlertCircle size={18} />
-              <span>{submitError}</span>
-            </div>
-          )}
-
-          {/* ---------- 1. Identificação ---------- */}
-          {step === 0 && (
-            <>
-              <div className={styles.stepTitle}>Identificação</div>
-              <p className={styles.stepHint}>
-                Dados básicos da criança e a turma em que ela será matriculada.
-              </p>
-              <div className={styles.fields}>
-                <Input
-                  label="Nome completo"
-                  placeholder="Ex.: Lorena Souza"
-                  error={errors.nome?.message}
-                  {...register("nome")}
-                />
-                <div className={styles.grid2}>
-                  <Input
-                    label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
-                    type="date"
-                    error={errors.dataNascimento?.message}
-                    {...register("dataNascimento")}
-                  />
-                  <Controller
-                    control={control}
-                    name="cpf"
-                    render={({ field }) => (
-                      <Input
-                        label="CPF"
-                        placeholder="000.000.000-00"
-                        inputMode="numeric"
-                        error={errors.cpf?.message}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(maskCPF(e.target.value))}
-                        onBlur={field.onBlur}
-                      />
-                    )}
-                  />
+            <div className={styles.stepCard}>
+              {submitError && (
+                <div className={styles.alert} role="alert">
+                  <AlertCircle size={18} />
+                  <span>{submitError}</span>
                 </div>
-                <Select
-                  label="Turma"
-                  placeholder={
-                    turmas.loading ? "Carregando…" : "Selecione a turma"
-                  }
-                  options={turmaOptions}
-                  disabled={turmas.loading}
-                  error={errors.turmaId?.message}
-                  {...register("turmaId")}
-                />
-              </div>
-            </>
-          )}
+              )}
 
-          {/* ---------- 2. Responsáveis ---------- */}
-          {step === 1 && (
-            <>
-              <div className={styles.stepTitle}>Responsáveis</div>
-              <p className={styles.stepHint}>
-                Quem acompanha a criança no app e quem pode retirá-la na escola.
-              </p>
-              <div className={styles.fields}>
-                {responsaveis.fields.map((f, i) => (
-                  <div key={f.id} className={styles.repeatBlock}>
-                    <div className={styles.repeatHead}>
-                      <span className={styles.repeatTitle}>
-                        Responsável {i + 1}
-                      </span>
-                      {responsaveis.fields.length > 1 && (
-                        <button
-                          type="button"
-                          className={styles.linkDanger}
-                          onClick={() => responsaveis.remove(i)}
-                        >
-                          <Trash2 size={14} /> remover
-                        </button>
-                      )}
-                    </div>
+              {/* ---------- 1. Identificação ---------- */}
+              {step === 0 && (
+                <>
+                  <div className={styles.stepTitle}>Identificação</div>
+                  <p className={styles.stepHint}>
+                    Dados básicos da criança e a turma em que ela será
+                    matriculada.
+                  </p>
+                  <div className={styles.fields}>
                     <Input
-                      label="Nome"
-                      placeholder="Nome completo"
-                      error={errors.responsaveis?.[i]?.nome?.message}
-                      {...register(`responsaveis.${i}.nome`)}
+                      label="Nome completo"
+                      placeholder="Ex.: Lorena Souza"
+                      error={errors.nome?.message}
+                      {...register("nome")}
                     />
                     <div className={styles.grid2}>
+                      <Input
+                        label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
+                        type="date"
+                        error={errors.dataNascimento?.message}
+                        {...register("dataNascimento")}
+                      />
                       <Controller
                         control={control}
-                        name={`responsaveis.${i}.cpf`}
+                        name="cpf"
                         render={({ field }) => (
                           <Input
                             label="CPF"
                             placeholder="000.000.000-00"
                             inputMode="numeric"
-                            error={errors.responsaveis?.[i]?.cpf?.message}
+                            error={errors.cpf?.message}
                             value={field.value ?? ""}
                             onChange={(e) =>
                               field.onChange(maskCPF(e.target.value))
@@ -338,294 +296,366 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                           />
                         )}
                       />
-                      <Select
-                        label="Parentesco"
-                        placeholder="Selecione"
-                        options={PARENTESCOS.map((p) => ({
-                          value: p,
-                          label: p,
-                        }))}
-                        error={errors.responsaveis?.[i]?.parentesco?.message}
-                        {...register(`responsaveis.${i}.parentesco`)}
-                      />
                     </div>
-                    <div className={styles.grid2}>
-                      <Controller
-                        control={control}
-                        name={`responsaveis.${i}.telefone`}
-                        render={({ field }) => (
-                          <Input
-                            label="Telefone"
-                            placeholder="(11) 90000-0000"
-                            inputMode="numeric"
-                            error={errors.responsaveis?.[i]?.telefone?.message}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(maskPhone(e.target.value))
-                            }
-                            onBlur={field.onBlur}
-                          />
-                        )}
-                      />
-                      <div>
-                        <Input
-                          label="E-mail (acesso ao app)"
-                          type="email"
-                          placeholder="responsavel@email.com"
-                          error={errors.responsaveis?.[i]?.email?.message}
-                          {...register(`responsaveis.${i}.email`)}
-                        />
-                        <EmailAcessoStatus
-                          control={control}
-                          name={`responsaveis.${i}.email`}
-                          emails={emailsComAcesso}
-                          loading={usuariosResp.loading}
-                        />
-                      </div>
-                    </div>
-                    <label className={styles.check}>
-                      <input
-                        type="checkbox"
-                        {...register(`responsaveis.${i}.podeRetirar`)}
-                      />
-                      Pode retirar a criança na escola
-                    </label>
+                    <Select
+                      label="Turma"
+                      placeholder={
+                        turmas.loading ? "Carregando…" : "Selecione a turma"
+                      }
+                      options={turmaOptions}
+                      disabled={turmas.loading}
+                      error={errors.turmaId?.message}
+                      {...register("turmaId")}
+                    />
                   </div>
-                ))}
-                {typeof errors.responsaveis?.message === "string" && (
-                  <span style={{ fontSize: 12, color: "var(--color-danger)" }}>
-                    {errors.responsaveis.message}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  className={styles.addBlock}
-                  onClick={() => responsaveis.append(RESP_VAZIO)}
-                >
-                  <Plus size={16} /> Adicionar responsável
-                </button>
-              </div>
-            </>
-          )}
+                </>
+              )}
 
-          {/* ---------- 3. Saúde ---------- */}
-          {step === 2 && (
-            <>
-              <div className={styles.stepTitle}>Saúde</div>
-              <p className={styles.stepHint}>
-                Alergias e medicações aparecem em destaque na agenda diária e na
-                lista da turma.
-              </p>
-              <div className={styles.fields}>
-                <Controller
-                  control={control}
-                  name="saude.alergias"
-                  render={({ field }) => (
-                    <TagInput
-                      label="Alergias"
-                      value={field.value ?? []}
-                      onChange={field.onChange}
-                      placeholder="Ex.: amendoim — Enter para adicionar"
-                      alert
-                      hint="Exibidas com destaque para professores e responsáveis."
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="saude.restricoesAlimentares"
-                  render={({ field }) => (
-                    <TagInput
-                      label="Restrições alimentares"
-                      value={field.value ?? []}
-                      onChange={field.onChange}
-                      placeholder="Ex.: sem lactose"
-                    />
-                  )}
-                />
-
-                <div>
-                  <span className={styles.tagLabel}>Medicações contínuas</span>
-                  <div
-                    className={styles.fields}
-                    style={{ marginTop: 8, gap: 12 }}
-                  >
-                    {medicacoes.fields.map((f, i) => (
+              {/* ---------- 2. Responsáveis ---------- */}
+              {step === 1 && (
+                <>
+                  <div className={styles.stepTitle}>Responsáveis</div>
+                  <p className={styles.stepHint}>
+                    Quem acompanha a criança no app e quem pode retirá-la na
+                    escola.
+                  </p>
+                  <div className={styles.fields}>
+                    {responsaveis.fields.map((f, i) => (
                       <div key={f.id} className={styles.repeatBlock}>
                         <div className={styles.repeatHead}>
                           <span className={styles.repeatTitle}>
-                            Medicação {i + 1}
+                            Responsável {i + 1}
                           </span>
-                          <button
-                            type="button"
-                            className={styles.linkDanger}
-                            onClick={() => medicacoes.remove(i)}
-                          >
-                            <Trash2 size={14} /> remover
-                          </button>
+                          {responsaveis.fields.length > 1 && (
+                            <button
+                              type="button"
+                              className={styles.linkDanger}
+                              onClick={() => responsaveis.remove(i)}
+                            >
+                              <Trash2 size={14} /> remover
+                            </button>
+                          )}
+                        </div>
+                        <Input
+                          label="Nome"
+                          placeholder="Nome completo"
+                          error={errors.responsaveis?.[i]?.nome?.message}
+                          {...register(`responsaveis.${i}.nome`)}
+                        />
+                        <div className={styles.grid2}>
+                          <Controller
+                            control={control}
+                            name={`responsaveis.${i}.cpf`}
+                            render={({ field }) => (
+                              <Input
+                                label="CPF"
+                                placeholder="000.000.000-00"
+                                inputMode="numeric"
+                                error={errors.responsaveis?.[i]?.cpf?.message}
+                                value={field.value ?? ""}
+                                onChange={(e) =>
+                                  field.onChange(maskCPF(e.target.value))
+                                }
+                                onBlur={field.onBlur}
+                              />
+                            )}
+                          />
+                          <Select
+                            label="Parentesco"
+                            placeholder="Selecione"
+                            options={PARENTESCOS.map((p) => ({
+                              value: p,
+                              label: p,
+                            }))}
+                            error={
+                              errors.responsaveis?.[i]?.parentesco?.message
+                            }
+                            {...register(`responsaveis.${i}.parentesco`)}
+                          />
                         </div>
                         <div className={styles.grid2}>
-                          <Input
-                            label="Medicamento"
-                            placeholder="Ex.: Dipirona"
-                            error={
-                              errors.saude?.medicacoesContinuas?.[i]?.nome
-                                ?.message
-                            }
-                            {...register(
-                              `saude.medicacoesContinuas.${i}.nome`,
+                          <Controller
+                            control={control}
+                            name={`responsaveis.${i}.telefone`}
+                            render={({ field }) => (
+                              <Input
+                                label="Telefone"
+                                placeholder="(11) 90000-0000"
+                                inputMode="numeric"
+                                error={
+                                  errors.responsaveis?.[i]?.telefone?.message
+                                }
+                                value={field.value ?? ""}
+                                onChange={(e) =>
+                                  field.onChange(maskPhone(e.target.value))
+                                }
+                                onBlur={field.onBlur}
+                              />
                             )}
                           />
-                          <Input
-                            label="Dose"
-                            placeholder="Ex.: 10 gotas"
-                            error={
-                              errors.saude?.medicacoesContinuas?.[i]?.dose
-                                ?.message
-                            }
-                            {...register(
-                              `saude.medicacoesContinuas.${i}.dose`,
-                            )}
-                          />
+                          <div>
+                            <Input
+                              label="E-mail (acesso ao app)"
+                              type="email"
+                              placeholder="responsavel@email.com"
+                              error={errors.responsaveis?.[i]?.email?.message}
+                              {...register(`responsaveis.${i}.email`)}
+                            />
+                            <EmailAcessoStatus
+                              control={control}
+                              name={`responsaveis.${i}.email`}
+                              emails={emailsComAcesso}
+                              loading={usuariosResp.loading}
+                            />
+                          </div>
                         </div>
-                        <div className={styles.grid2}>
-                          <Input
-                            label="Horário"
-                            type="time"
-                            error={
-                              errors.saude?.medicacoesContinuas?.[i]?.horario
-                                ?.message
-                            }
-                            {...register(
-                              `saude.medicacoesContinuas.${i}.horario`,
-                            )}
+                        <label className={styles.check}>
+                          <input
+                            type="checkbox"
+                            {...register(`responsaveis.${i}.podeRetirar`)}
                           />
-                          <Input
-                            label="Observação (opcional)"
-                            placeholder="Ex.: só se febre"
-                            {...register(
-                              `saude.medicacoesContinuas.${i}.observacao`,
-                            )}
-                          />
-                        </div>
+                          Pode retirar a criança na escola
+                        </label>
                       </div>
                     ))}
+                    {typeof errors.responsaveis?.message === "string" && (
+                      <span
+                        style={{ fontSize: 12, color: "var(--color-danger)" }}
+                      >
+                        {errors.responsaveis.message}
+                      </span>
+                    )}
                     <button
                       type="button"
                       className={styles.addBlock}
-                      onClick={() =>
-                        medicacoes.append({
-                          nome: "",
-                          dose: "",
-                          horario: "",
-                          observacao: "",
-                        })
-                      }
+                      onClick={() => responsaveis.append(RESP_VAZIO)}
                     >
-                      <Plus size={16} /> Adicionar medicação
+                      <Plus size={16} /> Adicionar responsável
                     </button>
                   </div>
-                </div>
-
-                <Controller
-                  control={control}
-                  name="saude.condicoesAtipicas"
-                  render={({ field }) => (
-                    <TagInput
-                      label="Condições atípicas (opcional)"
-                      value={field.value ?? []}
-                      onChange={field.onChange}
-                      placeholder="Ex.: TEA"
-                    />
-                  )}
-                />
-                <Input
-                  label="Cuidados especiais (opcional)"
-                  placeholder="Orientações para a equipe"
-                  {...register("saude.cuidadosEspeciais")}
-                />
-                <Input
-                  label="Observações (opcional)"
-                  placeholder="Outras informações de saúde"
-                  {...register("saude.observacoes")}
-                />
-              </div>
-            </>
-          )}
-
-          {/* ---------- 4. Financeiro ---------- */}
-          {step === 3 && (
-            <>
-              <div className={styles.stepTitle}>Financeiro</div>
-              <p className={styles.stepHint}>
-                Valor e vencimento usados para gerar as mensalidades.
-              </p>
-              <div className={styles.fields}>
-                <div className={styles.grid2}>
-                  <Input
-                    label="Valor da mensalidade (R$)"
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    placeholder="1490"
-                    error={errors.financeiro?.valorMensalidade?.message}
-                    {...register("financeiro.valorMensalidade", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <Input
-                    label="Dia do vencimento"
-                    type="number"
-                    min={1}
-                    max={28}
-                    placeholder="5"
-                    error={errors.financeiro?.diaVencimento?.message}
-                    {...register("financeiro.diaVencimento", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                </div>
-                <Resumo control={control} turmaOptions={turmaOptions} />
-              </div>
-            </>
-          )}
-
-          {/* ---------- Navegação ---------- */}
-          <div className={styles.nav}>
-            {step > 0 && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setStep((s) => s - 1)}
-              >
-                <ArrowLeft size={16} /> Voltar
-              </Button>
-            )}
-            <div className={styles.navRight}>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => router.push("/admin/criancas")}
-              >
-                Cancelar
-              </Button>
-              {step < STEP_LABELS.length - 1 ? (
-                <Button type="button" onClick={avancar}>
-                  Continuar <ArrowRight size={16} />
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? "Salvando…"
-                    : editing
-                      ? "Salvar alterações"
-                      : "Cadastrar criança"}
-                </Button>
+                </>
               )}
+
+              {/* ---------- 3. Saúde ---------- */}
+              {step === 2 && (
+                <>
+                  <div className={styles.stepTitle}>Saúde</div>
+                  <p className={styles.stepHint}>
+                    Alergias e medicações aparecem em destaque na agenda diária
+                    e na lista da turma.
+                  </p>
+                  <div className={styles.fields}>
+                    <Controller
+                      control={control}
+                      name="saude.alergias"
+                      render={({ field }) => (
+                        <TagInput
+                          label="Alergias"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                          placeholder="Ex.: amendoim — Enter para adicionar"
+                          alert
+                          hint="Exibidas com destaque para professores e responsáveis."
+                        />
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="saude.restricoesAlimentares"
+                      render={({ field }) => (
+                        <TagInput
+                          label="Restrições alimentares"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                          placeholder="Ex.: sem lactose"
+                        />
+                      )}
+                    />
+
+                    <div>
+                      <span className={styles.tagLabel}>
+                        Medicações contínuas
+                      </span>
+                      <div
+                        className={styles.fields}
+                        style={{ marginTop: 8, gap: 12 }}
+                      >
+                        {medicacoes.fields.map((f, i) => (
+                          <div key={f.id} className={styles.repeatBlock}>
+                            <div className={styles.repeatHead}>
+                              <span className={styles.repeatTitle}>
+                                Medicação {i + 1}
+                              </span>
+                              <button
+                                type="button"
+                                className={styles.linkDanger}
+                                onClick={() => medicacoes.remove(i)}
+                              >
+                                <Trash2 size={14} /> remover
+                              </button>
+                            </div>
+                            <div className={styles.grid2}>
+                              <Input
+                                label="Medicamento"
+                                placeholder="Ex.: Dipirona"
+                                error={
+                                  errors.saude?.medicacoesContinuas?.[i]?.nome
+                                    ?.message
+                                }
+                                {...register(
+                                  `saude.medicacoesContinuas.${i}.nome`,
+                                )}
+                              />
+                              <Input
+                                label="Dose"
+                                placeholder="Ex.: 10 gotas"
+                                error={
+                                  errors.saude?.medicacoesContinuas?.[i]?.dose
+                                    ?.message
+                                }
+                                {...register(
+                                  `saude.medicacoesContinuas.${i}.dose`,
+                                )}
+                              />
+                            </div>
+                            <div className={styles.grid2}>
+                              <Input
+                                label="Horário"
+                                type="time"
+                                error={
+                                  errors.saude?.medicacoesContinuas?.[i]
+                                    ?.horario?.message
+                                }
+                                {...register(
+                                  `saude.medicacoesContinuas.${i}.horario`,
+                                )}
+                              />
+                              <Input
+                                label="Observação (opcional)"
+                                placeholder="Ex.: só se febre"
+                                {...register(
+                                  `saude.medicacoesContinuas.${i}.observacao`,
+                                )}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className={styles.addBlock}
+                          onClick={() =>
+                            medicacoes.append({
+                              nome: "",
+                              dose: "",
+                              horario: "",
+                              observacao: "",
+                            })
+                          }
+                        >
+                          <Plus size={16} /> Adicionar medicação
+                        </button>
+                      </div>
+                    </div>
+
+                    <Controller
+                      control={control}
+                      name="saude.condicoesAtipicas"
+                      render={({ field }) => (
+                        <TagInput
+                          label="Condições atípicas (opcional)"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                          placeholder="Ex.: TEA"
+                        />
+                      )}
+                    />
+                    <Input
+                      label="Cuidados especiais (opcional)"
+                      placeholder="Orientações para a equipe"
+                      {...register("saude.cuidadosEspeciais")}
+                    />
+                    <Input
+                      label="Observações (opcional)"
+                      placeholder="Outras informações de saúde"
+                      {...register("saude.observacoes")}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ---------- 4. Financeiro ---------- */}
+              {step === 3 && (
+                <>
+                  <div className={styles.stepTitle}>Financeiro</div>
+                  <p className={styles.stepHint}>
+                    Valor e vencimento usados para gerar as mensalidades.
+                  </p>
+                  <div className={styles.fields}>
+                    <div className={styles.grid2}>
+                      <Input
+                        label="Valor da mensalidade (R$)"
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        placeholder="1490"
+                        error={errors.financeiro?.valorMensalidade?.message}
+                        {...register("financeiro.valorMensalidade", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <Input
+                        label="Dia do vencimento"
+                        type="number"
+                        min={1}
+                        max={28}
+                        placeholder="5"
+                        error={errors.financeiro?.diaVencimento?.message}
+                        {...register("financeiro.diaVencimento", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+                    <Resumo control={control} turmaOptions={turmaOptions} />
+                  </div>
+                </>
+              )}
+
+              {/* ---------- Navegação ---------- */}
+              <div className={styles.nav}>
+                {step > 0 && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setStep((s) => s - 1)}
+                  >
+                    <ArrowLeft size={16} /> Voltar
+                  </Button>
+                )}
+                <div className={styles.navRight}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => router.push("/admin/criancas")}
+                  >
+                    Cancelar
+                  </Button>
+                  {step < STEP_LABELS.length - 1 ? (
+                    <Button type="button" onClick={avancar}>
+                      Continuar <ArrowRight size={16} />
+                    </Button>
+                  ) : (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting
+                        ? "Salvando…"
+                        : editing
+                          ? "Salvar alterações"
+                          : "Cadastrar criança"}
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </form>
+          </form>
         </>
       )}
 
@@ -696,10 +726,14 @@ function AcessosResponsavelModal({
               border: "1px solid var(--color-primary-soft-border)",
             }}
           >
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+            <div
+              style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}
+            >
               {a.nome}
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-mute)", marginTop: 2 }}>
+            <div
+              style={{ fontSize: 13, color: "var(--text-mute)", marginTop: 2 }}
+            >
               {a.email}
             </div>
             <div

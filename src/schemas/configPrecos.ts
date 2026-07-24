@@ -12,7 +12,10 @@ export const configPrecosSchema = yup.object({
     .min(1, "Cadastre ao menos um plano")
     .of(
       yup.object({
-        nome: yup.string().required("Informe o nome").min(2, "Nome muito curto"),
+        nome: yup
+          .string()
+          .required("Informe o nome")
+          .min(2, "Nome muito curto"),
         tipo: yup
           .mixed<"integral" | "meioPeriodo">()
           .oneOf(["integral", "meioPeriodo"], "Selecione o tipo")

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
-import { Button } from "@/components";
+import { Button, Skeleton } from "@/components";
 import styles from "./admin.module.css";
 
 /** Estados de carregamento / erro / vazio para as listas admin. */
@@ -9,6 +9,36 @@ export function LoadingState() {
     <div className={styles.state} role="status" aria-live="polite">
       <span className={styles.spinner} aria-hidden />
       <span>Carregando…</span>
+    </div>
+  );
+}
+
+/** Skeleton de tabela — imita as linhas/colunas reais enquanto os dados carregam. */
+export function TableSkeleton({
+  columns,
+  rows = 5,
+}: {
+  columns: number;
+  rows?: number;
+}) {
+  return (
+    <div className={styles.tableWrap} role="status" aria-label="Carregando…">
+      <table className={styles.table}>
+        <tbody>
+          {Array.from({ length: rows }).map((_, r) => (
+            <tr key={r}>
+              {Array.from({ length: columns }).map((_, c) => (
+                <td key={c}>
+                  <Skeleton
+                    height={13}
+                    width={c === 0 ? "72%" : c === columns - 1 ? "40%" : "58%"}
+                  />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -22,7 +52,10 @@ export function ErrorState({
 }) {
   return (
     <div className={styles.state} role="alert">
-      <span className={styles.stateIcon} style={{ color: "var(--color-danger)" }}>
+      <span
+        className={styles.stateIcon}
+        style={{ color: "var(--color-danger)" }}
+      >
         <AlertCircle size={24} />
       </span>
       <div className={styles.stateTitle}>Não foi possível carregar</div>

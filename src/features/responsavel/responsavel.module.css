@@ -783,6 +783,85 @@
   cursor: pointer;
 }
 
+/* Bottom sheet (troca de filho) */
+.sheetOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(15, 23, 33, 0.5);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheetFadeIn 0.16s ease;
+}
+.sheet {
+  width: 100%;
+  max-width: 460px;
+  max-height: 80dvh;
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -12px 32px -12px rgba(15, 23, 33, 0.3);
+  animation: sheetSlideUp 0.22s ease;
+}
+.sheetHandle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border-14);
+  margin: 10px auto 2px;
+  flex: none;
+}
+.sheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px 12px;
+}
+.sheetTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+}
+.sheetClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+}
+.sheetBody {
+  padding: 0 16px calc(20px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@keyframes sheetFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 /* Estados */
 .state {
   display: flex;

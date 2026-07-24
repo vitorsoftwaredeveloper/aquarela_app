@@ -28,7 +28,9 @@ export function Stepper({ steps, current, onStepClick }: StepperProps) {
             >
               {done ? <Check size={15} /> : i + 1}
             </button>
-            <span className={`${styles.label} ${active ? styles.labelActive : ""}`}>
+            <span
+              className={`${styles.label} ${active ? styles.labelActive : ""}`}
+            >
               {label}
             </span>
             {i < steps.length - 1 && (

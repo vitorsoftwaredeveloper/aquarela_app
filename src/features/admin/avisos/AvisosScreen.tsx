@@ -11,11 +11,13 @@ import { TurmasService } from "@/services/turmas";
 import { getApiErrorMessage } from "@/services/apiError";
 import { avisoSchema, type AvisoFormData } from "@/schemas/aviso";
 import type { Aviso } from "@/types/agenda";
-import { EmptyState, ErrorState, LoadingState } from "../ListState";
+import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function AvisosScreen() {
-  const { data, loading, error, reload } = useFetch(() => AvisosAdminService.list());
+  const { data, loading, error, reload } = useFetch(() =>
+    AvisosAdminService.list(),
+  );
   const { data: turmasData } = useFetch(() => TurmasService.list());
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Aviso | null>(null);
@@ -26,7 +28,9 @@ export function AvisosScreen() {
   const avisos = data ?? [];
   const turmas = turmasData ?? [];
   const turmaNome = (turmaId?: string) =>
-    turmaId ? (turmas.find((t) => t._id === turmaId)?.nome ?? "Turma removida") : null;
+    turmaId
+      ? (turmas.find((t) => t._id === turmaId)?.nome ?? "Turma removida")
+      : null;
 
   function openCreate() {
     setEditing(null);
@@ -70,7 +74,7 @@ export function AvisosScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <LoadingState />
+          <TableSkeleton columns={4} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : avisos.length === 0 ? (
@@ -170,7 +174,8 @@ export function AvisosScreen() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.titulo}</b>? Deixa de aparecer para os responsáveis.
+          Remover <b>{deleting?.titulo}</b>? Deixa de aparecer para os
+          responsáveis.
         </p>
         {actionError && (
           <div

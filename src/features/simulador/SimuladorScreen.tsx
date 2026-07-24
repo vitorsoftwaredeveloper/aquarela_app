@@ -3,14 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Droplet, Minus, Phone, Plus } from "lucide-react";
-import { SimuladorService } from "@/services/simuladorService";
+import { ConfigPrecosService } from "@/services/configPrecosService";
+import { PLANOS_PADRAO, type PlanoConfig } from "@/types/configPrecos";
 import {
-  PLANOS,
   PRESETS,
+  SUBTITULO_TIPO,
   calcularSimulacao,
   formatBRLCompacto,
+  inferirModo,
   type Modo,
-  type PlanoId,
   type ResultadoSimulacao,
 } from "./precos";
 import styles from "./simulador.module.css";
@@ -21,26 +22,35 @@ const LIMITES: Record<Modo, { min: number; max: number }> = {
 };
 
 export function SimuladorScreen() {
-  const [plano, setPlano] = useState<PlanoId>("integral");
+  // Planos-base são instantâneos; a lista pública (com valores e descontos
+  // reais do admin) chega logo em seguida e substitui.
+  const [planos, setPlanos] = useState<PlanoConfig[]>(PLANOS_PADRAO);
+  const [planoNome, setPlanoNome] = useState(PLANOS_PADRAO[0].nome);
   const [modo, setModo] = useState<Modo>("meses");
   const [qtd, setQtd] = useState(6);
 
-  // Cálculo local é instantâneo; o service refina se a API de preços responder.
-  const local = useMemo(
-    () => calcularSimulacao(plano, modo, qtd),
-    [plano, modo, qtd],
-  );
-  const [resultado, setResultado] = useState<ResultadoSimulacao>(local);
-
   useEffect(() => {
     let cancelado = false;
-    SimuladorService.calcular(plano, modo, qtd).then((r) => {
-      if (!cancelado) setResultado(r);
+    const nomeInicial = PLANOS_PADRAO[0].nome;
+    ConfigPrecosService.listPlanos().then((lista) => {
+      if (cancelado || lista.length === 0) return;
+      const escolhido = lista.some((p) => p.nome === nomeInicial)
+        ? nomeInicial
+        : lista[0].nome;
+      setPlanos(lista);
+      setPlanoNome(escolhido);
+      setModo(inferirModo(escolhido));
     });
     return () => {
       cancelado = true;
     };
-  }, [plano, modo, qtd]);
+  }, []);
+
+  const plano = planos.find((p) => p.nome === planoNome) ?? planos[0];
+  const resultado = useMemo<ResultadoSimulacao>(
+    () => calcularSimulacao(plano, modo, qtd),
+    [plano, modo, qtd],
+  );
 
   const unidade = modo === "meses" ? "meses" : "dias";
   const unidadeSing = modo === "meses" ? "mês" : "dia";
@@ -51,17 +61,17 @@ export function SimuladorScreen() {
     setQtd(next === "meses" ? 6 : 10);
   }
 
+  function selecionarPlano(nome: string) {
+    setPlanoNome(nome);
+    const modoDoPlano = inferirModo(nome);
+    if (modoDoPlano !== modo) trocarModo(modoDoPlano);
+  }
+
   function ajustar(delta: number) {
     setQtd((q) => Math.min(limites.max, Math.max(limites.min, q + delta)));
   }
 
-  // Comparativo: custo por unidade em cada preset (mostra o ganho de escala).
   const presets = PRESETS[modo];
-  const barras = presets.map((p) => ({
-    preset: p,
-    valor: calcularSimulacao(plano, modo, p).porUnidade,
-  }));
-  const maxBarra = Math.max(...barras.map((b) => b.valor));
 
   return (
     <div className={styles.page}>
@@ -83,16 +93,16 @@ export function SimuladorScreen() {
         {/* Plano */}
         <div className={styles.sectionTitle}>Plano</div>
         <div className={styles.planos}>
-          {PLANOS.map((p) => (
+          {planos.map((p) => (
             <button
-              key={p.id}
+              key={p.nome}
               type="button"
-              aria-pressed={plano === p.id}
-              className={`${styles.plano} ${plano === p.id ? styles.planoOn : ""}`}
-              onClick={() => setPlano(p.id)}
+              aria-pressed={planoNome === p.nome}
+              className={`${styles.plano} ${planoNome === p.nome ? styles.planoOn : ""}`}
+              onClick={() => selecionarPlano(p.nome)}
             >
-              <div className={styles.planoLabel}>{p.label}</div>
-              <div className={styles.planoSub}>{p.sub}</div>
+              <div className={styles.planoLabel}>{p.nome}</div>
+              <div className={styles.planoSub}>{SUBTITULO_TIPO[p.tipo]}</div>
             </button>
           ))}
         </div>
@@ -135,7 +145,10 @@ export function SimuladorScreen() {
                 setQtd(
                   Number.isNaN(n)
                     ? limites.min
-                    : Math.min(limites.max, Math.max(limites.min, n || limites.min)),
+                    : Math.min(
+                        limites.max,
+                        Math.max(limites.min, n || limites.min),
+                      ),
                 );
               }}
               aria-label={`Quantidade de ${unidade}`}
@@ -170,9 +183,7 @@ export function SimuladorScreen() {
         <div className={styles.result}>
           <div className={styles.resultTop}>
             <div>
-              <div className={styles.resultLabel}>
-                Por {unidadeSing}
-              </div>
+              <div className={styles.resultLabel}>Por {unidadeSing}</div>
               <div className={styles.resultValue}>
                 {formatBRLCompacto(resultado.porUnidade)}
               </div>
@@ -190,36 +201,11 @@ export function SimuladorScreen() {
             <div className={styles.saving}>
               <Droplet size={15} fill="#fff" strokeWidth={0} />
               Economia de {formatBRLCompacto(resultado.economia)}
-              {resultado.descontoRotulo ? ` no ${resultado.descontoRotulo}` : ""}
+              {resultado.descontoRotulo
+                ? ` no ${resultado.descontoRotulo}`
+                : ""}
             </div>
           )}
-        </div>
-
-        {/* Comparativo */}
-        <div className={styles.sectionTitle}>Comparativo por {unidade}</div>
-        <div className={styles.bars}>
-          {barras.map((b) => {
-            const ativo = b.preset === qtd;
-            const altura = Math.max(12, Math.round((b.valor / maxBarra) * 100));
-            return (
-              <div key={b.preset} className={styles.barCol}>
-                <span
-                  className={`${styles.barValue} ${ativo ? styles.barValueOn : ""}`}
-                >
-                  {formatBRLCompacto(b.valor)}
-                </span>
-                <span
-                  className={`${styles.bar} ${ativo ? styles.barOn : ""}`}
-                  style={{ height: `${altura}%` }}
-                />
-                <span
-                  className={`${styles.barTick} ${ativo ? styles.barTickOn : ""}`}
-                >
-                  {b.preset}
-                </span>
-              </div>
-            );
-          })}
         </div>
 
         <Link href="/#planos" className={styles.cta}>

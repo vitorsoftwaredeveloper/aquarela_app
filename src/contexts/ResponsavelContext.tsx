@@ -11,7 +11,7 @@ import {
 import { CriancasService } from "@/services/criancas";
 import { getApiErrorMessage } from "@/services/apiError";
 import { storage } from "@/storage/localStorage";
-import type { Crianca } from "@/types/crianca";
+import { sortearCoresAvatar, type Crianca } from "@/types/crianca";
 
 interface ResponsavelContextValue {
   criancas: Crianca[];
@@ -19,6 +19,7 @@ interface ResponsavelContextValue {
   activeId: string | null;
   loading: boolean;
   error: string | null;
+  avatarColors: Record<string, string>;
   setActive: (criancaId: string) => void;
   reload: () => void;
 }
@@ -39,6 +40,9 @@ export function ResponsavelProvider({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [avatarColors, setAvatarColors] = useState<Record<string, string>>(
+    {},
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -46,6 +50,7 @@ export function ResponsavelProvider({
     try {
       const list = await CriancasService.listMy();
       setCriancas(list);
+      setAvatarColors(sortearCoresAvatar(list.map((c) => c._id)));
       const saved = storage.get<string>(ACTIVE_KEY);
       const initial =
         (saved && list.some((c) => c._id === saved) && saved) ||
@@ -76,8 +81,17 @@ export function ResponsavelProvider({
   );
 
   const value = useMemo(
-    () => ({ criancas, active, activeId, loading, error, setActive, reload: load }),
-    [criancas, active, activeId, loading, error, setActive, load],
+    () => ({
+      criancas,
+      active,
+      activeId,
+      loading,
+      error,
+      avatarColors,
+      setActive,
+      reload: load,
+    }),
+    [criancas, active, activeId, loading, error, avatarColors, setActive, load],
   );
 
   return (

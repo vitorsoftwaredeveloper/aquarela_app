@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BookOpen, Check, ChevronLeft, Clock, ShieldAlert } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { temCuidados } from "@/types/crianca";
@@ -36,7 +37,9 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
         </div>
         <button
           className={styles.backBtn}
-          onClick={() => router.push(`/professor/turmas/${turmaId}/planos-aula`)}
+          onClick={() =>
+            router.push(`/professor/turmas/${turmaId}/planos-aula`)
+          }
           aria-label="Planos de aula"
           title="Planos de aula"
         >
@@ -45,9 +48,21 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
       </div>
 
       {loading ? (
-        <div className={styles.state}>
-          <span className={styles.spinner} aria-hidden />
-          <span>Carregando…</span>
+        <div className={styles.alunoList} role="status" aria-label="Carregando…">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className={styles.alunoCard}>
+              <Skeleton width={46} height={46} radius={14} />
+              <span style={{ flex: 1 }}>
+                <Skeleton
+                  width="50%"
+                  height={14}
+                  style={{ marginBottom: 8 }}
+                />
+                <Skeleton width="30%" height={11} />
+              </span>
+              <Skeleton width={86} height={24} radius={20} />
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className={styles.state}>
@@ -86,10 +101,16 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                   )}
                 </span>
                 <span style={{ flex: 1 }}>
-                  <span className={styles.alunoName} style={{ display: "block" }}>
+                  <span
+                    className={styles.alunoName}
+                    style={{ display: "block" }}
+                  >
                     {a.nome}
                   </span>
-                  <span className={styles.alunoSub} style={{ display: "block" }}>
+                  <span
+                    className={styles.alunoSub}
+                    style={{ display: "block" }}
+                  >
                     {a.idadeLabel ?? a.sub}
                   </span>
                 </span>
@@ -107,7 +128,11 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                         }
                   }
                 >
-                  {a.agendaRegistrada ? <Check size={13} /> : <Clock size={13} />}
+                  {a.agendaRegistrada ? (
+                    <Check size={13} />
+                  ) : (
+                    <Clock size={13} />
+                  )}
                   {a.agendaRegistrada ? "Registrada" : "Pendente"}
                 </span>
               </button>

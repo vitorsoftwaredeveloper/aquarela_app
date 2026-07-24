@@ -22,7 +22,9 @@ export function ComingSoon({
       </div>
       <div className={styles.card}>
         <div className={styles.state}>
-          <span className={styles.stateIcon}>{icon ?? <Hammer size={24} />}</span>
+          <span className={styles.stateIcon}>
+            {icon ?? <Hammer size={24} />}
+          </span>
           <div className={styles.stateTitle}>Em construção</div>
           <p className={styles.stateText}>
             Esta área faz parte de um próximo épico do roadmap.
