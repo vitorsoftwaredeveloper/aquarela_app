@@ -1,0 +1,72 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1.5px solid var(--border-12);
+  border-radius: 13px;
+  padding: 12px 13px;
+  background: var(--surface);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.boxError {
+  border-color: var(--color-danger);
+}
+.boxError:focus-within {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
+.leftIcon {
+  color: var(--text-mute);
+  display: flex;
+  flex: none;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+}
+.input::placeholder {
+  color: var(--text-mute);
+}
+
+.reveal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-mute);
+  display: flex;
+  padding: 0;
+}
+.reveal:hover {
+  color: var(--text-soft);
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-danger);
+}

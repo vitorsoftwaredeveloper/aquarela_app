@@ -1,0 +1,262 @@
+/* ===================== SHELL ===================== */
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 244px 1fr;
+  background: var(--screen);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 14px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-08);
+}
+.brand {
+  padding: 6px 8px 16px;
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: var(--radius-md);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.navItem:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.navActive,
+.navActive:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+  font-weight: 600;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* Canvas de conteúdo do protótipo (contentColStyle = --surface-2), não bege. */
+  background: var(--surface-2);
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 26px;
+  /* Header com tom próprio (--screen), distinto do corpo (--surface-2). */
+  background: color-mix(in srgb, var(--screen) 90%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-08);
+}
+.topbarMobileBrand {
+  display: none;
+}
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+.who {
+  text-align: right;
+}
+.whoName {
+  font-size: 13px;
+  font-weight: 600;
+}
+.whoRole {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.content {
+  padding: 28px 26px 48px;
+}
+
+/* ===================== PÁGINA ===================== */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.pageHead {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.pageTitle {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.4px;
+}
+.pageSub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.pageHeadActions {
+  margin-left: auto;
+}
+
+/* Card + tabela */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.tableWrap {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-mute);
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border-08);
+  white-space: nowrap;
+}
+.table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-06);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: var(--surface-2);
+}
+.cellName {
+  font-weight: 600;
+}
+.cellSub {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.rowActions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.iconBtn:hover {
+  color: var(--color-primary-link);
+  border-color: var(--color-primary-soft-border);
+}
+.iconBtnDanger:hover {
+  color: var(--color-danger-strong);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* Estados */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 56px 24px;
+  color: var(--text-dim);
+}
+.stateIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: var(--text-mute);
+}
+.stateTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+}
+.stateText {
+  font-size: 14px;
+  max-width: 380px;
+  line-height: 1.5;
+}
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid var(--border-12);
+  border-top-color: var(--color-primary);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Formulário do modal */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none;
+  }
+  .topbarMobileBrand {
+    display: block;
+  }
+}

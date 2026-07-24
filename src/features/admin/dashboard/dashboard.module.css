@@ -1,0 +1,279 @@
+/* Dashboard admin — KPIs + gráfico de balanço (FIN-13) */
+
+/* ---------- KPI row (stat tiles) ---------- */
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.kpiHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.kpiIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+/* Hero figure: o número é o que a leitura busca. */
+.kpiValue {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color: var(--text);
+}
+.kpiFoot {
+  font-size: 12px;
+  color: var(--text-mute);
+  margin-top: 5px;
+}
+
+/* ---------- Gráfico ---------- */
+.chartFigure {
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin: 0 0 20px;
+}
+.chartHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.chartTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+}
+.chartSub {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.legend {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  /* Texto usa tokens de texto, nunca a cor da série. */
+  color: var(--text-soft);
+}
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.chartScroll {
+  overflow-x: auto;
+}
+.plot {
+  display: flex;
+  gap: 10px;
+  min-width: 520px;
+  height: 220px;
+  /* Espaço para o rótulo do topo do eixo Y, que é centrado na linha (-50%). */
+  padding-top: 9px;
+}
+
+/* Eixo Y */
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+  flex: none;
+  padding-right: 2px;
+}
+.yTick {
+  font-size: 11px;
+  color: var(--text-mute);
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+/* Área de plotagem com gridlines */
+.grid {
+  position: relative;
+  flex: 1;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.gridline {
+  height: 1px;
+  background: var(--border-08);
+  width: 100%;
+}
+
+.groups {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+.group {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  outline: none;
+}
+.group:focus-visible .groupBars,
+.group:hover .groupBars {
+  filter: brightness(1.06);
+}
+.groupBars {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  /* Gap de 2px na cor da superfície separa barras vizinhas. */
+  gap: 2px;
+}
+.bar {
+  width: 100%;
+  max-width: 14px;
+  /* Ponta arredondada 4px, quadrada na linha de base. */
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: filter 0.15s ease;
+}
+.xTick {
+  position: absolute;
+  bottom: -20px;
+  font-size: 11px;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+
+/* Tooltip por marca */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border-12);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 28px -12px rgba(31, 41, 51, 0.4);
+  padding: 10px 12px;
+  min-width: 172px;
+  pointer-events: none;
+}
+.tooltipTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 12.5px;
+  margin-bottom: 7px;
+}
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.tooltipRow b {
+  margin-left: auto;
+  color: var(--text);
+}
+.tooltipSaldo {
+  display: flex;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border-07);
+  margin-top: 7px;
+  padding-top: 7px;
+}
+.tooltipSaldo b {
+  margin-left: auto;
+  color: var(--color-secondary-strong);
+}
+
+/* ---------- Atalhos ---------- */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.shortcut:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-soft-border);
+  color: var(--color-primary-link);
+}
+.shortcutIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0 0 12px;
+}

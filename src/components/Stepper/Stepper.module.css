@@ -1,0 +1,81 @@
+.stepper {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+.step {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.bullet {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-14);
+  background: var(--surface);
+  color: var(--text-mute);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  cursor: default;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.bullet:not(:disabled) {
+  cursor: pointer;
+}
+.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+.done {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary-strong);
+}
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-mute);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.labelActive {
+  color: var(--text);
+  font-weight: 600;
+}
+.bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-10);
+}
+.barDone {
+  background: var(--color-secondary);
+}
+
+@media (max-width: 560px) {
+  .label {
+    font-size: 10.5px;
+  }
+}

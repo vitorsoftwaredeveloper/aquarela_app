@@ -1,0 +1,24 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: 0 6px 16px -4px rgba(76, 155, 232, 0.5);
+  flex: none;
+}
+
+.word {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}

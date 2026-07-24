@@ -1,0 +1,120 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { BookOpen, Check, ChevronLeft, Clock, ShieldAlert } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
+import { ProfessorService } from "@/services/professorService";
+import { temCuidados } from "@/types/crianca";
+import styles from "./professor.module.css";
+
+export function AlunosScreen({ turmaId }: { turmaId: string }) {
+  const router = useRouter();
+  const { data, loading, error } = useFetch(
+    () => ProfessorService.listAlunos(turmaId),
+    [turmaId],
+  );
+  const alunos = data ?? [];
+  const registradas = alunos.filter((a) => a.agendaRegistrada).length;
+
+  return (
+    <div>
+      <div className={styles.pushHeader}>
+        <button
+          className={styles.backBtn}
+          onClick={() => router.push("/professor/turmas")}
+          aria-label="Voltar"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div style={{ flex: 1 }}>
+          <div className={styles.pushTitle}>Alunos da turma</div>
+          <div className={styles.pushSub}>
+            {loading
+              ? "Carregando…"
+              : `${registradas} de ${alunos.length} agendas registradas hoje`}
+          </div>
+        </div>
+        <button
+          className={styles.backBtn}
+          onClick={() => router.push(`/professor/turmas/${turmaId}/planos-aula`)}
+          aria-label="Planos de aula"
+          title="Planos de aula"
+        >
+          <BookOpen size={19} />
+        </button>
+      </div>
+
+      {loading ? (
+        <div className={styles.state}>
+          <span className={styles.spinner} aria-hidden />
+          <span>Carregando…</span>
+        </div>
+      ) : error ? (
+        <div className={styles.state}>
+          <span className={styles.emptyBadge}>Erro</span>
+          <p>{error}</p>
+        </div>
+      ) : alunos.length === 0 ? (
+        <div className={styles.state}>
+          <span className={styles.emptyBadge}>Turma vazia</span>
+          <p>Nenhuma criança vinculada a esta turma.</p>
+        </div>
+      ) : (
+        <div className={styles.alunoList}>
+          {alunos.map((a) => {
+            const alerta = temCuidados(a);
+            return (
+              <button
+                key={a._id}
+                className={styles.alunoCard}
+                onClick={() => router.push(`/professor/agenda/${a._id}`)}
+              >
+                <span className={styles.alunoAvatarWrap}>
+                  <span
+                    className={styles.alunoAvatar}
+                    style={{ background: a.avatarBg }}
+                  >
+                    {a.iniciais}
+                  </span>
+                  {alerta && (
+                    <span
+                      className={styles.allergyDot}
+                      title="Tem alergia/medicação"
+                    >
+                      <ShieldAlert size={12} />
+                    </span>
+                  )}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span className={styles.alunoName} style={{ display: "block" }}>
+                    {a.nome}
+                  </span>
+                  <span className={styles.alunoSub} style={{ display: "block" }}>
+                    {a.idadeLabel ?? a.sub}
+                  </span>
+                </span>
+                <span
+                  className={styles.status}
+                  style={
+                    a.agendaRegistrada
+                      ? {
+                          color: "var(--color-secondary-strong)",
+                          background: "var(--color-secondary-soft)",
+                        }
+                      : {
+                          color: "#C7522B",
+                          background: "var(--color-accent-soft)",
+                        }
+                  }
+                >
+                  {a.agendaRegistrada ? <Check size={13} /> : <Clock size={13} />}
+                  {a.agendaRegistrada ? "Registrada" : "Pendente"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

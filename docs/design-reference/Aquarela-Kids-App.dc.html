@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .app-scroll { scrollbar-width: thin; }
+  .app-scroll::-webkit-scrollbar { width: 5px; }
+  .app-scroll::-webkit-scrollbar-thumb { background: var(--border-12); border-radius: 4px; }
+  a { color: #2F7FCB; }
+  a:hover { color: #1E63A8; }
+  @keyframes toastIn { from { transform: translate(-50%, 14px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+  @keyframes screenIn { from { transform: translateX(12px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes sheetIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  :root {
+    --page:#F2F0EB; --screen:#FCFBF8; --surface:#fff; --surface-2:#F6F8FA;
+    --text:#1F2933; --text-dim:#6B7280; --text-mute:#9AA1AC; --text-soft:#4B5563; --text-soft2:#3F4A57;
+    --border-06:var(--border-06); --border-07:var(--border-07); --border-08:var(--border-08);
+    --border-10:var(--border-10); --border-12:var(--border-12); --border-14:var(--border-14);
+    --screen-90:rgba(252,251,248,.9); --screen-92:var(--screen-92); --screen-94:var(--screen-94);
+    --admin-bg:#F6F7F9; --pill-bg:rgba(255,255,255,.75); --shadow:rgba(31,41,51,.16);
+  }
+  .om-dark {
+    --page:#0C0F14; --screen:#12161C; --surface:#1B212B; --surface-2:#232A34;
+    --text:#EDF1F5; --text-dim:#A7B0BC; --text-mute:#7C8794; --text-soft:#BFC8D2; --text-soft2:#D2D9E1;
+    --border-06:rgba(255,255,255,.06); --border-07:rgba(255,255,255,.08); --border-08:rgba(255,255,255,.1);
+    --border-10:rgba(255,255,255,.12); --border-12:rgba(255,255,255,.15); --border-14:rgba(255,255,255,.17);
+    --screen-90:rgba(18,22,28,.9); --screen-92:rgba(18,22,28,.92); --screen-94:rgba(18,22,28,.94);
+    --admin-bg:#0C0F14; --pill-bg:rgba(255,255,255,.08); --shadow:rgba(0,0,0,.5);
+  }
+</style>
+</helmet>
+<div class="{{ rootClass }}" style="min-height:100vh;font-family:'Inter',system-ui,sans-serif;color:var(--text);background:radial-gradient(1100px 620px at 14% -5%, rgba(76,155,232,.12), transparent 60%), radial-gradient(1000px 620px at 92% 12%, rgba(95,201,166,.13), transparent 60%), radial-gradient(900px 720px at 50% 108%, rgba(255,138,101,.09), transparent 60%), var(--page);display:flex;flex-direction:column;align-items:center;gap:22px;padding:34px 20px 56px;transition:background .25s;">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px;max-width:430px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(76,155,232,.35);">{{ ic.droplet }}</div>
+      <span style="font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.2px;">Aquarela Kids</span>
+      <span style="font-family:'Inter',monospace;font-size:9.5px;font-weight:600;letter-spacing:.14em;color:#8A93A0;background:rgba(255,255,255,.7);border:1px solid var(--border-08);padding:4px 8px;border-radius:20px;">PROTÓTIPO</span>
+    </div>
+    <div style="display:inline-flex;background:var(--pill-bg);border:1px solid var(--border-08);border-radius:999px;padding:5px;gap:4px;box-shadow:0 2px 10px rgba(31,41,51,.05);">
+      <button onClick="{{ goVisitor }}" style="{{ visitorPillStyle }}"><span style="display:flex">{{ ic.sparkle }}</span>Visitante</button>
+      <button onClick="{{ goParent }}" style="{{ parentPillStyle }}"><span style="display:flex">{{ ic.user }}</span>Responsável</button>
+      <button onClick="{{ goTeacher }}" style="{{ teacherPillStyle }}"><span style="display:flex">{{ ic.clip }}</span>Professor</button>
+      <button onClick="{{ goAdmin }}" style="{{ adminPillStyle }}"><span style="display:flex">{{ ic.settings }}</span>Administração</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ showDevice }}" hint-placeholder-val="{{ true }}">
+  <div style="{{ deviceOuterStyle }}">
+    <sc-if value="{{ isMobileView }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:26px;left:50%;transform:translateX(-50%);width:118px;height:30px;background:#0E1622;border-radius:0 0 18px 18px;z-index:40;"></div></sc-if>
+    <div style="{{ deviceInnerStyle }}">
+
+      <sc-if value="{{ showRoleSidebar }}" hint-placeholder-val="{{ false }}">
+        <div style="width:230px;flex:none;background:linear-gradient(180deg,#123B63,#0E2E4D);color:#fff;display:flex;flex-direction:column;padding:20px 14px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 8px 18px;">
+            <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);display:flex;align-items:center;justify-content:center;">{{ ic.droplet }}</div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;">Aquarela Kids</div>
+          </div>
+          <div style="font-size:10.5px;letter-spacing:.12em;color:rgba(255,255,255,.45);font-weight:600;padding:0 10px 8px;">{{ roleSidebarLabel }}</div>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <sc-for list="{{ roleNav }}" as="n" hint-placeholder-count="3">
+              <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:11px;text-align:left;background:{{ n.bg }};border:none;color:{{ n.fg }};border-radius:11px;padding:11px 12px;cursor:pointer;font-size:13.5px;font-weight:{{ n.weight }};font-family:'Inter';"><span style="display:flex;opacity:{{ n.iconOp }}">{{ n.iconEl }}</span>{{ n.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ roleSidebarUser }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:auto;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:13px;padding:10px 11px;">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:600;font-size:14px;flex:none;">{{ roleUserInitials }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ roleUserName }}</div>
+                <div style="font-size:10.5px;color:rgba(255,255,255,.55);">{{ roleUserRole }}</div>
+              </div>
+              <button onClick="{{ signOut }}" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;display:flex;">{{ ic.logout }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <div style="{{ contentColStyle }}">
+
+      <sc-if value="{{ isMobileView }}" hint-placeholder-val="{{ true }}">
+      <div style="height:44px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 8px;font-size:13px;font-weight:600;color:{{ statusColor }};z-index:30;position:relative;">
+        <span>9:41</span>
+        <span style="display:flex;gap:5px;align-items:center;">{{ ic.signal }}{{ ic.battery }}</span>
+      </div>
+      </sc-if>
+
+      <div class="app-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;">
+        <div style="{{ screenWrapStyle }}">
+
+        <!-- ===== T-03 LOGIN ===== -->
+        <sc-if value="{{ sLogin }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-03 Login" style="animation:screenIn .28s ease;min-height:100%;display:flex;flex-direction:column;">
+          <div style="background:linear-gradient(155deg,#4C9BE8 0%,#5FC9A6 100%);padding:46px 26px 40px;color:#fff;border-radius:0 0 30px 30px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:19px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">{{ ic.droplet }}</div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.3px;">Aquarela Kids</div>
+            <div style="font-size:13px;opacity:.92;margin-top:5px;line-height:1.45;">A agenda diária do seu filho,<br>do jeitinho que ele merece.</div>
+          </div>
+
+          <div style="flex:1;padding:24px 22px 20px;display:flex;flex-direction:column;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:17px;margin-bottom:16px;">Entrar na conta</div>
+
+            <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">E-mail</div>
+            <div style="display:flex;align-items:center;gap:9px;border:1.5px solid var(--border-12);border-radius:13px;padding:12px 13px;margin-bottom:13px;">
+              <span style="color:var(--text-mute);display:flex;">{{ ic.mail }}</span>
+              <input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="voce@email.com" style="flex:1;border:none;outline:none;background:none;font-size:14px;font-family:'Inter';color:var(--text);" />
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">Senha</div>
+            <div style="display:flex;align-items:center;gap:9px;border:1.5px solid var(--border-12);border-radius:13px;padding:12px 13px;">
+              <span style="color:var(--text-mute);display:flex;">{{ ic.lock }}</span>
+              <input value="{{ loginPass }}" onChange="{{ onLoginPass }}" type="{{ passType }}" placeholder="••••••••" style="flex:1;border:none;outline:none;background:none;font-size:14px;font-family:'Inter';color:var(--text);" />
+              <button onClick="{{ togglePass }}" style="background:none;border:none;cursor:pointer;color:var(--text-mute);display:flex;padding:0;">{{ passIcon }}</button>
+            </div>
+            <button onClick="{{ forgotPass }}" style="align-self:flex-end;background:none;border:none;color:#2F7FCB;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:10px;padding:0;">Esqueci minha senha</button>
+
+            <button onClick="{{ doLogin }}" style="margin-top:18px;width:100%;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:14px;padding:15px;cursor:pointer;box-shadow:0 10px 24px -8px rgba(76,155,232,.65);">Entrar</button>
+
+            <div style="display:flex;align-items:center;gap:12px;margin:20px 0 16px;color:var(--text-mute);font-size:11.5px;">
+              <div style="flex:1;height:1px;background:var(--border-08);"></div>entrar como (demo)<div style="flex:1;height:1px;background:var(--border-08);"></div>
+            </div>
+            <div style="display:flex;gap:9px;">
+              <sc-for list="{{ demoLogins }}" as="d" hint-placeholder-count="3">
+                <button onClick="{{ d.onClick }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-08);border-radius:13px;padding:12px 6px;cursor:pointer;">
+                  <span style="width:34px;height:34px;border-radius:10px;background:{{ d.bg }};color:{{ d.fg }};display:flex;align-items:center;justify-content:center;">{{ d.iconEl }}</span>
+                  <span style="font-size:11.5px;font-weight:600;color:var(--text-soft);">{{ d.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:auto;padding-top:22px;">
+              <button onClick="{{ goSimulator }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:13px;padding:13px;cursor:pointer;color:#2168B8;font-size:13.5px;font-weight:600;font-family:'Poppins';">{{ ic.calc }}Simular mensalidade</button>
+              <div style="text-align:center;font-size:11.5px;color:var(--text-mute);margin-top:12px;">Ainda não é da Aquarela? <span style="color:#2F7FCB;font-weight:600;">Agende uma visita</span></div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-02 SIMULADOR ===== -->
+        <sc-if value="{{ sSimulator }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-02 Simulador" style="animation:screenIn .28s ease;padding-bottom:26px;">
+          <div style="position:sticky;top:0;background:var(--screen-92);backdrop-filter:blur(8px);z-index:20;padding:6px 16px 12px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ backToLogin }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-soft);">{{ ic.chevL }}</button>
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">Simulador de mensalidade</div>
+          </div>
+
+          <div style="padding:16px 18px 0;">
+            <div style="background:linear-gradient(135deg,#EEF6FF,#EAF7F1);border:1px solid #D5E8F7;border-radius:18px;padding:16px 16px 14px;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#1F2933;">Quanto ficaria?</div>
+              <div style="font-size:12.5px;color:var(--text-dim);margin-top:2px;">Simulação sem compromisso.</div>
+            </div>
+
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin:20px 0 10px;">Plano</div>
+            <div style="display:flex;gap:9px;">
+              <sc-for list="{{ simPlans }}" as="p" hint-placeholder-count="2">
+                <button onClick="{{ p.onClick }}" style="flex:1;text-align:left;border:1.5px solid {{ p.bd }};background:{{ p.bg }};border-radius:14px;padding:12px 13px;cursor:pointer;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;color:{{ p.titleFg }};">{{ p.label }}</div>
+                  <div style="font-size:11.5px;color:{{ p.subFg }};margin-top:2px;">{{ p.sub }}</div>
+                </button>
+              </sc-for>
+            </div>
+
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin:20px 0 10px;">Como quer calcular?</div>
+            <div style="display:flex;gap:5px;background:var(--surface-2);border:1px solid var(--border-08);border-radius:13px;padding:5px;">
+              <sc-for list="{{ simModes }}" as="m" hint-placeholder-count="2">
+                <button onClick="{{ m.onClick }}" style="flex:1;border:1px solid {{ m.bd }};background:{{ m.bg }};color:{{ m.fg }};box-shadow:{{ m.sh }};border-radius:9px;padding:10px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;">{{ m.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;">Quantidade de {{ simUnitLabel }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button onClick="{{ simQtyDec }}" style="width:46px;height:46px;flex:none;border-radius:13px;border:1.5px solid var(--border-12);background:var(--surface);color:var(--text-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ ic.minus }}</button>
+              <div style="flex:1;display:flex;align-items:baseline;justify-content:center;gap:7px;border:1.5px solid var(--border-12);border-radius:13px;padding:8px 12px;">
+                <input value="{{ simQtyValue }}" onChange="{{ onSimQty }}" inputmode="numeric" style="width:64px;border:none;outline:none;background:none;text-align:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:26px;color:var(--text);" />
+                <span style="font-size:13px;color:var(--text-dim);font-weight:600;">{{ simUnitLabel }}</span>
+              </div>
+              <button onClick="{{ simQtyInc }}" style="width:46px;height:46px;flex:none;border-radius:13px;border:1.5px solid var(--border-12);background:var(--surface);color:var(--text-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ ic.plus }}</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:11px;">
+              <sc-for list="{{ simPresets }}" as="p" hint-placeholder-count="4">
+                <button onClick="{{ p.onClick }}" style="flex:1;border:1.5px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};border-radius:11px;padding:9px 4px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;">{{ p.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="background:linear-gradient(150deg,#4C9BE8,#5FC9A6);border-radius:20px;padding:20px 20px 18px;color:#fff;margin-top:20px;box-shadow:0 16px 34px -14px rgba(76,155,232,.6);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                <div>
+                  <div style="font-size:12px;opacity:.9;">{{ simUnitTop }}</div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:34px;line-height:1.1;margin-top:2px;">{{ simMonthly }}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:11.5px;opacity:.9;">Total · {{ simPeriodLabel }}</div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:19px;margin-top:2px;">{{ simTotal }}</div>
+                </div>
+              </div>
+              <sc-if value="{{ simHasSaving }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:7px;margin-top:14px;background:rgba(255,255,255,.18);border-radius:11px;padding:9px 11px;font-size:12px;font-weight:600;"><span style="display:flex">{{ ic.droplet }}</span>{{ simSavingText }}</div>
+              </sc-if>
+            </div>
+
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin:22px 0 12px;">Comparativo por {{ simUnitLabel }}</div>
+            <div style="display:flex;align-items:flex-end;gap:12px;height:130px;padding:0 4px;">
+              <sc-for list="{{ simBars }}" as="b" hint-placeholder-count="4">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;">
+                  <div style="font-size:11px;font-weight:700;color:{{ b.labelFg }};">{{ b.value }}</div>
+                  <div style="width:100%;height:{{ b.h }};background:{{ b.barBg }};border-radius:9px 9px 4px 4px;transition:height .3s ease;"></div>
+                  <div style="font-size:11px;font-weight:600;color:{{ b.labelFg }};">{{ b.tick }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <button onClick="{{ scheduleVisit }}" style="margin-top:24px;width:100%;display:flex;align-items:center;justify-content:center;gap:9px;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#fff;background:linear-gradient(135deg,#FF8A65,#F5734A);border:none;border-radius:14px;padding:15px;cursor:pointer;box-shadow:0 10px 24px -8px rgba(255,138,101,.6);">{{ ic.phone }}Agende uma visita</button>
+            <div style="text-align:center;font-size:11px;color:var(--text-mute);margin-top:11px;line-height:1.5;">Valores de referência para simulação.<br>A proposta final é definida na visita.</div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-04 INÍCIO (dashboard da criança) ===== -->
+        <sc-if value="{{ sHome }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="T-04 Início" style="animation:screenIn .28s ease;padding-bottom:20px;">
+          <div style="background:linear-gradient(150deg,#4C9BE8 0%,#5FC9A6 100%);padding:12px 20px 22px;color:#fff;border-radius:0 0 28px 28px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <span style="font-size:12.5px;opacity:.92;">Olá, Marina</span>
+              <button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;">{{ ic.bell }}</button>
+            </div>
+            <button onClick="{{ openProfiles }}" style="width:100%;text-align:left;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:18px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+              <div style="width:48px;height:48px;border-radius:14px;background:{{ child.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:17px;color:#7A4A34;flex:none;">{{ child.initials }}</div>
+              <div style="flex:1;color:#fff;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:17px;">{{ child.name }}</div>
+                <div style="font-size:12px;opacity:.9;margin-top:1px;">{{ child.sub }}</div>
+              </div>
+              <span style="display:flex;color:#fff;opacity:.9;">{{ ic.swap }}</span>
+            </button>
+            <div style="font-size:11px;opacity:.85;margin-top:9px;text-align:center;">Você acompanha o perfil de {{ child.name }} · toque para trocar de filho</div>
+          </div>
+
+          <div style="padding:18px 16px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;">Avisos</div>
+              <span style="font-size:11.5px;color:var(--text-mute);">{{ avisosCount }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ avisos }}" as="a" hint-placeholder-count="3">
+                <div style="display:flex;gap:12px;background:{{ a.cardBg }};border:1px solid {{ a.cardBd }};border-radius:16px;padding:12px 13px;">
+                  <div style="width:38px;height:38px;border-radius:11px;background:{{ a.iconBg }};color:{{ a.iconFg }};display:flex;align-items:center;justify-content:center;flex:none;">{{ a.iconEl }}</div>
+                  <div style="flex:1;">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+                      <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:{{ a.titleColor }};">{{ a.title }}</div>
+                      <div style="font-size:10.5px;color:var(--text-mute);white-space:nowrap;">{{ a.date }}</div>
+                    </div>
+                    <div style="font-size:12.5px;line-height:1.45;color:var(--text-soft);margin-top:2px;">{{ a.text }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="padding:18px 16px 0;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;margin-bottom:11px;">Agenda de hoje</div>
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:6px 14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <sc-for list="{{ todayPreview }}" as="e" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-06);">
+                  <div style="width:34px;height:34px;border-radius:10px;background:{{ e.iconBg }};color:{{ e.iconFg }};display:flex;align-items:center;justify-content:center;flex:none;">{{ e.iconEl }}</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;color:var(--text-mute);">{{ e.title }}</div>
+                    <div style="font-size:13px;color:var(--text-soft2);font-weight:500;margin-top:1px;">{{ e.brief }}</div>
+                  </div>
+                </div>
+              </sc-for>
+              <button onClick="{{ goDay }}" style="width:100%;padding:13px 0;background:none;border:none;cursor:pointer;color:#2F7FCB;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter';">Ver agenda completa <span style="display:flex">{{ ic.chevR }}</span></button>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-05 AGENDA DO DIA ===== -->
+        <sc-if value="{{ sDay }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-05 Agenda do dia" style="animation:screenIn .28s ease;padding-bottom:24px;">
+          <div style="position:sticky;top:0;background:var(--screen-92);backdrop-filter:blur(8px);z-index:20;padding:6px 16px 12px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;">{{ ic.chevL }}</button>
+            <div style="flex:1;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">{{ child.name }}</div>
+              <div style="font-size:12px;color:var(--text-dim);">Terça, 16 jul</div>
+            </div>
+            <button onClick="{{ goHistory }}" style="font-size:12.5px;font-weight:600;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:11px;padding:8px 11px;cursor:pointer;">Histórico</button>
+          </div>
+
+          <div style="padding:14px 16px 0;">
+            <sc-if value="{{ child.hasCare }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:11px;background:linear-gradient(135deg,#FFF3EE,#FDECEC);border:1px solid #FFD1BE;border-radius:16px;padding:12px 13px;margin-bottom:14px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:#FDE0D5;color:#C0342E;display:flex;align-items:center;justify-content:center;flex:none;">{{ ic.alert }}</div>
+                <div style="font-size:12.5px;line-height:1.45;color:#B8442A;font-weight:500;padding-top:1px;"><b style="color:#9A2F1B;">Cuidados de hoje.</b> {{ child.careLine }}</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="padding:0 16px;display:flex;flex-direction:column;gap:11px;">
+            <sc-for list="{{ dayEntries }}" as="e" hint-placeholder-count="5">
+              <div style="display:flex;gap:12px;background:{{ e.cardBg }};border:1px solid {{ e.cardBd }};border-radius:16px;padding:13px 14px;">
+                <div style="width:40px;height:40px;border-radius:12px;background:{{ e.iconBg }};color:{{ e.iconFg }};display:flex;align-items:center;justify-content:center;flex:none;">{{ e.iconEl }}</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;color:{{ e.titleColor }};">{{ e.title }}</div>
+                  <div style="font-size:13px;line-height:1.45;color:var(--text-soft);margin-top:2px;">{{ e.text }}</div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display:flex;align-items:center;gap:9px;justify-content:center;margin-top:6px;padding:8px;color:var(--text-dim);font-size:12px;">registrado por <b style="color:var(--text-soft2);">{{ signedBy }}</b></div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-06 HISTÓRICO ===== -->
+        <sc-if value="{{ sHistory }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-06 Histórico" style="animation:screenIn .28s ease;padding-bottom:24px;">
+          <div style="position:sticky;top:0;background:var(--screen-92);backdrop-filter:blur(8px);z-index:20;padding:6px 16px 12px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;">{{ ic.chevL }}</button>
+            <div>
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">Histórico</div>
+              <div style="font-size:12px;color:var(--text-dim);">{{ child.name }} · últimas semanas</div>
+            </div>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <sc-for list="{{ history }}" as="h" hint-placeholder-count="5">
+              <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:16px;padding:13px 14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;">{{ h.date }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;color:{{ h.moodColor }};font-size:12px;font-weight:600;">{{ h.moodEl }}{{ h.moodLabel }}</div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;">
+                  <sc-for list="{{ h.chips }}" as="chip" hint-placeholder-count="3">
+                    <span style="font-size:11.5px;color:var(--text-soft);background:var(--surface-2);border-radius:20px;padding:4px 10px;">{{ chip }}</span>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ h.hasAlert }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:9px;font-size:11.5px;font-weight:600;color:#C7522B;background:#FFF3EE;border-radius:10px;padding:7px 9px;"><span style="display:flex">{{ ic.alert }}</span>{{ h.alertText }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-07 FINANCEIRO ===== -->
+        <sc-if value="{{ sFinance }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-07 Financeiro" style="animation:screenIn .28s ease;">
+          <div style="background:linear-gradient(150deg,#4C9BE8,#5FC9A6);padding:16px 22px 26px;color:#fff;border-radius:0 0 28px 28px;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:21px;">Financeiro</div>
+            <div style="font-size:13px;opacity:.92;margin-top:2px;">{{ child.name }} · plano Integral</div>
+            <div style="display:flex;gap:10px;margin-top:16px;">
+              <div style="flex:1;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:15px;padding:11px 13px;">
+                <div style="font-size:11px;opacity:.9;">Em aberto</div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;margin-top:2px;">{{ openTotalText }}</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:15px;padding:11px 13px;">
+                <div style="font-size:11px;opacity:.9;">Ano</div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;margin-top:2px;">2026</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:18px 16px 20px;display:flex;flex-direction:column;gap:11px;">
+            <sc-for list="{{ financeMonths }}" as="m" hint-placeholder-count="7">
+              <div style="display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border-07);border-radius:16px;padding:13px 14px;box-shadow:0 2px 8px rgba(31,41,51,.04);opacity:{{ m.opacity }};">
+                <div style="width:42px;height:42px;border-radius:12px;background:{{ m.iconBg }};color:{{ m.iconFg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;flex:none;">{{ m.short }}</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;">{{ m.name }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ m.statusFg }};font-weight:600;margin-top:2px;">{{ m.statusEl }}{{ m.valueText }}</div>
+                </div>
+                <sc-if value="{{ m.canPay }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ m.onPay }}" style="font-size:12.5px;font-weight:600;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:12px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 12px -3px rgba(76,155,232,.6);">Pagar</button>
+                </sc-if>
+                <sc-if value="{{ m.canReceipt }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ m.onReceipt }}" style="display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:11px;padding:8px 10px;cursor:pointer;white-space:nowrap;">{{ ic.download }}</button>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-08 PAGAMENTO PIX ===== -->
+        <sc-if value="{{ sPix }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-08 Pagamento PIX" style="animation:screenIn .28s ease;min-height:100%;display:flex;flex-direction:column;">
+          <div style="padding:6px 16px 10px;display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;">{{ ic.chevL }}</button>
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">Pagamento via PIX</div>
+          </div>
+
+          <sc-if value="{{ pixPaid }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 26px;gap:16px;">
+              <div style="width:88px;height:88px;border-radius:50%;background:#E7F7F1;color:#2E9E7B;display:flex;align-items:center;justify-content:center;">{{ ic.checkBig }}</div>
+              <div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:22px;">Pagamento confirmado</div>
+                <div style="font-size:13.5px;color:var(--text-dim);margin-top:6px;line-height:1.5;">{{ pixMonthLabel }} · {{ pixValueText }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-top:4px;">
+                <button onClick="{{ openReceiptFromPix }}" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);border:none;border-radius:15px;padding:14px;cursor:pointer;box-shadow:0 8px 20px -6px rgba(76,155,232,.6);display:flex;align-items:center;justify-content:center;gap:8px;">{{ ic.file }} Ver comprovante</button>
+                <button onClick="{{ goFinance }}" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:15px;padding:13px;cursor:pointer;">Voltar ao financeiro</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ pixWaiting }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:8px 22px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+              <div style="font-size:13px;color:var(--text-dim);">{{ pixMonthLabel }}</div>
+              <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:32px;margin:2px 0 18px;">{{ pixValueText }}</div>
+              <div style="width:220px;height:220px;background:#fff;border:1px solid rgba(31,41,51,.1);border-radius:22px;padding:16px;box-shadow:0 8px 24px -10px rgba(31,41,51,.2);display:flex;align-items:center;justify-content:center;">
+                <div style="width:100%;height:100%;background-image:repeating-conic-gradient(#1F2933 0% 25%, #fff 0% 50%);background-size:15px 15px;border-radius:8px;position:relative;">
+                  <div style="position:absolute;inset:38%;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#4C9BE8;">{{ ic.droplet }}</div>
+                </div>
+              </div>
+              <div style="font-size:12.5px;color:var(--text-dim);margin-top:14px;">Escaneie o QR ou copie o código abaixo</div>
+              <div style="display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid rgba(31,41,51,.09);border-radius:13px;padding:11px 13px;margin-top:12px;width:100%;">
+                <div style="flex:1;font-family:monospace;font-size:11px;color:var(--text-soft);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pixCode }}</div>
+                <button onClick="{{ copyPix }}" style="font-size:12px;font-weight:600;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:9px;padding:7px 10px;cursor:pointer;white-space:nowrap;">{{ copyLabel }}</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:18px;background:#FFF7E9;border:1px solid #FBE2B0;border-radius:13px;padding:11px 13px;width:100%;">
+                <span style="width:15px;height:15px;border:2.5px solid #E0A83A;border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .8s linear infinite;"></span>
+                <span style="font-size:12.5px;color:#9A6B14;font-weight:600;">Aguardando pagamento…</span>
+              </div>
+              <button onClick="{{ confirmPix }}" style="margin-top:16px;width:100%;font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:15px;padding:14px;cursor:pointer;box-shadow:0 8px 20px -6px rgba(76,155,232,.6);">Simular confirmação do PIX</button>
+            </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ===== COMPROVANTE ===== -->
+        <sc-if value="{{ sReceipt }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Comprovante" style="animation:screenIn .28s ease;padding-bottom:24px;">
+          <div style="padding:6px 16px 12px;display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;">{{ ic.chevL }}</button>
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">Comprovante</div>
+          </div>
+          <div style="padding:6px 16px;">
+            <div style="background:var(--surface);border:1px solid var(--border-08);border-radius:20px;overflow:hidden;box-shadow:0 8px 24px -12px rgba(31,41,51,.25);">
+              <div style="background:linear-gradient(150deg,#4C9BE8,#5FC9A6);color:#fff;padding:18px 20px;display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;">{{ ic.droplet }}</div>
+                <div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;">Comprovante de pagamento</div>
+                  <div style="font-size:12px;opacity:.9;">Aquarela Kids · Berçário</div>
+                </div>
+              </div>
+              <div style="padding:18px 20px;display:flex;flex-direction:column;">
+                <div style="text-align:center;padding-bottom:16px;border-bottom:1px dashed var(--border-14);">
+                  <div style="font-size:12px;color:var(--text-mute);">Valor pago</div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:30px;margin-top:2px;">{{ receipt.value }}</div>
+                  <div style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;font-weight:600;color:#2E9E7B;background:#E7F7F1;border-radius:20px;padding:5px 12px;">{{ ic.check }} Pago</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px;">
+                  <sc-for list="{{ receipt.rows }}" as="r" hint-placeholder-count="6">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                      <span style="font-size:12.5px;color:var(--text-dim);">{{ r.k }}</span>
+                      <span style="font-size:12.5px;font-weight:600;color:var(--text);text-align:right;">{{ r.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <button onClick="{{ downloadReceipt }}" style="margin-top:16px;width:100%;font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:15px;padding:14px;cursor:pointer;box-shadow:0 8px 20px -6px rgba(76,155,232,.6);display:flex;align-items:center;justify-content:center;gap:8px;">{{ ic.download }} Baixar PDF</button>
+            <button onClick="{{ shareReceipt }}" style="margin-top:10px;width:100%;font-weight:600;font-size:14px;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:15px;padding:13px;cursor:pointer;">Enviar por e-mail</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== PERFIL RESPONSÁVEL ===== -->
+        <sc-if value="{{ sProfile }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Perfil responsável" style="animation:screenIn .28s ease;padding-bottom:20px;">
+          <div style="background:linear-gradient(150deg,#4C9BE8,#5FC9A6);padding:20px 22px 26px;color:#fff;border-radius:0 0 28px 28px;display:flex;align-items:center;gap:14px;">
+            <div style="width:60px;height:60px;border-radius:18px;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;">M</div>
+            <div>
+              <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;">Marina Souza</div>
+              <div style="font-size:12.5px;opacity:.92;margin-top:2px;">marina.souza@email.com</div>
+            </div>
+          </div>
+          <div style="padding:18px 16px 0;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:11px;">Meus filhos</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ childProfiles }}" as="c" hint-placeholder-count="2">
+                <button onClick="{{ c.onSelect }}" style="text-align:left;background:var(--surface);border:1.5px solid {{ c.bd }};border-radius:16px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                  <div style="width:46px;height:46px;border-radius:14px;background:{{ c.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#7A4A34;flex:none;">{{ c.initials }}</div>
+                  <div style="flex:1;">
+                    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:var(--text);">{{ c.name }}</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:1px;">{{ c.sub }}</div>
+                  </div>
+                  <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:600;color:#2E9E7B;background:#E7F7F1;border-radius:20px;padding:5px 11px;">Ativo</span></sc-if>
+                  <sc-if value="{{ c.inactive }}" hint-placeholder-val="{{ true }}"><span style="font-size:11.5px;font-weight:600;color:#2F7FCB;">Acessar</span></sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:18px 16px 0;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:11px;">Configurações</div>
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border-06);">
+                <span style="width:34px;height:34px;border-radius:10px;background:#EAF3FC;color:#2168B8;display:flex;align-items:center;justify-content:center;flex:none;">{{ darkIconEl }}</span>
+                <span style="flex:1;font-size:13.5px;font-weight:500;">Modo escuro</span>
+                <button onClick="{{ toggleDark }}" style="width:44px;height:26px;border-radius:20px;border:none;cursor:pointer;background:{{ darkKnobBg }};position:relative;transition:background .2s;"><span style="position:absolute;top:3px;left:{{ darkKnobX }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s;"></span></button>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border-06);">
+                <span style="width:34px;height:34px;border-radius:10px;background:#EAF3FC;color:#2168B8;display:flex;align-items:center;justify-content:center;flex:none;">{{ ic.bell }}</span>
+                <span style="flex:1;font-size:13.5px;font-weight:500;">Notificações</span>
+                <button onClick="{{ toggleNotif }}" style="width:44px;height:26px;border-radius:20px;border:none;cursor:pointer;background:{{ notifBg }};position:relative;transition:background .2s;"><span style="position:absolute;top:3px;left:{{ notifX }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s;"></span></button>
+              </div>
+              <sc-for list="{{ profileLinks }}" as="l" hint-placeholder-count="3">
+                <div onClick="{{ l.onClick }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border-06);cursor:pointer;">
+                  <span style="width:34px;height:34px;border-radius:10px;background:#EAF3FC;color:#2168B8;display:flex;align-items:center;justify-content:center;flex:none;">{{ l.iconEl }}</span>
+                  <span style="flex:1;font-size:13.5px;font-weight:500;">{{ l.label }}</span>
+                  <span style="display:flex;color:#C2C8D0;">{{ ic.chevR }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ signOut }}" style="margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;color:#C0342E;background:#FDECEC;border:1px solid #F7C4C4;border-radius:15px;padding:13px;cursor:pointer;">{{ ic.logout }} Sair da conta</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-09 MINHAS TURMAS ===== -->
+        <sc-if value="{{ sClasses }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-09 Minhas turmas" style="animation:screenIn .28s ease;">
+          <div style="background:linear-gradient(150deg,#5FC9A6 0%,#4C9BE8 100%);padding:14px 22px 30px;color:#fff;border-radius:0 0 28px 28px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:13px;opacity:.9;">Prof. Alice</div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:21px;margin-top:2px;">Minhas turmas</div>
+              </div>
+              <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;border:1.5px solid rgba(255,255,255,.5);">A</div>
+            </div>
+          </div>
+          <div style="padding:18px 16px 20px;display:flex;flex-direction:column;gap:13px;margin-top:-14px;">
+            <sc-for list="{{ teacherClasses }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.onClick }}" style="text-align:left;background:var(--surface);border:1px solid var(--border-07);border-radius:20px;padding:16px;box-shadow:0 6px 20px -8px rgba(31,41,51,.16);cursor:pointer;display:flex;align-items:center;gap:14px;">
+                <div style="width:50px;height:50px;border-radius:15px;background:{{ t.color }};color:{{ t.colorFg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;flex:none;">{{ t.letter }}</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:var(--text);">Turma {{ t.name }}</div>
+                  <div style="font-size:12.5px;color:var(--text-dim);margin-top:2px;">{{ t.count }} crianças · {{ t.period }}</div>
+                </div>
+                <div style="font-size:11px;font-weight:600;color:{{ t.pendFg }};background:{{ t.pendBg }};border-radius:20px;padding:5px 10px;">{{ t.pendText }}</div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-10 ALUNOS DA TURMA ===== -->
+        <sc-if value="{{ sStudents }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-10 Alunos da turma" style="animation:screenIn .28s ease;padding-bottom:24px;">
+          <div style="position:sticky;top:0;background:var(--screen-92);backdrop-filter:blur(8px);z-index:20;padding:6px 16px 12px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;">{{ ic.chevL }}</button>
+            <div style="flex:1;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">Turma {{ currentClass.name }}</div>
+              <div style="font-size:12px;color:var(--text-dim);">{{ currentClass.progressText }}</div>
+            </div>
+            <span style="display:flex;color:var(--text-dim);">{{ ic.cal }}</span>
+          </div>
+          <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:11px;">
+            <sc-for list="{{ students }}" as="s" hint-placeholder-count="6">
+              <button onClick="{{ s.onClick }}" style="text-align:left;background:var(--surface);border:1px solid {{ s.cardBd }};border-radius:16px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                <div style="width:46px;height:46px;border-radius:14px;background:{{ s.color }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#7A4A34;flex:none;position:relative;">{{ s.initials }}<sc-if value="{{ s.hasAllergy }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;background:#FDE0D5;color:#C0342E;border:1.5px solid #fff;display:flex;align-items:center;justify-content:center;">{{ ic.alertMini }}</span></sc-if></div>
+                <div style="flex:1;">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:var(--text);">{{ s.name }}</div>
+                  <div style="font-size:12px;color:{{ s.subFg }};margin-top:2px;">{{ s.sub }}</div>
+                </div>
+                <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:{{ s.statusFg }};background:{{ s.statusBg }};border-radius:20px;padding:6px 11px;white-space:nowrap;">{{ s.statusEl }}{{ s.statusText }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== T-11 REGISTRAR AGENDA ===== -->
+        <sc-if value="{{ sRegister }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="T-11 Registrar agenda" style="animation:screenIn .28s ease;padding-bottom:28px;">
+          <div style="position:sticky;top:0;background:var(--screen-94);backdrop-filter:blur(8px);z-index:20;padding:6px 14px 10px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;flex:none;">{{ ic.chevL }}</button>
+            <div style="flex:1;">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px;">{{ currentStudent.name }} <span style="font-weight:500;font-size:12px;color:var(--text-dim);">· {{ currentStudent.age }}</span></div>
+              <div style="font-size:12px;color:var(--text-dim);">Turma {{ currentClass.name }} · hoje</div>
+            </div>
+          </div>
+
+          <div style="padding:12px 14px 0;">
+            <sc-if value="{{ currentStudent.hasCare }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;background:linear-gradient(135deg,#FFF3EE,#FDECEC);border:1px solid #FFD1BE;border-radius:14px;padding:11px 13px;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#B8442A;"><span style="display:flex">{{ ic.alert }}</span>Alergia: {{ currentStudent.allergyText }}</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#B8442A;"><span style="display:flex">{{ ic.pill }}</span>{{ currentStudent.medText }}</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="padding:0 14px;display:flex;flex-direction:column;gap:12px;">
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:12px;"><span style="color:#2168B8;display:flex">{{ ic.utensils }}</span>Alimentação</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{ mealChips }}" as="m" hint-placeholder-count="4">
+                  <button onClick="{{ m.onClick }}" style="flex:1;border:1.5px solid {{ m.bd }};background:{{ m.bg }};color:{{ m.fg }};border-radius:12px;padding:11px 4px;cursor:pointer;font-size:12px;font-weight:600;">{{ m.label }}</button>
+                </sc-for>
+              </div>
+              <div style="font-size:12px;color:var(--text-dim);margin:13px 0 8px;">Aceitação</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{ acceptOpts }}" as="a" hint-placeholder-count="3">
+                  <button onClick="{{ a.onClick }}" style="flex:1;border:1.5px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};border-radius:11px;padding:9px 4px;cursor:pointer;font-size:12.5px;font-weight:600;">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;"><span style="color:#2168B8;display:flex">{{ ic.moon }}</span>Sono</div>
+                <sc-if value="{{ sleepOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ toggleSleep }}" style="font-size:11.5px;color:#C7522B;background:none;border:none;cursor:pointer;font-weight:600;">remover</button></sc-if>
+              </div>
+              <sc-if value="{{ sleepOn }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:9px;margin-top:11px;">
+                  <input value="{{ sleepFrom }}" onChange="{{ onSleepFrom }}" style="flex:1;border:1.5px solid var(--border-12);border-radius:11px;padding:10px;font-size:14px;text-align:center;font-family:'Inter';color:var(--text);" />
+                  <span style="color:var(--text-mute);font-size:12px;">até</span>
+                  <input value="{{ sleepTo }}" onChange="{{ onSleepTo }}" style="flex:1;border:1.5px solid var(--border-12);border-radius:11px;padding:10px;font-size:14px;text-align:center;font-family:'Inter';color:var(--text);" />
+                </div>
+              </sc-if>
+              <sc-if value="{{ sleepOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleSleep }}" style="margin-top:10px;width:100%;border:1.5px dashed rgba(31,41,51,.15);background:var(--surface-2);color:var(--text-dim);border-radius:11px;padding:11px;cursor:pointer;font-size:12.5px;font-weight:600;">＋ adicionar soneca</button></sc-if>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:12px;"><span style="color:#2E9E7B;display:flex">{{ ic.brush }}</span>Atividades</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{ activityChips }}" as="a" hint-placeholder-count="5">
+                  <button onClick="{{ a.onClick }}" style="border:1.5px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};border-radius:20px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:600;">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:12px;"><span style="color:#2E9E7B;display:flex">{{ ic.smile }}</span>Humor</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{ moodOpts }}" as="m" hint-placeholder-count="4">
+                  <button onClick="{{ m.onClick }}" style="flex:1;border:1.5px solid {{ m.bd }};background:{{ m.bg }};color:{{ m.fg }};border-radius:13px;padding:11px 2px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;">{{ m.faceEl }}<span style="font-size:10.5px;font-weight:600;">{{ m.label }}</span></button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#2168B8;display:flex">{{ ic.droplet }}</span>
+                <div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;">Higiene</div>
+                  <div style="font-size:12px;color:var(--text-dim);margin-top:1px;">Trocas de fralda</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button onClick="{{ decDiaper }}" style="width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border-12);background:var(--surface-2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ ic.minus }}</button>
+                <span style="font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;min-width:22px;text-align:center;">{{ diapers }}</span>
+                <button onClick="{{ incDiaper }}" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #CFE4F8;background:#EAF3FC;color:#2168B8;cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ ic.plus }}</button>
+              </div>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;"><span style="color:#C0342E;display:flex">{{ ic.thermo }}</span>Intercorrência</div>
+              <div style="font-size:11.5px;color:var(--text-mute);margin:5px 0 11px;">Marque se algo aconteceu — o responsável é avisado.</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{ incidentChips }}" as="i" hint-placeholder-count="5">
+                  <button onClick="{{ i.onClick }}" style="border:1.5px solid {{ i.bd }};background:{{ i.bg }};color:{{ i.fg }};border-radius:20px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:600;">{{ i.label }}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ incidentAlert }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:11px;background:#FDECEC;border:1px solid #F7C4C4;border-radius:12px;padding:9px 11px;font-size:12px;font-weight:600;color:#C0342E;"><span style="display:flex">{{ ic.bell }}</span>Um alerta será enviado ao responsável ao salvar.</div>
+              </sc-if>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:10px;"><span style="color:var(--text-dim);display:flex">{{ ic.file }}</span>Observações</div>
+              <textarea value="{{ notes }}" onChange="{{ onNotes }}" placeholder="Um recado carinhoso para a família…" style="width:100%;min-height:74px;border:1.5px solid var(--border-12);border-radius:12px;padding:11px;font-size:13.5px;font-family:'Inter';color:var(--text);resize:none;line-height:1.5;"></textarea>
+            </div>
+
+            <button onClick="{{ saveAgenda }}" style="margin-top:4px;width:100%;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#fff;background:{{ saveBg }};border:none;border-radius:16px;padding:15px;cursor:pointer;box-shadow:0 10px 24px -8px rgba(76,155,232,.6);display:flex;align-items:center;justify-content:center;gap:9px;">{{ saveIcon }}{{ saveLabel }}</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== PLANOS (professor) ===== -->
+        <sc-if value="{{ sPlans }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Planos de aula" style="animation:screenIn .28s ease;padding-bottom:24px;">
+          <div style="background:linear-gradient(150deg,#5FC9A6,#4C9BE8);padding:14px 22px 22px;color:#fff;border-radius:0 0 28px 28px;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:21px;">Planos de aula</div>
+            <div style="font-size:13px;opacity:.92;margin-top:2px;">Semana de 14–18 jul</div>
+          </div>
+          <div style="padding:14px 16px 0;">
+            <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px;">
+              <sc-for list="{{ planFilters }}" as="p" hint-placeholder-count="4">
+                <button onClick="{{ p.onClick }}" style="flex:none;border:1.5px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};border-radius:20px;padding:8px 14px;cursor:pointer;font-size:12.5px;font-weight:600;">{{ p.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <sc-for list="{{ plans }}" as="pl" hint-placeholder-count="3">
+                <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:15px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+                    <span style="font-size:12px;font-weight:600;color:#2168B8;background:#EAF3FC;border-radius:20px;padding:5px 11px;">{{ pl.date }}</span>
+                    <span style="font-size:12px;color:var(--text-dim);font-weight:500;">Turma {{ pl.turma }}</span>
+                  </div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;">{{ pl.tema }}</div>
+                  <div style="font-size:12.5px;color:var(--text-soft);line-height:1.5;margin-top:4px;">{{ pl.obj }}</div>
+                  <div style="display:flex;flex-direction:column;gap:7px;margin-top:11px;">
+                    <sc-for list="{{ pl.atividades }}" as="at" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-soft2);"><span style="color:#2E9E7B;display:flex">{{ ic.checkMini }}</span>{{ at }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border-06);">
+                    <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-mute);flex:1;min-width:0;"><span style="display:flex">{{ ic.clip }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Materiais: {{ pl.materiais }}</span></div>
+                    <button onClick="{{ pl.onEdit }}" style="flex:none;display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:10px;padding:6px 10px;cursor:pointer;">{{ ic.edit }} Editar</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ newPlan }}" style="margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:#2F7FCB;background:#EAF3FC;border:1.5px dashed #A9CFF0;border-radius:15px;padding:14px;cursor:pointer;">{{ ic.plus }} Novo plano</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== FORMULÁRIO DE PLANO ===== -->
+        <sc-if value="{{ sPlanForm }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Plano de aula" style="animation:screenIn .28s ease;padding-bottom:28px;">
+          <div style="position:sticky;top:0;background:var(--screen-94);backdrop-filter:blur(8px);z-index:20;padding:6px 14px 10px;border-bottom:1px solid var(--border-06);display:flex;align-items:center;gap:10px;">
+            <button onClick="{{ back }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border-10);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;flex:none;">{{ ic.chevL }}</button>
+            <div style="flex:1;font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;">{{ planFormTitle }}</div>
+          </div>
+
+          <div style="padding:14px 14px 0;display:flex;flex-direction:column;gap:12px;">
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:9px;">Turma</div>
+              <div style="display:flex;gap:8px;">
+                <sc-for list="{{ planTurmaOpts }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.onClick }}" style="flex:1;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};border-radius:12px;padding:10px 4px;cursor:pointer;font-size:12px;font-weight:600;">{{ t.label }}</button>
+                </sc-for>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin:14px 0 7px;">Data</div>
+              <input value="{{ draftDate }}" onChange="{{ onDraftDate }}" placeholder="Ex: 19 jul · Sex" style="width:100%;border:1.5px solid var(--border-12);border-radius:11px;padding:11px;font-size:13.5px;font-family:'Inter';color:var(--text);" />
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:7px;">Tema</div>
+              <input value="{{ draftTema }}" onChange="{{ onDraftTema }}" placeholder="Ex: Cores primárias" style="width:100%;border:1.5px solid var(--border-12);border-radius:11px;padding:11px;font-size:14px;font-family:'Inter';color:var(--text);font-weight:600;" />
+              <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin:14px 0 7px;">Objetivo pedagógico</div>
+              <textarea value="{{ draftObj }}" onChange="{{ onDraftObj }}" placeholder="O que as crianças vão desenvolver…" style="width:100%;min-height:70px;border:1.5px solid var(--border-12);border-radius:12px;padding:11px;font-size:13.5px;font-family:'Inter';color:var(--text);resize:none;line-height:1.5;"></textarea>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;margin-bottom:11px;"><span style="color:#2E9E7B;display:flex">{{ ic.brush }}</span>Atividades</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ draftAtividades }}" as="a" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:9px;background:var(--surface-2);border:1px solid var(--border-07);border-radius:11px;padding:9px 11px;">
+                    <span style="color:#2E9E7B;display:flex">{{ ic.checkMini }}</span>
+                    <span style="flex:1;font-size:12.5px;color:var(--text-soft2);">{{ a.label }}</span>
+                    <button onClick="{{ a.onRemove }}" style="width:24px;height:24px;border-radius:50%;border:none;background:#FDECEC;color:#C0342E;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;">{{ ic.close }}</button>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ noAtividades }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12px;color:var(--text-mute);padding:2px 2px 4px;">Nenhuma atividade ainda — adicione abaixo.</div>
+                </sc-if>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <input value="{{ draftAtvInput }}" onChange="{{ onDraftAtvInput }}" onKeyDown="{{ onAtvKey }}" placeholder="Nova atividade" style="flex:1;border:1.5px solid var(--border-12);border-radius:11px;padding:10px;font-size:13px;font-family:'Inter';color:var(--text);" />
+                <button onClick="{{ addAtividade }}" style="flex:none;width:42px;border-radius:11px;border:1.5px solid #CFE4F8;background:#EAF3FC;color:#2168B8;cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ ic.plus }}</button>
+              </div>
+            </div>
+
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:7px;">Materiais</div>
+              <input value="{{ draftMateriais }}" onChange="{{ onDraftMateriais }}" placeholder="Ex: Tinta guache, papel A3…" style="width:100%;border:1.5px solid var(--border-12);border-radius:11px;padding:11px;font-size:13.5px;font-family:'Inter';color:var(--text);" />
+            </div>
+
+            <button onClick="{{ savePlan }}" style="margin-top:4px;width:100%;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#fff;background:{{ planSaveOk }};border:none;border-radius:16px;padding:15px;cursor:{{ planSaveCursor }};box-shadow:0 10px 24px -8px rgba(76,155,232,.6);display:flex;align-items:center;justify-content:center;gap:9px;">{{ ic.check }} Salvar plano</button>
+            <div style="text-align:center;font-size:11.5px;color:var(--text-mute);">{{ planSaveHint }}</div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== PERFIL PROFESSOR ===== -->
+        <sc-if value="{{ sTeacherProfile }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Perfil professor" style="animation:screenIn .28s ease;padding-bottom:20px;">
+          <div style="background:linear-gradient(150deg,#5FC9A6,#4C9BE8);padding:20px 22px 26px;color:#fff;border-radius:0 0 28px 28px;display:flex;align-items:center;gap:14px;">
+            <div style="width:60px;height:60px;border-radius:18px;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;">A</div>
+            <div>
+              <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;">Alice Ferreira</div>
+              <div style="font-size:12.5px;opacity:.92;margin-top:2px;">Professora · 3 turmas</div>
+            </div>
+          </div>
+          <div style="padding:18px 16px 0;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:11px;">Minhas turmas</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ teacherClasses }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border-07);border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                  <div style="width:42px;height:42px;border-radius:12px;background:{{ t.color }};color:{{ t.colorFg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:17px;flex:none;">{{ t.letter }}</div>
+                  <div style="flex:1;"><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;">Turma {{ t.name }}</div><div style="font-size:12px;color:var(--text-dim);margin-top:1px;">{{ t.count }} crianças · {{ t.period }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:18px 16px 0;">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:11px;">Configurações</div>
+            <div style="background:var(--surface);border:1px solid var(--border-07);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border-06);">
+                <span style="width:34px;height:34px;border-radius:10px;background:#E7F7F1;color:#2E9E7B;display:flex;align-items:center;justify-content:center;flex:none;">{{ darkIconEl }}</span>
+                <span style="flex:1;font-size:13.5px;font-weight:500;">Modo escuro</span>
+                <button onClick="{{ toggleDark }}" style="width:44px;height:26px;border-radius:20px;border:none;cursor:pointer;background:{{ darkKnobBg }};position:relative;transition:background .2s;"><span style="position:absolute;top:3px;left:{{ darkKnobX }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s;"></span></button>
+              </div>
+              <sc-for list="{{ teacherLinks }}" as="l" hint-placeholder-count="3">
+                <div onClick="{{ l.onClick }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border-06);cursor:pointer;">
+                  <span style="width:34px;height:34px;border-radius:10px;background:#E7F7F1;color:#2E9E7B;display:flex;align-items:center;justify-content:center;flex:none;">{{ l.iconEl }}</span>
+                  <span style="flex:1;font-size:13.5px;font-weight:500;">{{ l.label }}</span>
+                  <span style="display:flex;color:#C2C8D0;">{{ ic.chevR }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ signOut }}" style="margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;color:#C0342E;background:#FDECEC;border:1px solid #F7C4C4;border-radius:15px;padding:13px;cursor:pointer;">{{ ic.logout }} Sair da conta</button>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <sc-if value="{{ showParentNav }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:none;display:flex;background:var(--surface);border-top:1px solid var(--border-07);padding:9px 10px 24px;">
+          <button onClick="{{ goHome }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navHomeColor }};"><span style="display:flex">{{ ic.home }}</span>Início</button>
+          <button onClick="{{ goFinance }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navFinColor }};"><span style="display:flex">{{ ic.wallet }}</span>Financeiro</button>
+          <button onClick="{{ goProfile }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navProfColor }};"><span style="display:flex">{{ ic.user }}</span>Perfil</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showTeacherNav }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:none;display:flex;background:var(--surface);border-top:1px solid var(--border-07);padding:9px 10px 24px;">
+          <button onClick="{{ goClasses }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navClassColor }};"><span style="display:flex">{{ ic.users }}</span>Turmas</button>
+          <button onClick="{{ goPlans }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navPlansColor }};"><span style="display:flex">{{ ic.clip }}</span>Planos</button>
+          <button onClick="{{ goTeacherProfile }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:'Inter';color:{{ navTProfColor }};"><span style="display:flex">{{ ic.user }}</span>Perfil</button>
+        </div>
+      </sc-if>
+
+      </div>
+
+      <!-- PROFILE SWITCHER SHEET -->
+      <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeProfiles }}" style="position:absolute;inset:0;background:rgba(14,22,34,.4);z-index:50;animation:fadeIn .2s ease;display:flex;flex-direction:column;justify-content:flex-end;">
+          <div onClick="{{ stop }}" style="background:var(--screen);border-radius:26px 26px 0 0;padding:10px 18px 30px;animation:sheetIn .28s cubic-bezier(.2,.8,.2,1);">
+            <div style="width:40px;height:4px;border-radius:4px;background:rgba(31,41,51,.15);margin:6px auto 14px;"></div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;margin-bottom:4px;">Trocar de perfil</div>
+            <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px;">Cada filho tem um acompanhamento individual.</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ childProfiles }}" as="c" hint-placeholder-count="2">
+                <button onClick="{{ c.onSelect }}" style="text-align:left;background:var(--surface);border:1.5px solid {{ c.bd }};border-radius:16px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+                  <div style="width:46px;height:46px;border-radius:14px;background:{{ c.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#7A4A34;flex:none;">{{ c.initials }}</div>
+                  <div style="flex:1;">
+                    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;color:var(--text);">{{ c.name }}</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:1px;">{{ c.sub }}</div>
+                  </div>
+                  <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}"><span style="color:#2E9E7B;display:flex">{{ ic.check }}</span></sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- TOAST -->
+      <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:#1F2933;color:#fff;font-size:12.5px;font-weight:600;padding:12px 16px;border-radius:14px;box-shadow:0 12px 28px -8px rgba(0,0,0,.4);max-width:86%;animation:toastIn .3s ease;z-index:60;display:flex;align-items:center;gap:8px;"><span style="display:flex;color:#7FE0BF">{{ ic.check }}</span>{{ toastText }}</div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <sc-if value="{{ isMobileView }}" hint-placeholder-val="{{ true }}">
+  <div style="font-size:11.5px;color:#8A93A0;text-align:center;max-width:370px;line-height:1.5;">Responsável (perfil 1:1 por filho, avisos, agenda, financeiro, comprovante) e Professor (turmas, registro, planos, perfil). Toque para navegar.</div>
+  </sc-if>
+  </sc-if>
+
+  <!-- ================= T-01 LANDING PAGE (público, sem sidebar) ================= -->
+  <sc-if value="{{ sLanding }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="T-01 Landing" style="width:min(1180px,100%);background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(14,22,34,.5),0 0 0 1px var(--border-06);animation:screenIn .3s ease;">
+
+    <!-- NAV -->
+    <div style="position:sticky;top:0;z-index:30;background:rgba(252,251,248,.86);backdrop-filter:blur(14px);border-bottom:1px solid rgba(31,41,51,.07);">
+      <div style="padding:{{ lpNavPad }};display:flex;align-items:center;gap:16px;">
+        <div style="display:flex;align-items:center;gap:11px;margin-right:auto;">
+          <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 16px -4px rgba(76,155,232,.5);">{{ lic.droplet }}</div>
+          <span style="font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.3px;color:#1F2933;">Aquarela Kids</span>
+        </div>
+        <div style="display:{{ lpNavLinks }};align-items:center;gap:24px;font-size:14.5px;font-weight:500;">
+          <a href="#lp-recursos" style="color:#4B5563;">Recursos</a>
+          <a href="#lp-como" style="color:#4B5563;">Como funciona</a>
+          <a href="#lp-planos" style="color:#4B5563;">Planos</a>
+          <a href="#lp-depo" style="color:#4B5563;">Depoimentos</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button onClick="{{ goLogin }}" style="font-family:'Inter';font-size:14.5px;font-weight:600;color:#2F7FCB;background:none;border:none;cursor:pointer;padding:9px 4px;">Entrar</button>
+          <button onClick="{{ scheduleVisit }}" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:12px;padding:11px 18px;white-space:nowrap;cursor:pointer;box-shadow:0 8px 20px -8px rgba(76,155,232,.7);">Agende uma visita</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div style="position:relative;padding:{{ lpHeroPad }};display:grid;grid-template-columns:{{ lpHeroCols }};gap:44px;align-items:center;overflow:hidden;">
+      <div style="position:absolute;top:-60px;left:-120px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(76,155,232,.18),transparent 68%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-90px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle at 60% 40%,rgba(95,201,166,.2),transparent 66%);pointer-events:none;"></div>
+      <div style="position:relative;">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:#2F7FCB;margin-bottom:20px;"><span style="width:7px;height:7px;border-radius:50%;background:#5FC9A6;"></span>A rotina do berçário à pré-escola, no seu bolso</div>
+        <h1 style="font-family:'Poppins',sans-serif;font-weight:800;font-size:{{ lpH1 }};line-height:1.07;letter-spacing:-1.2px;margin:0 0 18px;color:#1F2933;text-wrap:balance;">O dia do seu filho,<br><span style="background:linear-gradient(120deg,#4C9BE8,#5FC9A6);-webkit-background-clip:text;background-clip:text;color:transparent;">do jeitinho</span> que ele merece.</h1>
+        <p style="font-size:17px;line-height:1.6;color:#4B5563;margin:0 0 28px;max-width:470px;">Agenda diária, fotos, avisos e financeiro reunidos em um só lugar. A Aquarela Kids aproxima famílias e escola com carinho e transparência.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
+          <button onClick="{{ scheduleVisit }}" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:14px;padding:15px 26px;cursor:pointer;box-shadow:0 14px 30px -12px rgba(76,155,232,.75);display:inline-flex;align-items:center;gap:9px;">Agende uma visita {{ lic.arrow }}</button>
+          <button onClick="{{ goSimulator }}" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#1F2933;background:#fff;border:1.5px solid rgba(31,41,51,.12);border-radius:14px;padding:15px 24px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;">{{ lic.calc }} Simular mensalidade</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="display:flex;">
+            <sc-for list="{{ lpAvatars }}" as="a" hint-placeholder-count="4">
+              <div style="width:40px;height:40px;border-radius:50%;border:2.5px solid var(--surface);margin-left:-11px;background:{{ a.bg }};display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Poppins';font-weight:600;font-size:14px;">{{ a.txt }}</div>
+            </sc-for>
+          </div>
+          <div style="font-size:13.5px;color:#6B7280;line-height:1.4;"><b style="color:#1F2933;">+40 famílias</b> acompanham<br>o dia a dia por aqui.</div>
+        </div>
+      </div>
+      <div style="position:relative;display:flex;justify-content:center;">
+        <div style="position:absolute;inset:8% 14%;background:linear-gradient(150deg,#4C9BE8,#5FC9A6);border-radius:44px;filter:blur(40px);opacity:.3;"></div>
+        <div style="position:relative;width:280px;">
+          <div style="border:11px solid #0E1622;border-radius:46px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(18,59,99,.55);background:#0E1622;">
+            <div style="background:#FCFBF8;">
+              <div style="background:linear-gradient(150deg,#4C9BE8 0%,#5FC9A6 100%);padding:40px 20px 20px;color:#fff;border-radius:0 0 26px 26px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;opacity:.92;margin-bottom:14px;"><span>Olá, Marina</span><span>Ter, 16 jul</span></div>
+                <div style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:12px 13px;display:flex;align-items:center;gap:11px;">
+                  <div style="width:44px;height:44px;border-radius:13px;overflow:hidden;flex:none;"><image-slot id="lp-hero-child" shape="rect" placeholder="Foto"></image-slot></div>
+                  <div><div style="font-family:'Poppins';font-weight:600;font-size:16px;">Lorena</div><div style="font-size:11.5px;opacity:.9;">Turma Girassol · 3 anos</div></div>
+                </div>
+              </div>
+              <div style="padding:14px 15px 18px;">
+                <div style="font-family:'Poppins';font-weight:600;font-size:13px;margin-bottom:8px;color:#1F2933;">Agenda de hoje</div>
+                <sc-for list="{{ lpAgenda }}" as="e" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid rgba(31,41,51,.06);">
+                    <div style="width:32px;height:32px;border-radius:10px;background:{{ e.bg }};color:{{ e.fg }};display:flex;align-items:center;justify-content:center;flex:none;">{{ e.icon }}</div>
+                    <div style="flex:1;"><div style="font-size:12.5px;font-weight:600;font-family:'Poppins';color:#1F2933;">{{ e.title }}</div><div style="font-size:11px;color:#6B7280;">{{ e.time }}</div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div style="padding:0 {{ lpEdge }} 8px;">
+      <div style="background:linear-gradient(120deg,#123B63,#0E2E4D);border-radius:24px;padding:{{ lpStatsPad }};display:grid;grid-template-columns:{{ lpStatsCols }};gap:20px;color:#fff;box-shadow:0 30px 60px -30px rgba(18,59,99,.6);">
+        <sc-for list="{{ lpStats }}" as="s" hint-placeholder-count="4">
+          <div style="text-align:center;">
+            <div style="font-family:'Poppins';font-weight:700;font-size:34px;letter-spacing:-1px;background:linear-gradient(120deg,#9FD0F5,#8FE3C6);-webkit-background-clip:text;background-clip:text;color:transparent;">{{ s.num }}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px;">{{ s.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div id="lp-recursos" style="padding:{{ lpSecPad }};">
+      <div style="text-align:center;max-width:600px;margin:0 auto 40px;">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5FC9A6;margin-bottom:12px;">Tudo em um só app</div>
+        <h2 style="font-family:'Poppins';font-weight:700;font-size:{{ lpH2 }};letter-spacing:-1px;margin:0 0 12px;color:#1F2933;text-wrap:balance;">Menos papel, mais presença</h2>
+        <p style="font-size:16.5px;line-height:1.6;color:#6B7280;margin:0;">Cada recurso foi pensado para dar tranquilidade às famílias e leveza ao dia da escola.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ lp3Cols }};gap:18px;">
+        <sc-for list="{{ lpFeatures }}" as="f" hint-placeholder-count="6">
+          <div style="background:var(--surface);border:1px solid rgba(31,41,51,.08);border-radius:20px;padding:24px 22px;box-shadow:0 8px 24px -16px rgba(31,41,51,.28);">
+            <div style="width:50px;height:50px;border-radius:15px;background:{{ f.bg }};color:{{ f.fg }};display:flex;align-items:center;justify-content:center;margin-bottom:16px;">{{ f.icon }}</div>
+            <div style="font-family:'Poppins';font-weight:600;font-size:17.5px;margin-bottom:7px;color:#1F2933;">{{ f.title }}</div>
+            <div style="font-size:14.5px;line-height:1.6;color:#6B7280;">{{ f.desc }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- HOW -->
+    <div id="lp-como" style="background:linear-gradient(180deg,#F2F0EB,var(--surface));border-top:1px solid rgba(31,41,51,.06);border-bottom:1px solid rgba(31,41,51,.06);padding:{{ lpSecPad }};">
+      <div style="display:grid;grid-template-columns:{{ lpHowCols }};gap:48px;align-items:center;">
+        <div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5FC9A6;margin-bottom:12px;">Como funciona</div>
+          <h2 style="font-family:'Poppins';font-weight:700;font-size:{{ lpH2 }};letter-spacing:-1px;margin:0 0 28px;color:#1F2933;text-wrap:balance;">Simples para a escola, tranquilo para a família</h2>
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <sc-for list="{{ lpSteps }}" as="st" hint-placeholder-count="3">
+              <div style="display:flex;gap:16px;">
+                <div style="width:46px;height:46px;flex:none;border-radius:14px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:700;font-size:18px;box-shadow:0 10px 22px -10px rgba(76,155,232,.7);">{{ st.n }}</div>
+                <div style="padding-top:2px;"><div style="font-family:'Poppins';font-weight:600;font-size:17.5px;margin-bottom:4px;color:#1F2933;">{{ st.title }}</div><div style="font-size:14.5px;line-height:1.6;color:#6B7280;">{{ st.desc }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="position:relative;border-radius:26px;overflow:hidden;min-height:400px;box-shadow:0 40px 70px -34px rgba(18,59,99,.5);">
+          <image-slot id="lp-how-photo" shape="rect" placeholder="Foto de crianças na escola"></image-slot>
+          <div style="position:absolute;left:18px;bottom:18px;right:18px;background:rgba(252,251,248,.92);backdrop-filter:blur(8px);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;pointer-events:none;">
+            <div style="width:42px;height:42px;border-radius:13px;background:#E7F7F1;color:#2E9E7B;display:flex;align-items:center;justify-content:center;flex:none;">{{ lic.check }}</div>
+            <div><div style="font-family:'Poppins';font-weight:600;font-size:14px;color:#1F2933;">Registro enviado às 11:20</div><div style="font-size:12.5px;color:#6B7280;">"Almoçou muito bem hoje 🍲"</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANS -->
+    <div id="lp-planos" style="padding:{{ lpSecPad }};">
+      <div style="text-align:center;max-width:600px;margin:0 auto 40px;">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5FC9A6;margin-bottom:12px;">Planos</div>
+        <h2 style="font-family:'Poppins';font-weight:700;font-size:{{ lpH2 }};letter-spacing:-1px;margin:0 0 12px;color:#1F2933;text-wrap:balance;">Escolha o ritmo da sua família</h2>
+        <p style="font-size:16.5px;line-height:1.6;color:#6B7280;margin:0;">Valores de referência. A proposta final é definida na visita, sem compromisso.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ lp3Cols }};gap:18px;align-items:stretch;">
+        <sc-for list="{{ lpPlans }}" as="p" hint-placeholder-count="3">
+          <div style="{{ p.cardStyle }}">
+            <sc-if value="{{ p.badge }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;color:#fff;">{{ p.badge }}</div></sc-if>
+            <div style="font-family:'Poppins';font-weight:600;font-size:19px;color:{{ p.titleFg }};">{{ p.name }}</div>
+            <div style="font-size:13.5px;color:{{ p.subFg }};margin-top:4px;margin-bottom:18px;">{{ p.tagline }}</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:20px;"><span style="font-family:'Poppins';font-weight:700;font-size:36px;letter-spacing:-1px;color:{{ p.priceFg }};">{{ p.price }}</span><span style="font-size:13.5px;color:{{ p.subFg }};">/ mês</span></div>
+            <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:24px;">
+              <sc-for list="{{ p.items }}" as="it" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:{{ p.itemFg }};"><span style="color:{{ p.tickFg }};display:flex;flex:none;">{{ lic.check }}</span>{{ it }}</div>
+              </sc-for>
+            </div>
+            <button onClick="{{ scheduleVisit }}" style="{{ p.btnStyle }}">Agende uma visita</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:12px;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:18px;padding:18px 22px;text-align:center;flex-wrap:wrap;">
+        <span style="font-size:14.5px;color:#2F5E85;">Quer simular com dias avulsos ou meses específicos?</span>
+        <button onClick="{{ goSimulator }}" style="font-family:'Poppins';font-weight:600;font-size:14px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:12px;padding:11px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">Abrir simulador {{ lic.arrow }}</button>
+      </div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <div id="lp-depo" style="padding:{{ lpSecPad }};">
+      <div style="text-align:center;max-width:600px;margin:0 auto 36px;">
+        <div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5FC9A6;margin-bottom:12px;">Depoimentos</div>
+        <h2 style="font-family:'Poppins';font-weight:700;font-size:{{ lpH2 }};letter-spacing:-1px;margin:0;color:#1F2933;text-wrap:balance;">Famílias mais perto do dia a dia</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ lp3Cols }};gap:18px;">
+        <sc-for list="{{ lpTestimonials }}" as="t" hint-placeholder-count="3">
+          <div style="background:var(--surface);border:1px solid rgba(31,41,51,.08);border-radius:20px;padding:24px 22px;box-shadow:0 8px 24px -16px rgba(31,41,51,.28);display:flex;flex-direction:column;">
+            <div style="color:#F5B841;font-size:15px;letter-spacing:2px;margin-bottom:13px;">{{ t.stars }}</div>
+            <div style="font-size:15px;line-height:1.65;color:#3F4A57;flex:1;">"{{ t.quote }}"</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:18px;">
+              <div style="width:42px;height:42px;border-radius:50%;background:{{ t.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:600;font-size:15px;flex:none;">{{ t.initials }}</div>
+              <div><div style="font-family:'Poppins';font-weight:600;font-size:14.5px;color:#1F2933;">{{ t.name }}</div><div style="font-size:12.5px;color:#6B7280;">{{ t.role }}</div></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- FINAL CTA -->
+    <div style="padding:8px {{ lpEdge }} {{ lpEdge }};">
+      <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#4C9BE8 0%,#5FC9A6 100%);border-radius:30px;padding:{{ lpCtaPad }};text-align:center;color:#fff;box-shadow:0 40px 80px -34px rgba(76,155,232,.7);">
+        <div style="position:absolute;top:-80px;right:-40px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.12);"></div>
+        <div style="position:absolute;bottom:-100px;left:-30px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.1);"></div>
+        <div style="position:relative;">
+          <h2 style="font-family:'Poppins';font-weight:800;font-size:{{ lpH2b }};letter-spacing:-1.1px;margin:0 0 12px;text-wrap:balance;">Venha conhecer a Aquarela Kids</h2>
+          <p style="font-size:17px;line-height:1.6;opacity:.94;margin:0 auto 26px;max-width:500px;">Agende uma visita e veja de perto como cuidamos de cada detalhe do dia do seu filho.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+            <button onClick="{{ scheduleVisit }}" style="font-family:'Poppins';font-weight:600;font-size:16px;color:#2F7FCB;background:#fff;border:none;border-radius:14px;padding:15px 28px;cursor:pointer;box-shadow:0 16px 30px -14px rgba(0,0,0,.4);display:inline-flex;align-items:center;gap:9px;">Agende uma visita {{ lic.arrow }}</button>
+            <button onClick="{{ goLogin }}" style="font-family:'Poppins';font-weight:600;font-size:16px;color:#fff;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4);border-radius:14px;padding:15px 26px;cursor:pointer;">Já sou cliente · Entrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="border-top:1px solid rgba(31,41,51,.08);">
+      <div style="padding:{{ lpFootPad }};display:grid;grid-template-columns:{{ lpFooterCols }};gap:30px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);display:flex;align-items:center;justify-content:center;color:#fff;">{{ lic.droplet }}</div><span style="font-family:'Poppins';font-weight:700;font-size:17px;color:#1F2933;">Aquarela Kids</span></div>
+          <p style="font-size:13.5px;line-height:1.6;color:#6B7280;margin:0;max-width:260px;">A agenda diária do seu filho, do jeitinho que ele merece.</p>
+        </div>
+        <sc-for list="{{ lpFooter }}" as="c" hint-placeholder-count="3">
+          <div>
+            <div style="font-family:'Poppins';font-weight:600;font-size:14px;margin-bottom:12px;color:#1F2933;">{{ c.title }}</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ c.links }}" as="l" hint-placeholder-count="4"><a href="#" style="font-size:13.5px;color:#6B7280;">{{ l }}</a></sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border-top:1px solid rgba(31,41,51,.07);padding:16px {{ lpEdge }};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#9AA1AC;"><span>© 2026 Aquarela Kids. Feito com carinho.</span><span>Termos · Privacidade</span></div>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ================= PAINEL ADMIN (desktop) ================= -->
+  <sc-if value="{{ sAdmin }}" hint-placeholder-val="{{ false }}">
+  <div style="width:min(1120px,94vw);height:720px;background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(14,22,34,.5), 0 0 0 1px var(--border-06);display:flex;">
+
+    <!-- Sidebar -->
+    <div style="width:236px;flex:none;background:linear-gradient(180deg,#123B63,#0E2E4D);color:#fff;display:flex;flex-direction:column;padding:20px 14px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:0 8px 18px;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4C9BE8,#5FC9A6);display:flex;align-items:center;justify-content:center;">{{ ic.droplet }}</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;">Aquarela Kids</div>
+      </div>
+      <div style="font-size:10.5px;letter-spacing:.12em;color:rgba(255,255,255,.45);font-weight:600;padding:0 10px 8px;">GESTÃO</div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="6">
+          <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:11px;text-align:left;background:{{ n.bg }};border:none;color:{{ n.fg }};border-radius:11px;padding:11px 12px;cursor:pointer;font-size:13.5px;font-weight:{{ n.weight }};font-family:'Inter';"><span style="display:flex;opacity:{{ n.iconOp }}">{{ n.iconEl }}</span>{{ n.label }}<sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:10.5px;font-weight:700;background:#FF8A65;color:#fff;border-radius:20px;padding:2px 7px;">{{ n.badgeText }}</span></sc-if></button>
+        </sc-for>
+      </div>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:13px;padding:10px 11px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:600;font-size:14px;flex:none;">RC</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Renata Costa</div>
+          <div style="font-size:10.5px;color:rgba(255,255,255,.55);">Coordenadora</div>
+        </div>
+        <button onClick="{{ signOut }}" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;display:flex;">{{ ic.logout }}</button>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="app-scroll" style="flex:1;overflow-y:auto;background:var(--admin-bg);">
+      <div style="position:sticky;top:0;z-index:10;background:var(--screen-90);backdrop-filter:blur(8px);display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--border-06);">
+        <div style="flex:1;">
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;color:var(--text);">{{ adminTitle }}</div>
+          <div style="font-size:12.5px;color:var(--text-dim);margin-top:1px;">{{ adminSubtitle }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border-10);border-radius:11px;padding:9px 12px;color:var(--text-mute);width:200px;">{{ ic.search }}<span style="font-size:12.5px;">Buscar…</span></div>
+        <button onClick="{{ toggleDark }}" title="Modo escuro" style="width:40px;height:40px;flex:none;border-radius:11px;border:1px solid var(--border-10);background:var(--surface);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ darkIconEl }}</button>
+        <sc-if value="{{ adminPrimaryBtn }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ adminPrimaryAction }}" style="display:flex;align-items:center;gap:7px;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:11px;padding:10px 15px;cursor:pointer;box-shadow:0 6px 16px -5px rgba(76,155,232,.6);white-space:nowrap;">{{ ic.plus }} {{ adminPrimaryLabel }}</button>
+        </sc-if>
+      </div>
+
+      <div style="padding:22px 26px 30px;">
+
+        <!-- DASHBOARD -->
+        <sc-if value="{{ aDash }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                <div style="display:flex;align-items:center;gap:8px;color:{{ k.fg }};"><span style="width:32px;height:32px;border-radius:9px;background:{{ k.bg }};display:flex;align-items:center;justify-content:center;">{{ k.iconEl }}</span></div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:26px;margin-top:12px;color:var(--text);">{{ k.value }}</div>
+                <div style="font-size:12.5px;color:var(--text-dim);margin-top:1px;">{{ k.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:18px;">
+            <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;padding:18px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;margin-bottom:14px;">Atividade recente</div>
+              <div style="display:flex;flex-direction:column;gap:2px;">
+                <sc-for list="{{ activity }}" as="a" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-06);">
+                    <span style="width:34px;height:34px;border-radius:10px;background:{{ a.bg }};color:{{ a.fg }};display:flex;align-items:center;justify-content:center;flex:none;">{{ a.iconEl }}</span>
+                    <div style="flex:1;"><div style="font-size:13px;color:var(--text-soft2);font-weight:500;">{{ a.text }}</div></div>
+                    <div style="font-size:11.5px;color:var(--text-mute);white-space:nowrap;">{{ a.time }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;padding:18px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;margin-bottom:14px;">Pendências</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <sc-for list="{{ pendencias }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex;gap:11px;background:{{ p.bg }};border:1px solid {{ p.bd }};border-radius:13px;padding:11px 12px;">
+                    <span style="color:{{ p.fg }};display:flex;flex:none;">{{ p.iconEl }}</span>
+                    <div style="font-size:12.5px;line-height:1.45;color:var(--text-soft);"><b style="color:{{ p.fg }};">{{ p.title }}</b><br>{{ p.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- CRIANÇAS / TURMAS / PROFESSORES / USUÁRIOS (tabelas) -->
+        <sc-if value="{{ aTable }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+            <div style="display:grid;grid-template-columns:{{ tableCols }};padding:13px 20px;background:var(--surface-2);border-bottom:1px solid var(--border-07);font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--text-mute);text-transform:uppercase;">
+              <sc-for list="{{ tableHead }}" as="h" hint-placeholder-count="4"><div>{{ h }}</div></sc-for>
+            </div>
+            <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:{{ tableCols }};align-items:center;padding:13px 20px;border-bottom:1px solid rgba(31,41,51,.05);font-size:13px;color:var(--text-soft2);">
+                <div style="display:flex;align-items:center;gap:11px;min-width:0;">
+                <div style="width:36px;height:36px;border-radius:10px;overflow:hidden;background:{{ r.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:600;font-size:13px;color:{{ r.avatarFg }};flex:none;position:relative;"><sc-if value="{{ r.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ r.photo }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" /></sc-if><sc-if value="{{ r.noPhoto }}" hint-placeholder-val="{{ true }}">{{ r.initials }}</sc-if></div>
+                  <div style="min-width:0;"><div style="font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</div><sc-if value="{{ r.hasSub }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</div></sc-if></div>
+                </div>
+                <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.c2 }}</div>
+                <div>
+                  <sc-if value="{{ r.c3Badge }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px;font-weight:600;color:{{ r.badgeFg }};background:{{ r.badgeBg }};border-radius:20px;padding:5px 11px;">{{ r.badge }}</span></sc-if>
+                  <sc-if value="{{ r.c3Plain }}" hint-placeholder-val="{{ true }}"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.c3 }}</span></sc-if>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+                  <sc-if value="{{ r.showBadge }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px;font-weight:600;color:{{ r.badgeFg }};background:{{ r.badgeBg }};border-radius:20px;padding:5px 11px;white-space:nowrap;">{{ r.badge }}</span></sc-if>
+                  <button onClick="{{ r.onEdit }}" title="Editar" style="width:32px;height:32px;border-radius:9px;border:1px solid var(--border-10);background:var(--surface);color:var(--text-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;">{{ r.editEl }}</button>
+                  <button onClick="{{ r.onDelete }}" title="Excluir" style="width:32px;height:32px;border-radius:9px;border:1px solid #F3D2D2;background:#FDF2F2;color:#C0342E;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;">{{ r.delEl }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- FINANCEIRO ADMIN -->
+        <sc-if value="{{ aFinance }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+            <sc-for list="{{ finKpis }}" as="k" hint-placeholder-count="3">
+              <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(31,41,51,.04);">
+                <div style="font-size:12.5px;color:var(--text-dim);">{{ k.label }}</div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:24px;margin-top:5px;color:{{ k.fg }};">{{ k.value }}</div>
+                <div style="font-size:11.5px;color:var(--text-mute);margin-top:2px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border-06);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(31,41,51,.04);margin-top:18px;">
+            <div style="padding:15px 20px;border-bottom:1px solid var(--border-07);font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;">Inadimplência</div>
+            <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;padding:12px 20px;background:var(--surface-2);border-bottom:1px solid var(--border-07);font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--text-mute);text-transform:uppercase;">
+              <div>Responsável / Criança</div><div>Turma</div><div>Referência</div><div>Valor</div>
+            </div>
+            <sc-for list="{{ inadimplentes }}" as="d" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;align-items:center;padding:13px 20px;border-bottom:1px solid rgba(31,41,51,.05);font-size:13px;color:var(--text-soft2);">
+                <div><div style="font-weight:600;color:var(--text);">{{ d.resp }}</div><div style="font-size:11.5px;color:var(--text-mute);">{{ d.child }}</div></div>
+                <div>{{ d.turma }}</div>
+                <div style="color:#C0342E;font-weight:600;">{{ d.ref }}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;"><span style="font-weight:600;">{{ d.valor }}</span><button onClick="{{ d.onNotify }}" style="font-size:11.5px;font-weight:600;color:#2F7FCB;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:9px;padding:6px 10px;cursor:pointer;">Cobrar</button></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+
+    <!-- MODAL: nova criança / novo cadastro -->
+    <sc-if value="{{ adminModal }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeAdminModal }}" style="position:absolute;inset:0;background:rgba(14,22,34,.42);z-index:40;display:flex;align-items:center;justify-content:center;animation:fadeIn .18s ease;">
+        <div onClick="{{ stop }}" class="app-scroll" style="width:460px;max-height:86%;overflow-y:auto;background:var(--surface);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:screenIn .24s ease;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border-07);">
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:17px;">{{ modalTitle }}</div>
+            <button onClick="{{ closeAdminModal }}" style="width:32px;height:32px;border-radius:9px;border:1px solid var(--border-10);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-dim);">{{ ic.close }}</button>
+          </div>
+          <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ modalFields }}" as="f" hint-placeholder-count="4">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">{{ f.label }}</div>
+                <sc-if value="{{ f.isPhoto }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:66px;height:66px;border-radius:18px;overflow:hidden;background:{{ f.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-weight:600;font-size:20px;color:#6B4A38;flex:none;position:relative;">
+                      <sc-if value="{{ f.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ f.photo }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" /></sc-if>
+                      <sc-if value="{{ f.noPhoto }}" hint-placeholder-val="{{ true }}"><span style="color:var(--text-mute);display:flex">{{ f.cameraEl }}</span></sc-if>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:7px;">
+                      <div style="display:flex;gap:8px;">
+                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#2168B8;background:#EAF3FC;border:1px solid #CFE4F8;border-radius:11px;padding:9px 13px;cursor:pointer;">{{ f.cameraIcon }}{{ f.cameraLabel }}<input type="file" accept="image/*" capture="user" onChange="{{ f.onPick }}" style="display:none;" /></label>
+                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--text-soft);background:var(--surface-2);border:1px solid var(--border-10);border-radius:11px;padding:9px 13px;cursor:pointer;">{{ f.galleryIcon }}{{ f.galleryLabel }}<input type="file" accept="image/*" onChange="{{ f.onPick }}" style="display:none;" /></label>
+                      </div>
+                      <sc-if value="{{ f.hasPhoto }}" hint-placeholder-val="{{ false }}"><button onClick="{{ f.onClear }}" style="align-self:flex-start;background:none;border:none;color:#C0342E;font-size:12px;font-weight:600;cursor:pointer;padding:0;">remover foto</button></sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isChips }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;">
+                    <sc-for list="{{ f.chips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="flex:1;border:1.5px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};border-radius:11px;padding:9px 4px;cursor:pointer;font-size:12.5px;font-weight:600;">{{ c.label }}</button></sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}">
+                  <input value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.ph }}" style="width:100%;border:1.5px solid var(--border-12);border-radius:11px;padding:11px;font-size:13.5px;font-family:'Inter';color:var(--text);" />
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;padding:0 22px 22px;">
+            <button onClick="{{ closeAdminModal }}" style="flex:1;font-weight:600;font-size:13.5px;color:var(--text-soft);background:var(--surface-2);border:none;border-radius:12px;padding:12px;cursor:pointer;">Cancelar</button>
+            <button onClick="{{ saveAdminModal }}" style="flex:1;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;color:#fff;background:{{ modalSaveBg }};border:none;border-radius:12px;padding:12px;cursor:{{ modalSaveCursor }};">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- CONFIRM DELETE -->
+    <sc-if value="{{ confirmDelete }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ cancelDelete }}" style="position:absolute;inset:0;background:rgba(14,22,34,.42);z-index:45;display:flex;align-items:center;justify-content:center;animation:fadeIn .18s ease;">
+        <div onClick="{{ stop }}" style="width:380px;background:var(--surface);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:screenIn .24s ease;padding:24px;text-align:center;">
+          <div style="width:52px;height:52px;border-radius:14px;background:#FDECEC;color:#C0342E;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">{{ ic.trash }}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:17px;">Remover registro</div>
+          <div style="font-size:13px;color:var(--text-dim);margin-top:6px;line-height:1.5;">Deseja remover <b style="color:var(--text-soft2);">{{ confirmName }}</b>? Esta ação não pode ser desfeita.</div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onClick="{{ cancelDelete }}" style="flex:1;font-weight:600;font-size:13.5px;color:var(--text-soft);background:var(--surface-2);border:none;border-radius:12px;padding:12px;cursor:pointer;">Cancelar</button>
+            <button onClick="{{ doConfirmDelete }}" style="flex:1;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;color:#fff;background:linear-gradient(135deg,#E5484D,#C0342E);border:none;border-radius:12px;padding:12px;cursor:pointer;">Remover</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- TOAST admin -->
+    <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:#1F2933;color:#fff;font-size:13px;font-weight:600;padding:12px 18px;border-radius:13px;box-shadow:0 14px 30px -8px rgba(0,0,0,.4);animation:toastIn .3s ease;z-index:60;display:flex;align-items:center;gap:8px;"><span style="display:flex;color:#7FE0BF">{{ ic.check }}</span>{{ toastText }}</div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:940},&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;visitor&quot;,&quot;parent&quot;,&quot;teacher&quot;],&quot;default&quot;:&quot;visitor&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;}}">
+class Component extends DCLogic {
+  state = {
+    role: this.props.startRole || 'visitor',
+    scr: this.props.startRole === 'teacher' ? 'classes' : this.props.startRole === 'parent' ? 'home' : 'landing',
+    childId: 'ana',
+    classId: 'girassois',
+    studentId: null,
+    pixMonth: null,
+    pixStatus: 'idle',
+    pixCopied: false,
+    finance: {},
+    doneMap: {},
+    planFilter: 'todas',
+    dark: false,
+    customPlans: [],
+    planDraft: null,
+    planEditId: null,
+    adminScr: 'dash',
+    adminModal: false,
+    adminModalType: 'child',
+    entityDraft: null,
+    editingId: null,
+    confirmDelete: null,
+    admin: this.seedAdmin(),
+    notif: true,
+    sheet: false,
+    receiptMonth: null,
+    toast: '',
+    loginEmail: '', loginPass: '', showPass: false,
+    simQty: 6, simPlan: 'integral', simMode: 'meses',
+    form: this.freshForm(),
+    saveState: 'idle',
+    vw: (typeof window !== 'undefined' ? window.innerWidth : 1200),
+  };
+
+  componentDidMount() {
+    this._onResize = () => { const w = window.innerWidth; if (w !== this.state.vw) this.setState({ vw: w }); };
+    window.addEventListener('resize', this._onResize);
+    this._onResize();
+  }
+  componentWillUnmount() { if (this._onResize) window.removeEventListener('resize', this._onResize); }
+
+  freshForm() {
+    return {
+      meals: { cafe: true, almoco: true, lanche: false, janta: false },
+      accept: 'parte',
+      sleepOn: true, sleepFrom: '12:30', sleepTo: '14:00',
+      activities: { pintura: true, musica: true, historia: false, parque: false, massinha: false },
+      mood: 'smile', diapers: 3, incidents: [], notes: '',
+    };
+  }
+
+  // ---------- ICONS ----------
+  get ICONS() {
+    return {
+      droplet: ['M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.5 12 3 12 3z'],
+      home: ['M3 10.5 12 3l9 7.5', 'M5 9.3V20h14V9.3', 'M10 20v-5.5h4V20'],
+      wallet: [['rect', { x: 3, y: 6, width: 18, height: 13, rx: 3 }], 'M3 10h18', 'M16 14h1.5'],
+      user: [['circle', { cx: 12, cy: 8, r: 3.6 }], 'M5.5 20c.7-3.6 3.2-5.2 6.5-5.2s5.8 1.6 6.5 5.2'],
+      users: [['circle', { cx: 9, cy: 8, r: 3.2 }], 'M2.8 20c.6-3.2 2.9-4.7 6.2-4.7s5.6 1.5 6.2 4.7', 'M16 5.2a3.2 3.2 0 0 1 0 6', 'M18 20c-.2-2-.9-3.3-2-4.2'],
+      chevL: ['M15 18l-6-6 6-6'], chevR: ['M9 18l6-6-6-6'],
+      cal: [['rect', { x: 3, y: 4.5, width: 18, height: 16.5, rx: 3 }], 'M16 2.5v4', 'M8 2.5v4', 'M3 10h18'],
+      bell: ['M6 8a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 14 6 8z', 'M10.2 21a2 2 0 0 0 3.6 0'],
+      utensils: ['M4 3v6a2 2 0 0 0 4 0V3', 'M6 11v10', 'M17 3c-1.5 0-2.5 2-2.5 4.5S15.5 12 17 12v9'],
+      moon: ['M20.5 14.2A8.3 8.3 0 1 1 10 3.6 6.5 6.5 0 0 0 20.5 14.2z'],
+      brush: ['M9 14c-2 0-3 1.5-3 4-1.5 0-2-1-2-1', 'M11 13l7.5-7.5a2.1 2.1 0 0 1 3 3L14 16', 'M9 14l1 1'],
+      thermo: ['M14 14.5V5a2 2 0 0 0-4 0v9.5a4 4 0 1 0 4 0z', 'M12 9v6'],
+      file: ['M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z', 'M13 3v6h6', 'M9 14h6', 'M9 17.5h4'],
+      clip: [['rect', { x: 8, y: 3, width: 8, height: 4, rx: 1.5 }], 'M9 5H6.5A1.5 1.5 0 0 0 5 6.5v13A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 17.5 5H15'],
+      alert: ['M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z', 'M12 9v4.5', 'M12 17.5h.01'],
+      pill: ['M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7z', 'M8.5 8.5l7 7'],
+      check: ['M20 6.5 9.5 17 4.5 12'],
+      checkBig: ['M20 6.5 9.5 17 4.5 12'],
+      checkMini: ['M20 6.5 9.5 17 4.5 12'],
+      plus: ['M12 5v14', 'M5 12h14'],
+      minus: ['M5 12h14'],
+      copy: [['rect', { x: 9, y: 9, width: 12, height: 12, rx: 2.5 }], 'M5 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5'],
+      download: ['M21 15v3.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5V15', 'M7.5 10.5 12 15l4.5-4.5', 'M12 15V3'],
+      logout: ['M9 21H5.5A1.5 1.5 0 0 1 4 19.5v-15A1.5 1.5 0 0 1 5.5 3H9', 'M16.5 16.5 21 12l-4.5-4.5', 'M21 12H9'],
+      swap: ['M7 4 4 7l3 3', 'M4 7h10a3 3 0 0 1 3 3', 'M17 20l3-3-3-3', 'M20 17H10a3 3 0 0 1-3-3'],
+      edit: ['M12 20h9', 'M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'],
+      close: ['M18 6 6 18', 'M6 6l12 12'],
+      search: [['circle', { cx: 11, cy: 11, r: 7 }], 'M20 20l-3.2-3.2'],
+      camera: [['rect', { x: 3, y: 6.5, width: 18, height: 13, rx: 3 }], ['circle', { cx: 12, cy: 13, r: 3.4 }], 'M8.5 6.5 10 4h4l1.5 2.5'],
+      image: [['rect', { x: 3, y: 4.5, width: 18, height: 15, rx: 3 }], ['circle', { cx: 8.5, cy: 9.5, r: 1.7 }], 'M4 17l5-4.5 3.5 3 4-3.5L20 16'],
+      sun: [['circle', { cx: 12, cy: 12, r: 4.2 }], 'M12 2.5v2', 'M12 19.5v2', 'M4.5 12h-2', 'M21.5 12h-2', 'M6 6l-1.4-1.4', 'M19.4 19.4 18 18', 'M6 18l-1.4 1.4', 'M19.4 4.6 18 6'],
+      trash: ['M4 7h16', 'M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2', 'M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7', 'M10 11v6', 'M14 11v6'],
+      help: [['circle', { cx: 12, cy: 12, r: 9 }], 'M9.2 9.2a3 3 0 0 1 5.6 1.3c0 2-2.8 2.3-2.8 3.5', 'M12 17.5h.01'],
+      settings: ['M4 21v-6', 'M4 11V3', 'M12 21v-8', 'M12 9V3', 'M20 21v-4', 'M20 13V3', 'M1.5 15h5', 'M9.5 9h5', 'M17.5 17h5'],
+      shield: ['M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3z'],
+      mail: [['rect', { x: 3, y: 5, width: 18, height: 14, rx: 3 }], 'M4 7l8 6 8-6'],
+      lock: [['rect', { x: 4.5, y: 10.5, width: 15, height: 10, rx: 2.5 }], 'M8 10.5V8a4 4 0 0 1 8 0v2.5', 'M12 14.5v3'],
+      eye: ['M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z', ['circle', { cx: 12, cy: 12, r: 3 }]],
+      eyeOff: ['M9.5 5.8A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-2.7 3.4', 'M6.3 6.4A15.8 15.8 0 0 0 2.5 12S6 18.5 12 18.5a9.3 9.3 0 0 0 3.5-.7', 'M9.9 9.9a3 3 0 0 0 4.2 4.2', 'M3 3l18 18'],
+      calc: [['rect', { x: 5, y: 2.5, width: 14, height: 19, rx: 2.5 }], ['rect', { x: 8, y: 5.5, width: 8, height: 3.5, rx: .8 }], 'M8.5 13h.01', 'M12 13h.01', 'M15.5 13h.01', 'M8.5 16.5h.01', 'M12 16.5h.01', 'M15.5 16.5h.01'],
+      sparkle: ['M12 3l1.8 4.9L18.5 9.5 13.8 11 12 16l-1.8-5L5.5 9.5l4.7-1.6z', 'M18.5 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z'],
+      phone: ['M15.5 3h3a1.5 1.5 0 0 1 1.5 1.6c-.2 2.6-1 5-2.4 7.2a15 15 0 0 1-5.6 5.6c-2.2 1.4-4.6 2.2-7.2 2.4A1.5 1.5 0 0 1 3 18.4v-3a1.5 1.5 0 0 1 1.3-1.5l2.4-.3a1.5 1.5 0 0 1 1.5.8l.8 1.5a11 11 0 0 0 4.1-4.1l-1.5-.8a1.5 1.5 0 0 1-.8-1.5l.3-2.4A1.5 1.5 0 0 1 15.5 3z'],
+      alertMini: ['M12 3 2 20h20L12 3z', 'M12 10v4', 'M12 17h.01'],
+      signal: [['rect', { x: 2, y: 13, width: 3, height: 5, rx: 1, fill: 'currentColor', stroke: 'none' }], ['rect', { x: 7.5, y: 10, width: 3, height: 8, rx: 1, fill: 'currentColor', stroke: 'none' }], ['rect', { x: 13, y: 6.5, width: 3, height: 11.5, rx: 1, fill: 'currentColor', stroke: 'none' }]],
+      battery: [['rect', { x: 2, y: 7.5, width: 18, height: 9, rx: 2.5 }], ['rect', { x: 4, y: 9.5, width: 12, height: 5, rx: 1, fill: 'currentColor', stroke: 'none' }], ['line', { x1: 22, y1: 10.5, x2: 22, y2: 13.5 }]],
+      grin: [['circle', { cx: 12, cy: 12, r: 9 }], 'M8 13.5s1.4 3 4 3 4-3 4-3', 'M8.5 9.5h.01', 'M15.5 9.5h.01'],
+      smile: [['circle', { cx: 12, cy: 12, r: 9 }], 'M8.5 14s1.2 2 3.5 2 3.5-2 3.5-2', 'M8.5 9.8h.01', 'M15.5 9.8h.01'],
+      meh: [['circle', { cx: 12, cy: 12, r: 9 }], 'M8.5 15h7', 'M8.5 9.8h.01', 'M15.5 9.8h.01'],
+      frown: [['circle', { cx: 12, cy: 12, r: 9 }], 'M15.5 15.5s-1.2-2-3.5-2-3.5 2-3.5 2', 'M8.5 9.8h.01', 'M15.5 9.8h.01'],
+    };
+  }
+
+  mkIcon(name, opts) {
+    const o = opts || {};
+    const size = o.size || 20, sw = o.sw || 1.9, fill = o.fill || 'none';
+    const P = React.createElement;
+    const specs = this.ICONS[name] || [];
+    const kids = specs.map((sp, i) => Array.isArray(sp) ? P(sp[0], { key: i, ...sp[1] }) : P('path', { key: i, d: sp }));
+    return P('svg', { width: size, height: size, viewBox: '0 0 24 24', fill, stroke: 'currentColor', strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round', style: { flex: 'none', display: 'block' } }, kids);
+  }
+
+  buildIc() {
+    const names = Object.keys(this.ICONS);
+    const ic = {};
+    names.forEach(n => { ic[n] = this.mkIcon(n); });
+    ic.checkBig = this.mkIcon('checkBig', { size: 46, sw: 2.4 });
+    ic.alertMini = this.mkIcon('alertMini', { size: 12, sw: 2.2 });
+    ic.checkMini = this.mkIcon('checkMini', { size: 15, sw: 2.4 });
+    ic.signal = this.mkIcon('signal', { size: 18 });
+    ic.battery = this.mkIcon('battery', { size: 22 });
+    ic.chevR = this.mkIcon('chevR', { size: 18, sw: 2.2 });
+    return ic;
+  }
+
+  // ---------- DATA ----------
+  data() {
+    return {
+      children: [
+        { id: 'ana', name: 'Ana Clara', initials: 'AC', avatarBg: '#FFDCC9', turma: 'Girassóis', age: '2 anos', allergy: 'amendoim', med: 'Dipirona às 09h', mood: 'smile', moodLabel: 'Tranquila', incidentToday: true },
+        { id: 'bento', name: 'Bento', initials: 'B', avatarBg: '#CFE7FF', turma: 'Sementinhas', age: '3 anos', allergy: null, med: null, mood: 'grin', moodLabel: 'Animado', incidentToday: false },
+      ],
+      classes: [
+        { id: 'girassois', name: 'Girassóis', letter: 'G', color: '#FFF0D6', colorFg: '#C7943A', period: 'Integral', count: 12, pending: 3 },
+        { id: 'sementinhas', name: 'Sementinhas', letter: 'S', color: '#E1F5EA', colorFg: '#2E9E7B', period: 'Manhã', count: 10, pending: 0 },
+        { id: 'estrelas', name: 'Estrelinhas', letter: 'E', color: '#E7EEFF', colorFg: '#5468C4', period: 'Tarde', count: 9, pending: 9 },
+      ],
+      students: {
+        girassois: [
+          { id: 'ana', name: 'Ana Clara', initials: 'AC', color: '#FFDCC9', age: '2 anos', allergy: 'amendoim', med: 'Dipirona às 09h' },
+          { id: 'theo', name: 'Théo', initials: 'T', color: '#CFE7FF', age: '2 anos', allergy: null, med: null },
+          { id: 'lara', name: 'Lara', initials: 'L', color: '#E1F5EA', age: '3 anos', allergy: 'lactose', med: null },
+          { id: 'noah', name: 'Noah', initials: 'N', color: '#FFE7C2', age: '2 anos', allergy: null, med: null },
+          { id: 'sofia', name: 'Sofia', initials: 'S', color: '#F3D9FF', age: '3 anos', allergy: null, med: null },
+          { id: 'davi', name: 'Davi', initials: 'D', color: '#D6F0FF', age: '2 anos', allergy: null, med: null },
+        ],
+        sementinhas: [
+          { id: 'liz', name: 'Liz', initials: 'L', color: '#FFDCC9', age: '3 anos', allergy: null, med: null },
+          { id: 'gael', name: 'Gael', initials: 'G', color: '#CFE7FF', age: '3 anos', allergy: null, med: null },
+        ],
+        estrelas: [
+          { id: 'mel', name: 'Mel', initials: 'M', color: '#F3D9FF', age: '4 anos', allergy: null, med: null },
+          { id: 'ravi', name: 'Ravi', initials: 'R', color: '#E1F5EA', age: '4 anos', allergy: null, med: null },
+        ],
+      },
+      agendas: {
+        ana: [
+          { icon: 'utensils', tone: 'blue', title: 'Alimentação', brief: 'Comeu bem no almoço', text: 'Comeu bem no almoço (arroz, feijão e frango). Recusou o lanche da tarde.' },
+          { icon: 'moon', tone: 'blue', title: 'Sono', brief: '12:30 – 14:00', text: 'Dormiu das 12:30 às 14:00 — soneca tranquila.' },
+          { icon: 'brush', tone: 'mint', title: 'Atividades', brief: 'Pintura e música', text: 'Pintura em aquarela e roda de música.' },
+          { icon: 'smile', tone: 'mint', title: 'Humor', brief: 'Tranquila', text: 'Tranquila e participativa o dia todo.' },
+          { icon: 'thermo', tone: 'red', title: 'Intercorrência', brief: 'Leve febre às 10h', text: '10h: leve febre (37,8°). Medicada conforme autorização.' },
+          { icon: 'file', tone: 'gray', title: 'Observações', brief: 'Dia ótimo', text: 'Dia ótimo, participou de tudo. Trouxe a pintura na mochila.' },
+        ],
+        bento: [
+          { icon: 'utensils', tone: 'blue', title: 'Alimentação', brief: 'Comeu tudo', text: 'Comeu tudo no almoço e aceitou bem o lanche.' },
+          { icon: 'moon', tone: 'blue', title: 'Sono', brief: '13:00 – 14:30', text: 'Dormiu das 13:00 às 14:30.' },
+          { icon: 'brush', tone: 'mint', title: 'Atividades', brief: 'Parquinho e história', text: 'Brincou no parquinho e participou da contação de história.' },
+          { icon: 'grin', tone: 'mint', title: 'Humor', brief: 'Animado', text: 'Animado e sociável.' },
+          { icon: 'file', tone: 'gray', title: 'Observações', brief: 'Ótimo dia', text: 'Ótimo dia, muito comunicativo.' },
+        ],
+      },
+      history: {
+        ana: [
+          { date: 'Seg, 15 jul', mood: 'grin', moodLabel: 'Ótimo', chips: ['Comeu tudo', 'Soneca 2h', 'Pintura', 'Parquinho'] },
+          { date: 'Sex, 12 jul', mood: 'smile', moodLabel: 'Bem', chips: ['Almoço parcial', 'Música', 'Contação'] },
+          { date: 'Qui, 11 jul', mood: 'meh', moodLabel: 'Neutro', chips: ['Choro na chegada', 'Massinha'], hasAlert: true, alertText: 'Assadura leve — orientada troca reforçada' },
+          { date: 'Qua, 10 jul', mood: 'smile', moodLabel: 'Bem', chips: ['Comeu bem', 'História', 'Dança'] },
+          { date: 'Ter, 09 jul', mood: 'grin', moodLabel: 'Ótimo', chips: ['Comeu tudo', 'Pintura', 'Soneca 1h30'] },
+        ],
+        bento: [
+          { date: 'Seg, 15 jul', mood: 'grin', moodLabel: 'Ótimo', chips: ['Comeu tudo', 'Futebol', 'Blocos'] },
+          { date: 'Sex, 12 jul', mood: 'smile', moodLabel: 'Bem', chips: ['Almoço ok', 'História'] },
+          { date: 'Qui, 11 jul', mood: 'grin', moodLabel: 'Ótimo', chips: ['Comeu tudo', 'Pintura'] },
+        ],
+      },
+      plans: [
+        { date: '16 jul · Ter', turma: 'Girassóis', tema: 'Cores primárias', obj: 'Explorar azul, amarelo e vermelho por meio de pintura e brincadeiras sensoriais.', atividades: ['Pintura com esponja', 'Roda de música das cores'], materiais: 'Tinta guache, papel A3, esponjas' },
+        { date: '17 jul · Qua', turma: 'Girassóis', tema: 'Sons da natureza', obj: 'Estimular a escuta atenta com sons de animais e chuva.', atividades: ['Escuta de sons', 'Imitação de animais'], materiais: 'Caixa de som, imagens de animais' },
+        { date: '18 jul · Qui', turma: 'Sementinhas', tema: 'Texturas', obj: 'Explorar diferentes texturas com as mãos e os pés.', atividades: ['Caixa sensorial', 'Circuito de tapetes'], materiais: 'Algodão, lixa, gelatina, tapetes' },
+      ],
+    };
+  }
+
+  seedAdmin() {
+    const withId = (arr, p) => arr.map((x, i) => ({ id: p + i, ...x }));
+    const d = {
+      children: [
+        { initials: 'AC', name: 'Ana Clara', age: '2 anos', turma: 'Girassóis', responsavel: 'Marina Souza', avatarBg: '#FFDCC9', allergy: 'amendoim', status: 'em dia' },
+        { initials: 'T', name: 'Théo', age: '2 anos', turma: 'Girassóis', responsavel: 'Carla Nunes', avatarBg: '#CFE7FF', status: 'atrasada' },
+        { initials: 'L', name: 'Lara', age: '3 anos', turma: 'Girassóis', responsavel: 'Sônia Alves', avatarBg: '#E1F5EA', allergy: 'lactose', status: 'em dia' },
+        { initials: 'B', name: 'Bento', age: '3 anos', turma: 'Sementinhas', responsavel: 'Marina Souza', avatarBg: '#CFE7FF', status: 'em dia' },
+        { initials: 'M', name: 'Mel', age: '4 anos', turma: 'Estrelinhas', responsavel: 'Paulo Reis', avatarBg: '#F3D9FF', status: 'atrasada' },
+        { initials: 'G', name: 'Gael', age: '3 anos', turma: 'Sementinhas', responsavel: 'Rita Lima', avatarBg: '#D6F0FF', status: 'em dia' },
+      ],
+      classes: [
+        { letter: 'G', name: 'Turma Girassóis', color: '#FFF0D6', colorFg: '#C7943A', periodo: 'Integral', qtd: '12', prof: 'Alice Ferreira' },
+        { letter: 'S', name: 'Turma Sementinhas', color: '#E1F5EA', colorFg: '#2E9E7B', periodo: 'Manhã', qtd: '10', prof: 'Bruna Dias' },
+        { letter: 'E', name: 'Turma Estrelinhas', color: '#E7EEFF', colorFg: '#5468C4', periodo: 'Tarde', qtd: '9', prof: 'Camila Rocha' },
+      ],
+      teachers: [
+        { initials: 'AF', name: 'Alice Ferreira', turmas: 'Girassóis', email: 'alice@aquarela.com', avatarBg: '#E7F7F1' },
+        { initials: 'BD', name: 'Bruna Dias', turmas: 'Sementinhas', email: 'bruna@aquarela.com', avatarBg: '#EAF3FC' },
+        { initials: 'CR', name: 'Camila Rocha', turmas: 'Estrelinhas', email: 'camila@aquarela.com', avatarBg: '#F3ECFF' },
+        { initials: 'DP', name: 'Diego Pinto', turmas: 'Apoio · 3 turmas', email: 'diego@aquarela.com', avatarBg: '#FFF0D6' },
+        { initials: 'EM', name: 'Elisa Moura', turmas: 'Berçário', email: 'elisa@aquarela.com', avatarBg: '#FFE1D6' },
+      ],
+      users: [
+        { initials: 'MS', name: 'Marina Souza', role: 'Responsável', email: 'marina@email.com', avatarBg: '#FFDCC9', status: 'ativo' },
+        { initials: 'RC', name: 'Renata Costa', role: 'Coordenação', email: 'renata@aquarela.com', avatarBg: '#EAF3FC', status: 'ativo' },
+        { initials: 'AF', name: 'Alice Ferreira', role: 'Professora', email: 'alice@aquarela.com', avatarBg: '#E7F7F1', status: 'ativo' },
+        { initials: 'PR', name: 'Paulo Reis', role: 'Responsável', email: 'paulo@email.com', avatarBg: '#F3D9FF', status: 'pendente' },
+        { initials: 'CN', name: 'Carla Nunes', role: 'Responsável', email: 'carla@email.com', avatarBg: '#D6F0FF', status: 'ativo' },
+      ],
+    };
+    return { children: withId(d.children, 'ch'), classes: withId(d.classes, 'cl'), teachers: withId(d.teachers, 'te'), users: withId(d.users, 'us') };
+  }
+
+  baseFinance() {
+    const v = 890, mk = (name, short, status) => ({ name, short, status, value: v, paidDate: null, txid: null });
+    return [
+      { ...mk('Janeiro', 'Jan', 'pago'), paidDate: '05/01/2026', txid: 'E1234A01' },
+      { ...mk('Fevereiro', 'Fev', 'pago'), paidDate: '04/02/2026', txid: 'E1234A02' },
+      { ...mk('Março', 'Mar', 'pago'), paidDate: '05/03/2026', txid: 'E1234A03' },
+      { ...mk('Abril', 'Abr', 'pago'), paidDate: '03/04/2026', txid: 'E1234A04' },
+      { ...mk('Maio', 'Mai', 'pago'), paidDate: '05/05/2026', txid: 'E1234A05' },
+      mk('Junho', 'Jun', 'atrasado'), mk('Julho', 'Jul', 'aberto'),
+      mk('Agosto', 'Ago', 'futuro'), mk('Setembro', 'Set', 'futuro'),
+    ];
+  }
+
+  getFinance() { return this.state.finance[this.state.childId] || this.baseFinance(); }
+  money(n) { return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+  go(scr) { const el = document.querySelector('.app-scroll'); if (el) el.scrollTop = 0; this.setState({ scr, sheet: false }); }
+  back() {
+    const map = { day: 'home', history: 'day', pix: 'finance', receipt: 'finance', students: 'classes', register: 'students', planForm: 'plans' };
+    this.go(map[this.state.scr] || 'home');
+  }
+  chip(on, palette) {
+    const P = { primary: { bg: '#EAF3FC', fg: '#2168B8', bd: '#BBDBF7' }, mint: { bg: '#E7F7F1', fg: '#2E9E7B', bd: '#B8E7D6' } }[palette || 'primary'];
+    return on ? { bg: P.bg, fg: P.fg, bd: P.bd } : { bg: 'var(--surface)', fg: 'var(--text-dim)', bd: 'var(--border-14)' };
+  }
+  toneColors(t) {
+    return { blue: { iconBg: '#EAF3FC', iconFg: '#2168B8' }, mint: { iconBg: '#E7F7F1', iconFg: '#2E9E7B' }, red: { iconBg: '#FDE0D5', iconFg: '#C0342E' }, gray: { iconBg: '#F1F3F6', iconFg: 'var(--text-dim)' } }[t || 'blue'];
+  }
+
+  landingVals(isDesktop) {
+    const raw = (children, o = {}) => React.createElement('svg', { width: o.w || 20, height: o.w || 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: o.sw || 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, children);
+    const P = (ds, o = {}) => raw(ds.map((d, i) => React.createElement('path', { key: i, d })), o);
+    const lic = {
+      droplet: raw([React.createElement('path', { key: 0, d: 'M12 2.7s6 6 6 10.3a6 6 0 0 1-12 0C6 8.7 12 2.7 12 2.7Z', fill: '#fff', stroke: 'none' })], { w: 21 }),
+      arrow: P(['M5 12h14', 'M13 6l6 6-6 6']),
+      check: P(['M20 6 9 17l-5-5']),
+      calc: raw([React.createElement('rect', { key: 0, x: 5, y: 2, width: 14, height: 20, rx: 2 }), React.createElement('path', { key: 1, d: 'M9 6h6' }), React.createElement('path', { key: 2, d: 'M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01' })]),
+      book: P(['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z']),
+      camera: P(['M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z', 'M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z']),
+      bell: P(['M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9', 'M13.7 21a2 2 0 0 1-3.4 0']),
+      wallet: P(['M21 12V7H5a2 2 0 0 1 0-4h14v4', 'M3 5v14a2 2 0 0 0 2 2h16v-5', 'M18 12a2 2 0 0 0 0 4h4v-4z']),
+      heart: P(['M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z']),
+      chat: P(['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z']),
+      utensils: P(['M3 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2', 'M5 2v20', 'M17 2v20', 'M17 8c0-3 1.5-6 1.5-6S21 5 21 8s-1.5 4-4 4']),
+      moon: P(['M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z']),
+    };
+    const baseCard = 'position:relative;background:var(--surface);border:1px solid rgba(31,41,51,.1);border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;box-shadow:0 8px 24px -16px rgba(31,41,51,.28);';
+    const featCard = 'position:relative;background:linear-gradient(160deg,#123B63,#0E2E4D);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;box-shadow:0 30px 60px -28px rgba(18,59,99,.7);';
+    const btnLight = "font-family:'Poppins';font-weight:600;font-size:15px;color:#fff;background:linear-gradient(135deg,#4C9BE8,#3F8FDD);border:none;border-radius:13px;padding:13px;text-align:center;cursor:pointer;box-shadow:0 12px 24px -12px rgba(76,155,232,.7);";
+    const btnDark = "font-family:'Poppins';font-weight:600;font-size:15px;color:#123B63;background:#fff;border:none;border-radius:13px;padding:13px;text-align:center;cursor:pointer;";
+    return {
+      lic,
+      goLogin: () => this.go('login'),
+      lpNavPad: isDesktop ? '15px 30px' : '13px 18px',
+      lpNavLinks: isDesktop ? 'flex' : 'none',
+      lpHeroCols: isDesktop ? '1.05fr .95fr' : '1fr',
+      lpHeroPad: isDesktop ? '56px 40px 40px' : '32px 22px 30px',
+      lpH1: isDesktop ? '50px' : '33px',
+      lpH2: isDesktop ? '36px' : '26px',
+      lpH2b: isDesktop ? '40px' : '28px',
+      lpEdge: isDesktop ? '40px' : '22px',
+      lpStatsPad: isDesktop ? '32px 40px' : '26px 20px',
+      lpStatsCols: isDesktop ? 'repeat(4,1fr)' : 'repeat(2,1fr)',
+      lpSecPad: isDesktop ? '76px 40px 44px' : '48px 22px 28px',
+      lp3Cols: isDesktop ? 'repeat(3,1fr)' : '1fr',
+      lpHowCols: isDesktop ? '.9fr 1.1fr' : '1fr',
+      lpCtaPad: isDesktop ? '60px 40px' : '44px 26px',
+      lpFooterCols: isDesktop ? '1.4fr 1fr 1fr 1fr' : '1fr 1fr',
+      lpFootPad: isDesktop ? '40px' : '32px 22px',
+      lpAvatars: [{ bg: '#4C9BE8', txt: 'L' }, { bg: '#5FC9A6', txt: 'M' }, { bg: '#F5B841', txt: 'T' }, { bg: '#E8825F', txt: '+' }],
+      lpAgenda: [
+        { icon: lic.utensils, bg: '#FDECEC', fg: '#C0342E', title: 'Almoço completo', time: '11:20' },
+        { icon: lic.moon, bg: '#EAF3FC', fg: '#2F7FCB', title: 'Soneca tranquila', time: '13:00' },
+        { icon: lic.camera, bg: '#E7F7F1', fg: '#2E9E7B', title: 'Nova foto da turma', time: '15:10' },
+        { icon: lic.heart, bg: '#FBEAF3', fg: '#C0468A', title: 'Dia feliz', time: '16:40' },
+      ],
+      lpStats: [
+        { num: '+40', label: 'Famílias ativas' },
+        { num: '12', label: 'Turmas acompanhadas' },
+        { num: '98%', label: 'Registros no mesmo dia' },
+        { num: '4,9', label: 'Avaliação das famílias' },
+      ],
+      lpFeatures: [
+        { icon: lic.book, bg: '#EAF3FC', fg: '#2F7FCB', title: 'Agenda diária', desc: 'Refeições, sono, higiene e humor registrados pela educadora em tempo real.' },
+        { icon: lic.camera, bg: '#E7F7F1', fg: '#2E9E7B', title: 'Fotos e momentos', desc: 'Receba fotos do dia e guarde as melhores lembranças da turma.' },
+        { icon: lic.bell, bg: '#FFF3EE', fg: '#C7522B', title: 'Avisos e recados', desc: 'Comunicados da escola e cuidados especiais chegam direto no seu celular.' },
+        { icon: lic.wallet, bg: '#F2EEFB', fg: '#7A57C2', title: 'Financeiro simples', desc: 'Mensalidades, PIX e comprovantes organizados, sem filas nem papel.' },
+        { icon: lic.chat, bg: '#EAF3FC', fg: '#2F7FCB', title: 'Conversa direta', desc: 'Fale com a educadora e tire dúvidas por um canal só para a sua família.' },
+        { icon: lic.heart, bg: '#FBEAF3', fg: '#C0468A', title: 'Feito com carinho', desc: 'Uma experiência acolhedora, pensada para pais e para quem cuida.' },
+      ],
+      lpSteps: [
+        { n: '1', title: 'Agende sua visita', desc: 'Conheça a estrutura e nossa proposta pedagógica sem compromisso.' },
+        { n: '2', title: 'Matricule com apoio', desc: 'A gente cuida da papelada e cria o acesso da sua família no app.' },
+        { n: '3', title: 'Acompanhe todo dia', desc: 'Receba agenda, fotos e avisos e sinta-se pertinho do seu filho.' },
+      ],
+      lpPlans: [
+        { name: 'Meio período', tagline: 'Manhã ou tarde', price: 'R$ 890', badge: null, cardStyle: baseCard, titleFg: '#1F2933', subFg: '#6B7280', priceFg: '#1F2933', itemFg: '#3F4A57', tickFg: '#2E9E7B', btnStyle: btnLight, items: ['4h por dia', 'Agenda diária e fotos', 'Avisos e recados', 'Financeiro no app'] },
+        { name: 'Integral', tagline: 'O dia inteiro com a gente', price: 'R$ 1.490', badge: 'Mais escolhido', cardStyle: featCard, titleFg: '#fff', subFg: 'rgba(255,255,255,.7)', priceFg: '#fff', itemFg: 'rgba(255,255,255,.9)', tickFg: '#8FE3C6', btnStyle: btnDark, items: ['Até 10h por dia', 'Todas as refeições', 'Agenda, fotos e avisos', 'Canal direto com a educadora', 'Financeiro no app'] },
+        { name: 'Avulso', tagline: 'Dias flexíveis', price: 'R$ 95', badge: null, cardStyle: baseCard, titleFg: '#1F2933', subFg: '#6B7280', priceFg: '#1F2933', itemFg: '#3F4A57', tickFg: '#2E9E7B', btnStyle: btnLight, items: ['Por dia utilizado', 'Ideal para eventuais', 'Agenda diária e fotos', 'Sem mensalidade fixa'] },
+      ],
+      lpTestimonials: [
+        { stars: '★★★★★', quote: 'Amo receber as fotos e a agenda no meio do dia. Fico tranquila no trabalho sabendo que está tudo bem.', initials: 'CM', name: 'Camila Moraes', role: 'Mãe da Lorena', bg: '#4C9BE8' },
+        { stars: '★★★★★', quote: 'O financeiro ficou muito mais fácil. Pago o PIX pelo app e o comprovante já fica salvo.', initials: 'RF', name: 'Rafael Fontes', role: 'Pai do Theo', bg: '#5FC9A6' },
+        { stars: '★★★★★', quote: 'Os avisos de cuidados especiais me dão segurança. Sinto que a escola realmente conversa comigo.', initials: 'JP', name: 'Juliana Prado', role: 'Mãe da Alice', bg: '#E8825F' },
+      ],
+      lpFooter: [
+        { title: 'Produto', links: ['Recursos', 'Planos', 'Simulador', 'Entrar'] },
+        { title: 'Escola', links: ['Nossa proposta', 'Estrutura', 'Turmas', 'Agende uma visita'] },
+        { title: 'Contato', links: ['WhatsApp', 'Instagram', 'contato@aquarelakids.com', '(11) 4000-0000'] },
+      ],
+    };
+  }
+
+  renderVals() {
+    const s = this.state, D = this.data(), ic = this.buildIc();
+    const isParent = s.role === 'parent';
+    const isVisitor = s.role === 'visitor';
+    const sLanding = isVisitor && s.scr === 'landing';
+    const child = D.children.find(c => c.id === s.childId) || D.children[0];
+    const klass = D.classes.find(c => c.id === s.classId) || D.classes[0];
+    const roster = D.students[s.classId] || [];
+    const student = roster.find(x => x.id === s.studentId) || roster[0] || {};
+
+    const pill = (active) => 'display:inline-flex;align-items:center;gap:6px;font-family:Poppins,sans-serif;font-weight:600;font-size:13px;padding:9px 15px;border-radius:999px;cursor:pointer;border:none;transition:all .15s;' + (active ? 'background:linear-gradient(135deg,#4C9BE8,#5FC9A6);color:#fff;box-shadow:0 4px 12px -3px rgba(76,155,232,.55);' : 'background:transparent;color:var(--text-dim);');
+
+    // finance
+    const styleMap = {
+      pago: { statusEl: ic.check, statusFg: '#2E9E7B', iconBg: '#E7F7F1', iconFg: '#2E9E7B', opacity: '1' },
+      atrasado: { statusEl: ic.alert, statusFg: '#E5484D', iconBg: '#FDECEC', iconFg: '#E5484D', opacity: '1' },
+      aberto: { statusEl: null, statusFg: '#D9773E', iconBg: '#FFF3E9', iconFg: '#D9773E', opacity: '1' },
+      futuro: { statusEl: null, statusFg: '#9CA3AF', iconBg: '#F3F4F6', iconFg: '#9CA3AF', opacity: '.6' },
+    };
+    const fin = this.getFinance();
+    const financeMonths = fin.map(m => {
+      const st = styleMap[m.status], canPay = m.status === 'atrasado' || m.status === 'aberto';
+      const label = { pago: 'Pago', atrasado: 'Atrasado · ' + this.money(m.value), aberto: 'Em aberto · ' + this.money(m.value), futuro: 'A vencer' }[m.status];
+      return {
+        name: m.name, short: m.short, statusEl: st.statusEl, statusFg: st.statusFg,
+        valueText: label, iconBg: st.iconBg, iconFg: st.iconFg, opacity: st.opacity,
+        canPay, canReceipt: m.status === 'pago',
+        onPay: () => this.setState({ pixMonth: m.name, pixStatus: 'waiting', pixCopied: false }, () => this.go('pix')),
+        onReceipt: () => this.setState({ receiptMonth: m.name }, () => this.go('receipt')),
+      };
+    });
+    const openTotal = fin.filter(m => m.status === 'atrasado' || m.status === 'aberto').reduce((a, m) => a + m.value, 0);
+
+    // day entries
+    const dayEntries = (D.agendas[s.childId] || []).map(e => {
+      const tc = this.toneColors(e.tone), incident = e.icon === 'thermo';
+      return { ...e, iconEl: ic[e.icon], iconBg: tc.iconBg, iconFg: tc.iconFg, cardBg: incident ? '#FFF6F3' : 'var(--surface)', cardBd: incident ? '#FFD9C7' : 'var(--border-07)', titleColor: incident ? '#C0342E' : 'var(--text)' };
+    });
+    const todayPreview = dayEntries.slice(0, 3);
+
+    // avisos
+    const avisosBase = [
+      { icon: 'cal', tone: 'blue', title: 'Reunião de pais', text: 'Dia 22/07 às 18h, na sala da turma ' + child.turma + '.', date: 'em 6 dias' },
+      { icon: 'bell', tone: 'mint', title: 'Semana da Família', text: 'Traga uma foto em família para o nosso mural.', date: '22–26 jul' },
+      { icon: 'shield', tone: 'blue', title: 'Campanha de vacinação', text: 'Traga a carteirinha atualizada até sexta.', date: 'até 18 jul' },
+    ];
+    let avisos = avisosBase.slice();
+    if (child.incidentToday) {
+      avisos.unshift({ icon: 'thermo', tone: 'red', title: 'Leve febre registrada', text: child.name + ' teve 37,8° às 10h. Medicada conforme autorização.', date: 'Hoje, 10:12', alert: true });
+    }
+    avisos = avisos.map(a => {
+      const tc = this.toneColors(a.tone);
+      return { ...a, iconEl: ic[a.icon], iconBg: a.alert ? '#FDE0D5' : tc.iconBg, iconFg: a.alert ? '#C0342E' : tc.iconFg, cardBg: a.alert ? '#FFF6F3' : 'var(--surface)', cardBd: a.alert ? '#FFD9C7' : 'var(--border-07)', titleColor: a.alert ? '#C0342E' : 'var(--text)' };
+    });
+
+    // history with mood icons
+    const moodColor = { grin: '#2E9E7B', smile: '#2E9E7B', meh: '#C7943A', frown: '#C0342E' };
+    const history = (D.history[s.childId] || []).map(h => ({ ...h, moodEl: this.mkIcon(h.mood, { size: 16 }), moodColor: moodColor[h.mood] }));
+
+    // teacher classes
+    const teacherClasses = D.classes.map(c => {
+      const done = (D.students[c.id] || []).filter(st => s.doneMap[c.id + ':' + st.id]).length;
+      const pend = Math.max(0, c.pending - done);
+      return { ...c, onClick: () => this.setState({ classId: c.id }, () => this.go('students')), pendText: pend === 0 ? 'em dia' : pend + ' pendentes', pendBg: pend === 0 ? '#E7F7F1' : '#FFF3E9', pendFg: pend === 0 ? '#2E9E7B' : '#D9773E' };
+    });
+
+    // students
+    const students = roster.map((x, i) => {
+      const done = !!s.doneMap[s.classId + ':' + x.id] || (s.classId === 'girassois' && i >= 3);
+      return {
+        ...x, hasAllergy: !!x.allergy,
+        onClick: () => this.setState({ studentId: x.id, form: this.freshForm(), saveState: 'idle' }, () => this.go('register')),
+        sub: x.allergy ? 'Alergia: ' + x.allergy : x.age, subFg: x.allergy ? '#C7522B' : 'var(--text-dim)',
+        cardBd: x.allergy ? '#FFD9C7' : 'var(--border-07)',
+        statusEl: done ? ic.checkMini : null, statusText: done ? 'registrada' : 'registrar',
+        statusBg: done ? '#E7F7F1' : '#EAF3FC', statusFg: done ? '#2E9E7B' : '#2168B8',
+      };
+    });
+    const totalDone = students.filter(x => x.statusText === 'registrada').length;
+
+    // register chips
+    const f = s.form;
+    const mealDefs = [{ key: 'cafe', label: 'Café' }, { key: 'almoco', label: 'Almoço' }, { key: 'lanche', label: 'Lanche' }, { key: 'janta', label: 'Janta' }];
+    const mealChips = mealDefs.map(m => ({ ...m, ...this.chip(f.meals[m.key], 'primary'), onClick: () => this.setState({ form: { ...f, meals: { ...f.meals, [m.key]: !f.meals[m.key] } } }) }));
+    const acceptDefs = [{ k: 'tudo', l: 'Comeu tudo' }, { k: 'parte', l: 'Comeu parte' }, { k: 'recusou', l: 'Recusou' }];
+    const acceptOpts = acceptDefs.map(a => ({ label: a.l, ...this.chip(f.accept === a.k, 'primary'), onClick: () => this.setState({ form: { ...f, accept: a.k } }) }));
+    const actDefs = [{ k: 'pintura', l: 'Pintura' }, { k: 'musica', l: 'Música' }, { k: 'historia', l: 'História' }, { k: 'parque', l: 'Parquinho' }, { k: 'massinha', l: 'Massinha' }];
+    const activityChips = actDefs.map(a => ({ label: a.l, ...this.chip(f.activities[a.k], 'mint'), onClick: () => this.setState({ form: { ...f, activities: { ...f.activities, [a.k]: !f.activities[a.k] } } }) }));
+    const moodDefs = [{ k: 'grin', l: 'Ótimo' }, { k: 'smile', l: 'Bem' }, { k: 'meh', l: 'Neutro' }, { k: 'frown', l: 'Chorou' }];
+    const moodOpts = moodDefs.map(m => {
+      const on = f.mood === m.k;
+      return { label: m.l, faceEl: this.mkIcon(m.k, { size: 26 }), bg: on ? '#EAF3FC' : 'var(--surface)', fg: on ? '#2168B8' : 'var(--text-mute)', bd: on ? '#BBDBF7' : 'var(--border-10)', onClick: () => this.setState({ form: { ...f, mood: m.k } }) };
+    });
+    const incDefs = ['Febre', 'Queda', 'Vômito', 'Tosse', 'Assadura'];
+    const incidentChips = incDefs.map(l => {
+      const on = f.incidents.includes(l);
+      return { label: l, bg: on ? '#FDECEC' : 'var(--surface)', fg: on ? '#C0342E' : 'var(--text-dim)', bd: on ? '#F7C4C4' : 'var(--border-14)', onClick: () => { const has = f.incidents.includes(l); this.setState({ form: { ...f, incidents: has ? f.incidents.filter(x => x !== l) : [...f.incidents, l] } }); } };
+    });
+    const saving = s.saveState === 'saving', saved = s.saveState === 'saved';
+
+    // plans
+    const planFilterDefs = [{ k: 'todas', l: 'Todas' }, { k: 'Girassóis', l: 'Girassóis' }, { k: 'Sementinhas', l: 'Sementinhas' }, { k: 'Estrelinhas', l: 'Estrelinhas' }];
+    const planFilters = planFilterDefs.map(p => { const on = s.planFilter === p.k; return { label: p.l, bg: on ? '#EAF3FC' : 'var(--surface)', fg: on ? '#2168B8' : 'var(--text-dim)', bd: on ? '#BBDBF7' : 'var(--border-12)', onClick: () => this.setState({ planFilter: p.k }) }; });
+    const planById = {};
+    D.plans.forEach((p, i) => { planById['base' + i] = { ...p, id: 'base' + i }; });
+    s.customPlans.forEach(p => { planById[p.id] = p; });
+    const allPlans = Object.values(planById);
+    const openPlanForm = (pl) => {
+      const d = pl
+        ? { id: pl.id, turma: pl.turma, date: pl.date, tema: pl.tema, obj: pl.obj, atividades: pl.atividades.slice(), atvInput: '', materiais: pl.materiais }
+        : { id: null, turma: 'Girassóis', date: '', tema: '', obj: '', atividades: [], atvInput: '', materiais: '' };
+      this.setState({ planDraft: d }, () => this.go('planForm'));
+    };
+    const plans = allPlans.filter(p => s.planFilter === 'todas' || p.turma === s.planFilter).map(p => ({ ...p, onEdit: () => openPlanForm(p) }));
+
+    // plan draft
+    const dr = s.planDraft || { id: null, turma: 'Girassóis', date: '', tema: '', obj: '', atividades: [], atvInput: '', materiais: '' };
+    const setDraft = (patch) => this.setState({ planDraft: { ...dr, ...patch } });
+    const planTurmaOpts = ['Girassóis', 'Sementinhas', 'Estrelinhas'].map(t => { const on = dr.turma === t; return { label: t, bg: on ? '#E7F7F1' : 'var(--surface)', fg: on ? '#2E9E7B' : 'var(--text-dim)', bd: on ? '#B8E7D6' : 'var(--border-12)', onClick: () => setDraft({ turma: t }) }; });
+    const draftAtividades = dr.atividades.map((a, i) => ({ label: a, onRemove: () => setDraft({ atividades: dr.atividades.filter((_, j) => j !== i) }) }));
+    const addAtividade = () => { const v = (dr.atvInput || '').trim(); if (!v) return; setDraft({ atividades: [...dr.atividades, v], atvInput: '' }); };
+    const planValid = (dr.tema || '').trim().length > 0;
+    const savePlan = () => {
+      if (!planValid) { this.showToast('Informe ao menos o tema do plano'); return; }
+      const id = dr.id || ('new' + Date.now());
+      const plan = { id, turma: dr.turma, date: dr.date.trim() || 'A definir', tema: dr.tema.trim(), obj: dr.obj.trim() || 'Objetivo a detalhar.', atividades: dr.atividades, materiais: dr.materiais.trim() || 'A definir' };
+      const exists = s.customPlans.some(p => p.id === id);
+      const customPlans = exists ? s.customPlans.map(p => p.id === id ? plan : p) : [...s.customPlans, plan];
+      this.setState({ customPlans, planDraft: null }, () => { this.go('plans'); this.showToast(dr.id ? 'Plano atualizado' : 'Plano criado com sucesso'); });
+    };
+
+    // child profiles
+    const childProfiles = D.children.map(c => ({
+      id: c.id, name: c.name, initials: c.initials, avatarBg: c.avatarBg,
+      sub: c.age + ' · Turma ' + c.turma, active: c.id === s.childId, inactive: c.id !== s.childId,
+      bd: c.id === s.childId ? '#5FC9A6' : 'var(--border-08)',
+      onSelect: () => this.setState({ childId: c.id, finance: s.finance }, () => this.go('home')),
+    }));
+
+    // receipt
+    const rMonth = s.receiptMonth ? fin.find(m => m.name === s.receiptMonth) : null;
+    const receipt = {
+      value: this.money(890),
+      rows: [
+        { k: 'Aluno(a)', v: child.name }, { k: 'Turma', v: child.turma },
+        { k: 'Competência', v: (s.receiptMonth || '—') + '/2026' },
+        { k: 'Forma de pagamento', v: 'PIX' },
+        { k: 'Data do pagamento', v: (rMonth && rMonth.paidDate) || '16/07/2026' },
+        { k: 'ID da transação', v: (rMonth && rMonth.txid) || 'E' + Date.now().toString().slice(-8) },
+        { k: 'Beneficiário', v: 'Aquarela Kids LTDA' },
+      ],
+    };
+
+    const profileLinks = [
+      { label: 'Dados da conta', icon: 'user', onClick: () => this.showToast('Abrindo dados da conta') },
+      { label: 'Formas de pagamento', icon: 'wallet', onClick: () => this.showToast('Formas de pagamento') },
+      { label: 'Ajuda e suporte', icon: 'help', onClick: () => this.showToast('Central de ajuda') },
+    ].map(l => ({ ...l, iconEl: ic[l.icon] }));
+    const teacherLinks = [
+      { label: 'Dados da conta', icon: 'user', onClick: () => this.showToast('Abrindo dados da conta') },
+      { label: 'Notificações', icon: 'bell', onClick: () => this.showToast('Preferências de notificação') },
+      { label: 'Ajuda e suporte', icon: 'help', onClick: () => this.showToast('Central de ajuda') },
+    ].map(l => ({ ...l, iconEl: ic[l.icon] }));
+
+    // ---------- ADMIN ----------
+    const isAdmin = s.role === 'admin';
+    const aScr = s.adminScr;
+    const allChildren = s.admin.children;
+    const allClasses = s.admin.classes;
+    const allTeachers = s.admin.teachers;
+    const allUsers = s.admin.users;
+    const turmaName = (c) => c.name.replace(/^Turma\s+/, '');
+    const enrolledOf = (c) => allChildren.filter(ch => ch.turma === turmaName(c)).length;
+
+    const navDefs = [
+      { k: 'dash', label: 'Dashboard', icon: 'home' },
+      { k: 'children', label: 'Crianças', icon: 'users' },
+      { k: 'classes', label: 'Turmas', icon: 'clip' },
+      { k: 'teachers', label: 'Professores', icon: 'user' },
+      { k: 'users', label: 'Usuários', icon: 'shield' },
+      { k: 'finance', label: 'Financeiro', icon: 'wallet', badge: true, badgeText: '2' },
+    ];
+    const adminNav = navDefs.map(n => {
+      const on = aScr === n.k;
+      return { label: n.label, iconEl: ic[n.icon], onClick: () => this.setState({ adminScr: n.k }), bg: on ? 'rgba(255,255,255,.14)' : 'transparent', fg: on ? 'var(--surface)' : 'rgba(255,255,255,.72)', weight: on ? 600 : 500, iconOp: on ? 1 : 0.7, badge: !!n.badge, badgeText: n.badgeText };
+    });
+    const titles = {
+      dash: ['Dashboard', 'Visão geral da unidade · 16 jul 2026'],
+      children: ['Crianças', allChildren.length + ' matriculadas em ' + allClasses.length + ' turmas'],
+      classes: ['Turmas', allClasses.length + ' turmas ativas'],
+      teachers: ['Professores', allTeachers.length + ' profissionais'],
+      users: ['Usuários', 'Responsáveis e equipe'],
+      finance: ['Financeiro', 'Julho 2026'],
+    };
+    const primaryDefs = {
+      children: 'Nova criança', classes: 'Nova turma', teachers: 'Novo professor', users: 'Novo usuário', finance: 'Exportar',
+    };
+    const classNames = allClasses.map(turmaName);
+    const draftDefaults = {
+      child: { nome: '', nascimento: '', turma: classNames[0] || 'Girassóis', responsavel: '', alergias: '' },
+      class: { nome: '', periodo: 'Integral', prof: '', capacidade: '' },
+      teacher: { nome: '', turmas: '', email: '' },
+      user: { nome: '', role: 'Responsável', email: '' },
+    };
+    const recordToDraft = {
+      child: (r) => ({ nome: r.name, nascimento: (r.age && r.age !== 'Nova matrícula') ? r.age : '', turma: r.turma, responsavel: r.responsavel === '—' ? '' : r.responsavel, alergias: r.allergy || '', photo: r.photo || '' }),
+      class: (r) => ({ nome: turmaName(r), periodo: r.periodo, prof: r.prof === '—' ? '' : r.prof, capacidade: r.qtd || '' }),
+      teacher: (r) => ({ nome: r.name, turmas: r.turmas === '—' ? '' : r.turmas, email: r.email === '—' ? '' : r.email, photo: r.photo || '' }),
+      user: (r) => ({ nome: r.name, role: r.role, email: r.email === '—' ? '' : r.email }),
+    };
+    const openModal = (type, record) => this.setState({ adminModal: true, adminModalType: type, editingId: record ? record.id : null, entityDraft: record ? recordToDraft[type](record) : { ...draftDefaults[type] } });
+    const adminPrimaryAction = () => {
+      if (aScr === 'children') openModal('child');
+      else if (aScr === 'classes') openModal('class');
+      else if (aScr === 'teachers') openModal('teacher');
+      else if (aScr === 'users') openModal('user');
+      else if (aScr === 'finance') this.showToast('Relatório de julho exportado');
+    };
+    const delKey = { child: 'children', class: 'classes', teacher: 'teachers', user: 'users' };
+    const doDelete = (type, id) => {
+      const key = delKey[type];
+      this.setState({ admin: { ...s.admin, [key]: s.admin[key].filter(x => x.id !== id) }, confirmDelete: null }, () => this.showToast('Registro removido'));
+    };
+
+    const kpis = [
+      { value: '' + allChildren.length, label: 'Crianças matriculadas', icon: 'users', bg: '#EAF3FC', fg: '#2168B8' },
+      { value: '' + allClasses.length, label: 'Turmas ativas', icon: 'clip', bg: '#E7F7F1', fg: '#2E9E7B' },
+      { value: '' + allTeachers.length, label: 'Professores', icon: 'user', bg: '#F3ECFF', fg: '#7A5AC4' },
+      { value: 'R$ 27.590', label: 'Receita do mês', icon: 'wallet', bg: '#FFF3E9', fg: '#D9773E' },
+    ].map(k => ({ ...k, iconEl: ic[k.icon] }));
+    const activity = [
+      { icon: 'check', bg: '#E7F7F1', fg: '#2E9E7B', text: 'Prof. Alice registrou a agenda de Ana Clara', time: '10:14' },
+      { icon: 'wallet', bg: '#EAF3FC', fg: '#2168B8', text: 'Marina Souza pagou a mensalidade de julho', time: '09:40' },
+      { icon: 'thermo', bg: '#FDE0D5', fg: '#C0342E', text: 'Intercorrência registrada — leve febre (Girassóis)', time: '10:12' },
+      { icon: 'users', bg: '#F3ECFF', fg: '#7A5AC4', text: 'Nova matrícula concluída — Sementinhas', time: 'Ontem' },
+      { icon: 'clip', bg: '#FFF3E9', fg: '#D9773E', text: 'Plano de aula publicado — Girassóis', time: 'Ontem' },
+    ].map(a => ({ ...a, iconEl: ic[a.icon] }));
+    const pendencias = [
+      { title: '2 mensalidades atrasadas', text: 'Junho em aberto para 2 responsáveis.', icon: 'alert', bg: '#FDECEC', bd: '#F7C4C4', fg: '#C0342E' },
+      { title: '1 agenda pendente', text: 'Estrelinhas ainda sem registro hoje.', icon: 'cal', bg: '#FFF3E9', bd: '#FBE2B0', fg: '#D9773E' },
+      { title: 'Vacinação', text: '3 carteirinhas pendentes de atualização.', icon: 'shield', bg: '#EAF3FC', bd: '#CFE4F8', fg: '#2168B8' },
+    ].map(p => ({ ...p, iconEl: ic[p.icon] }));
+
+    // tables
+    let tableHead = [], tableCols = '2fr 1fr 1fr 1fr', tableRows = [];
+    const rowActions = (type, rec) => ({ onEdit: () => openModal(type, rec), onDelete: () => this.setState({ confirmDelete: { type, id: rec.id, name: rec.name || turmaName(rec) } }) });
+    if (aScr === 'children') {
+      tableHead = ['Criança', 'Turma', 'Responsável', ''];
+      tableCols = '1.9fr 1fr 1.1fr 1.1fr';
+      tableRows = allChildren.map(c => ({
+        initials: c.initials, avatarBg: c.avatarBg || '#CFE7FF', avatarFg: '#6B4A38',
+        name: c.name, hasSub: true, sub: c.allergy ? ('Alergia: ' + c.allergy) : (c.age || 'Nova matrícula'),
+        c2: c.turma, c3: c.responsavel,
+        showBadge: true, badge: c.status === 'atrasada' ? 'Atrasada' : 'Em dia', badgeBg: c.status === 'atrasada' ? '#FDECEC' : '#E7F7F1', badgeFg: c.status === 'atrasada' ? '#C0342E' : '#2E9E7B',
+        ...rowActions('child', c),
+      }));
+    } else if (aScr === 'classes') {
+      tableHead = ['Turma', 'Período', 'Crianças', ''];
+      tableCols = '1.7fr 1fr .9fr 1.1fr';
+      tableRows = allClasses.map(c => ({ initials: c.letter, avatarBg: c.color, avatarFg: c.colorFg, name: c.name, hasSub: true, sub: c.prof, c2: c.periodo, c3: enrolledOf(c) + ' / ' + (c.qtd || '—'), showBadge: false, ...rowActions('class', c) }));
+    } else if (aScr === 'teachers') {
+      tableHead = ['Professora', 'Turmas', 'E-mail', ''];
+      tableCols = '1.5fr 1fr 1.3fr 1.1fr';
+      tableRows = allTeachers.map(t => ({ initials: t.initials, avatarBg: t.avatarBg, avatarFg: 'var(--text-soft)', name: t.name, hasSub: false, sub: '', c2: t.turmas, c3: t.email, showBadge: false, ...rowActions('teacher', t) }));
+    } else if (aScr === 'users') {
+      tableHead = ['Usuário', 'Perfil', 'Status', ''];
+      tableCols = '1.5fr 1fr 1fr 1.1fr';
+      tableRows = allUsers.map(u => ({ initials: u.initials, avatarBg: u.avatarBg, avatarFg: 'var(--text-soft)', name: u.name, hasSub: true, sub: u.email, c2: u.role, c3: '', c3Badge: true, showBadge: false, badge: u.status === 'pendente' ? 'Convite pendente' : 'Ativo', badgeBg: u.status === 'pendente' ? '#FFF3E9' : '#E7F7F1', badgeFg: u.status === 'pendente' ? '#D9773E' : '#2E9E7B', ...rowActions('user', u) }));
+    }
+    tableRows = tableRows.map((r, i) => { const src = aScr === 'children' ? allChildren[i] : aScr === 'teachers' ? allTeachers[i] : null; const photo = src && src.photo; return { ...r, hasPhoto: !!photo, noPhoto: !photo, photo: photo || '', c3Plain: !r.c3Badge, editEl: ic.edit, delEl: ic.trash }; });
+
+    const finKpis = [
+      { label: 'Previsto', value: 'R$ 27.590', sub: '31 mensalidades', fg: 'var(--text)' },
+      { label: 'Recebido', value: 'R$ 25.810', sub: '29 pagas', fg: '#2E9E7B' },
+      { label: 'Em aberto', value: 'R$ 1.780', sub: '2 responsáveis', fg: '#C0342E' },
+    ];
+    const inadimplentes = [
+      { resp: 'Carla Nunes', child: 'Théo · Girassóis', turma: 'Girassóis', ref: 'Junho', valor: 'R$ 890,00', onNotify: () => this.showToast('Cobrança enviada a Carla Nunes') },
+      { resp: 'Paulo Reis', child: 'Mel · Estrelinhas', turma: 'Estrelinhas', ref: 'Junho', valor: 'R$ 890,00', onNotify: () => this.showToast('Cobrança enviada a Paulo Reis') },
+    ];
+
+    // entity modal (generic)
+    const mType = s.adminModalType;
+    const ed = s.entityDraft || { ...(draftDefaults[mType] || {}) };
+    const setEd = (patch) => this.setState({ entityDraft: { ...ed, ...patch } });
+    const initials2 = (name) => { const p = (name || '').trim().split(/\s+/); return ((p[0] ? p[0][0] : '') + (p[1] ? p[1][0] : '')).toUpperCase() || '—'; };
+    const pastels = ['#FFDCC9', '#CFE7FF', '#E1F5EA', '#F3D9FF', '#FFE7C2', '#D6F0FF'];
+    const chipsField = (label, key, opts, palette) => ({ label, isChips: true, isInput: false, chips: opts.map(o => { const on = ed[key] === o; const c = on ? (palette === 'blue' ? { bg: '#EAF3FC', fg: '#2168B8', bd: '#BBDBF7' } : { bg: '#E7F7F1', fg: '#2E9E7B', bd: '#B8E7D6' }) : { bg: 'var(--surface)', fg: 'var(--text-dim)', bd: 'var(--border-12)' }; return { label: o, bg: c.bg, fg: c.fg, bd: c.bd, onClick: () => setEd({ [key]: o }) }; }) });
+    const inputField = (label, key, ph) => ({ label, isInput: true, isChips: false, value: ed[key], ph, onChange: (e) => setEd({ [key]: e.target.value }) });
+    const photoField = (label) => ({
+      label, isPhoto: true, isInput: false, isChips: false,
+      photo: ed.photo || '', hasPhoto: !!ed.photo, noPhoto: !ed.photo,
+      avatarBg: ed.photo ? '#EEF1F4' : '#EAF3FC', cameraEl: ic.camera,
+      cameraIcon: this.mkIcon('camera', { size: 15 }), galleryIcon: this.mkIcon('image', { size: 15 }),
+      cameraLabel: 'Tirar foto', galleryLabel: 'Da galeria',
+      onClear: () => setEd({ photo: '' }),
+      onPick: (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const rd = new FileReader(); rd.onload = () => setEd({ photo: rd.result }); rd.readAsDataURL(file); e.target.value = ''; },
+    });
+    const modalConfig = {
+      child: { title: 'Cadastrar criança', save: 'Criança cadastrada', fields: [photoField('Foto da criança'), inputField('Nome completo', 'nome', 'Ex: Helena Martins'), inputField('Data de nascimento', 'nascimento', 'DD/MM/AAAA'), chipsField('Turma', 'turma', classNames.length ? classNames : ['Girassóis', 'Sementinhas', 'Estrelinhas']), inputField('Responsável', 'responsavel', 'Ex: Marina Souza'), inputField('Alergias / cuidados', 'alergias', 'Ex: amendoim (opcional)')] },
+      class: { title: 'Cadastrar turma', save: 'Turma cadastrada', fields: [inputField('Nome da turma', 'nome', 'Ex: Sementinhas'), chipsField('Período', 'periodo', ['Integral', 'Manhã', 'Tarde'], 'blue'), inputField('Professora responsável', 'prof', 'Ex: Alice Ferreira'), inputField('Capacidade', 'capacidade', 'Ex: 12')] },
+      teacher: { title: 'Cadastrar professor', save: 'Professor cadastrado', fields: [photoField('Foto do professor'), inputField('Nome completo', 'nome', 'Ex: Fernanda Lima'), inputField('Turmas', 'turmas', 'Ex: Girassóis'), inputField('E-mail', 'email', 'nome@aquarela.com')] },
+      user: { title: 'Cadastrar usuário', save: 'Usuário cadastrado', fields: [inputField('Nome completo', 'nome', 'Ex: João Prado'), chipsField('Perfil', 'role', ['Responsável', 'Professora', 'Coordenação'], 'blue'), inputField('E-mail', 'email', 'nome@email.com')] },
+    };
+    const mCfg = modalConfig[mType] || modalConfig.child;
+    const modalFields = mCfg.fields;
+    const modalValid = (ed.nome || '').trim().length > 0;
+    const clrs = ['#C7943A', '#2E9E7B', '#5468C4', '#C0342E', '#7A5AC4'];
+    const upsert = (key, obj) => {
+      const arr = s.admin[key];
+      const next = s.editingId ? arr.map(x => x.id === s.editingId ? { ...x, ...obj } : x) : [...arr, { id: key.slice(0, 2) + Date.now(), ...obj }];
+      return { ...s.admin, [key]: next };
+    };
+    const saveAdminModal = () => {
+      if (!modalValid) { this.showToast('Informe o nome'); return; }
+      const nome = ed.nome.trim();
+      const doneMsg = s.editingId ? 'Dados atualizados' : mCfg.save;
+      let admin;
+      if (mType === 'child') {
+        admin = upsert('children', { initials: initials2(nome), name: nome, age: ed.nascimento.trim() || 'Nova matrícula', turma: ed.turma, responsavel: ed.responsavel.trim() || '—', allergy: ed.alergias.trim() || null, avatarBg: pastels[allChildren.length % pastels.length], status: 'em dia', photo: ed.photo || null });
+      } else if (mType === 'class') {
+        const c = clrs[allClasses.length % clrs.length];
+        admin = upsert('classes', { letter: nome[0].toUpperCase(), name: 'Turma ' + nome, color: '#EEF1F4', colorFg: c, periodo: ed.periodo, qtd: ed.capacidade.trim() || '0', prof: ed.prof.trim() || '—' });
+      } else if (mType === 'teacher') {
+        admin = upsert('teachers', { initials: initials2(nome), name: nome, turmas: ed.turmas.trim() || '—', email: ed.email.trim() || '—', avatarBg: '#EAF3FC', photo: ed.photo || null });
+      } else {
+        admin = upsert('users', { initials: initials2(nome), name: nome, role: ed.role, email: ed.email.trim() || '—', avatarBg: '#F3ECFF', status: 'ativo' });
+      }
+      const scrMap = { child: 'children', class: 'classes', teacher: 'teachers', user: 'users' };
+      this.setState({ admin, adminModal: false, entityDraft: null, editingId: null, adminScr: scrMap[mType] }, () => this.showToast(doneMsg));
+    };
+
+    // ---------- SIMULADOR ----------
+    const brl = (v) => 'R$ ' + v.toLocaleString('pt-BR');
+    const planBase = { integral: 890, meio: 620 };
+    const planDay = { integral: 75, meio: 55 };
+    const round10 = (v) => Math.round(v / 10) * 10;
+    const discFor = (m) => m >= 12 ? 0.10 : m >= 6 ? 0.06 : m >= 3 ? 0.03 : 0;
+    const isDays = s.simMode === 'dias';
+    const qty = Math.max(1, parseInt(s.simQty) || 1);
+
+    let simMonthlyVal, simSavingVal, simUnitTop, simTotalLabel;
+    if (isDays) {
+      simMonthlyVal = planDay[s.simPlan];
+      simSavingVal = 0;
+      simUnitTop = 'Por dia';
+      simTotalLabel = qty + (qty === 1 ? ' dia' : ' dias');
+    } else {
+      simMonthlyVal = round10(planBase[s.simPlan] * (1 - discFor(qty)));
+      simSavingVal = (planBase[s.simPlan] - simMonthlyVal) * qty;
+      simUnitTop = 'Por mês';
+      const yrs = Math.floor(qty / 12), rem = qty % 12;
+      const yLabel = yrs > 0 ? (' · ' + yrs + (yrs === 1 ? ' ano' : ' anos') + (rem ? ' e ' + rem + ' m' : '')) : '';
+      simTotalLabel = qty + (qty === 1 ? ' mês' : ' meses') + yLabel;
+    }
+    const simTotalVal = simMonthlyVal * qty;
+
+    const simModes = [{ k: 'dias', label: 'Por dia' }, { k: 'meses', label: 'Por mês / ano' }].map(m => {
+      const on = s.simMode === m.k;
+      return { label: m.label, onClick: () => this.setState({ simMode: m.k, simQty: m.k === 'dias' ? 10 : 6 }),
+        bd: on ? '#4C9BE8' : 'transparent', bg: on ? 'var(--surface)' : 'transparent',
+        fg: on ? '#2168B8' : 'var(--text-dim)', sh: on ? '0 2px 8px rgba(31,41,51,.08)' : 'none' };
+    });
+    const presetVals = isDays ? [5, 10, 15, 20] : [1, 3, 6, 12];
+    const simPresets = presetVals.map(n => {
+      const on = qty === n;
+      return { label: '' + n, onClick: () => this.setState({ simQty: n }),
+        bd: on ? '#4C9BE8' : 'var(--border-10)', bg: on ? '#EAF3FC' : 'var(--surface)',
+        fg: on ? '#2168B8' : 'var(--text-soft)' };
+    });
+    const simUnitLabel = isDays ? 'dias' : 'meses';
+
+    const simPlans = [
+      { key: 'integral', label: 'Integral', sub: 'Manhã e tarde' },
+      { key: 'meio', label: 'Meio período', sub: 'Manhã ou tarde' },
+    ].map(p => {
+      const on = s.simPlan === p.key;
+      return { label: p.label, sub: p.sub, onClick: () => this.setState({ simPlan: p.key }),
+        bd: on ? '#4C9BE8' : 'var(--border-10)', bg: on ? '#EAF3FC' : 'var(--surface)',
+        titleFg: on ? '#2168B8' : 'var(--text)', subFg: on ? '#2F7FCB' : 'var(--text-dim)' };
+    });
+    const barDefs = presetVals.map(n => {
+      const t = isDays ? planDay[s.simPlan] * n : round10(planBase[s.simPlan] * (1 - discFor(n))) * n;
+      return { n, t };
+    });
+    const maxT = Math.max(...barDefs.map(b => b.t), 1);
+    const simBars = barDefs.map(b => {
+      const on = b.n === qty;
+      return { value: brl(b.t), tick: b.n + (isDays ? 'd' : 'm'), h: Math.round(34 + 66 * (b.t / maxT)) + '%',
+        barBg: on ? 'linear-gradient(180deg,#5FC9A6,#4C9BE8)' : 'var(--surface-2)',
+        labelFg: on ? '#2168B8' : 'var(--text-mute)' };
+    });
+    const demoLogins = [
+      { key: 'parent', label: 'Responsável', icon: 'user', bg: '#FFE1D6', fg: '#C7522B' },
+      { key: 'teacher', label: 'Professor', icon: 'clip', bg: '#E7F7F1', fg: '#2E9E7B' },
+      { key: 'admin', label: 'Admin', icon: 'settings', bg: '#EAF3FC', fg: '#2168B8' },
+    ].map(d => ({ label: d.label, iconEl: ic[d.icon], bg: d.bg, fg: d.fg,
+      onClick: () => { if (d.key === 'parent') this.setState({ role: 'parent' }, () => this.go('home')); else if (d.key === 'teacher') this.setState({ role: 'teacher' }, () => this.go('classes')); else this.setState({ role: 'admin' }); } }));
+
+    // ---------- RESPONSIVE SHELL ----------
+    const isDesktop = s.vw >= 900;
+    const isTeacher = s.role === 'teacher';
+    const deviceOuterStyle = isDesktop
+      ? 'position:relative;width:min(1180px,95vw);height:min(760px,90vh);border-radius:20px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(14,22,34,.5),0 0 0 1px var(--border-06);background:var(--surface);'
+      : 'position:relative;width:392px;height:812px;border-radius:52px;background:#0E1622;padding:12px;box-shadow:0 40px 90px -30px rgba(14,22,34,.55),0 0 0 2px rgba(255,255,255,.04) inset;';
+    const deviceInnerStyle = isDesktop
+      ? 'position:relative;width:100%;height:100%;overflow:hidden;background:var(--screen);display:flex;flex-direction:row;'
+      : 'position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--screen);display:flex;flex-direction:column;';
+    const contentColStyle = isDesktop
+      ? 'flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;background:var(--surface-2);'
+      : 'flex:1;display:flex;flex-direction:column;min-height:0;width:100%;';
+    const screenWrapStyle = isDesktop
+      ? 'width:100%;max-width:680px;margin:0 auto;min-height:100%;background:var(--screen);box-shadow:0 0 0 1px var(--border-06);'
+      : 'width:100%;';
+    const navItem = (label, icon, active, onClick) => ({ label, iconEl: ic[icon], onClick,
+      bg: active ? 'rgba(255,255,255,.14)' : 'transparent', fg: active ? 'var(--surface)' : 'rgba(255,255,255,.72)',
+      weight: active ? 600 : 500, iconOp: active ? 1 : .75 });
+    let roleNav = [], roleSidebarLabel = '', roleSidebarUser = false, roleUserInitials = '', roleUserName = '', roleUserRole = '';
+    if (isParent) {
+      roleNav = [navItem('Início', 'home', s.scr === 'home', () => this.go('home')),
+        navItem('Financeiro', 'wallet', ['finance', 'pix', 'receipt'].includes(s.scr), () => this.go('finance')),
+        navItem('Perfil', 'user', s.scr === 'profile', () => this.go('profile'))];
+      roleSidebarLabel = 'NAVEGAÇÃO'; roleSidebarUser = true; roleUserInitials = 'MS'; roleUserName = 'Marina Souza'; roleUserRole = 'Responsável';
+    } else if (isTeacher) {
+      roleNav = [navItem('Turmas', 'users', ['classes', 'students', 'register'].includes(s.scr), () => this.go('classes')),
+        navItem('Planos', 'clip', ['plans', 'planForm'].includes(s.scr), () => this.go('plans')),
+        navItem('Perfil', 'user', s.scr === 'teacherProfile', () => this.go('teacherProfile'))];
+      roleSidebarLabel = 'NAVEGAÇÃO'; roleSidebarUser = true; roleUserInitials = 'AF'; roleUserName = 'Alice Ferreira'; roleUserRole = 'Professora';
+    } else if (isVisitor) {
+      roleNav = [navItem('Início', 'home', s.scr === 'landing', () => this.go('landing')),
+        navItem('Entrar', 'user', s.scr === 'login', () => this.go('login')),
+        navItem('Simulador', 'calc', s.scr === 'simulator', () => this.go('simulator'))];
+      roleSidebarLabel = 'VISITANTE'; roleSidebarUser = false;
+    }
+
+    return {
+      ic,
+      isDesktop, isMobileView: !isDesktop, showRoleSidebar: isDesktop,
+      deviceOuterStyle, deviceInnerStyle, contentColStyle, screenWrapStyle,
+      roleNav, roleSidebarLabel, roleSidebarUser, roleUserInitials, roleUserName, roleUserRole,
+      rootClass: s.dark ? 'om-dark' : 'om-light',
+      isDark: s.dark, toggleDark: () => this.setState({ dark: !s.dark }),
+      darkKnobBg: s.dark ? '#5FC9A6' : 'rgba(31,41,51,.18)', darkKnobX: s.dark ? '21px' : '3px',
+      darkIconEl: s.dark ? ic.moon : ic.sun,
+      goVisitor: () => this.setState({ role: 'visitor' }, () => this.go('landing')),
+      goParent: () => this.setState({ role: 'parent' }, () => this.go('home')),
+      goTeacher: () => this.setState({ role: 'teacher' }, () => this.go('classes')),
+      goAdmin: () => this.setState({ role: 'admin' }),
+      visitorPillStyle: pill(isVisitor), parentPillStyle: pill(isParent), teacherPillStyle: pill(s.role === 'teacher'), adminPillStyle: pill(isAdmin),
+      showDevice: !isAdmin && !sLanding, sAdmin: isAdmin, sLanding,
+      ...this.landingVals(isDesktop),
+      statusColor: ['home', 'finance', 'classes', 'profile', 'teacherProfile', 'plans', 'login'].includes(s.scr) ? 'var(--surface)' : 'var(--text)',
+
+      adminNav, adminTitle: (titles[aScr] || titles.dash)[0], adminSubtitle: (titles[aScr] || titles.dash)[1],
+      adminPrimaryBtn: aScr !== 'dash', adminPrimaryLabel: primaryDefs[aScr] || '', adminPrimaryAction,
+      aDash: aScr === 'dash', aTable: ['children', 'classes', 'teachers', 'users'].includes(aScr), aFinance: aScr === 'finance',
+      kpis, activity, pendencias,
+      tableHead, tableCols, tableRows,
+      finKpis, inadimplentes,
+      adminModal: s.adminModal, modalTitle: (s.editingId ? 'Editar ' : 'Cadastrar ') + ({ child: 'criança', class: 'turma', teacher: 'professor', user: 'usuário' }[mType] || ''), modalFields,
+      modalSaveBg: modalValid ? 'linear-gradient(135deg,#4C9BE8,#3F8FDD)' : 'rgba(31,41,51,.2)', modalSaveCursor: modalValid ? 'pointer' : 'not-allowed',
+      closeAdminModal: () => this.setState({ adminModal: false, editingId: null }), saveAdminModal,
+      confirmDelete: !!s.confirmDelete, confirmName: s.confirmDelete ? s.confirmDelete.name : '',
+      cancelDelete: () => this.setState({ confirmDelete: null }),
+      doConfirmDelete: () => { if (s.confirmDelete) doDelete(s.confirmDelete.type, s.confirmDelete.id); },
+
+      sHome: isParent && s.scr === 'home', sDay: isParent && s.scr === 'day', sHistory: isParent && s.scr === 'history',
+      sLogin: isVisitor && s.scr === 'login', sSimulator: isVisitor && s.scr === 'simulator',
+      loginEmail: s.loginEmail, loginPass: s.loginPass,
+      onLoginEmail: (e) => this.setState({ loginEmail: e.target.value }),
+      onLoginPass: (e) => this.setState({ loginPass: e.target.value }),
+      passType: s.showPass ? 'text' : 'password', passIcon: s.showPass ? ic.eyeOff : ic.eye,
+      togglePass: () => this.setState({ showPass: !s.showPass }),
+      forgotPass: () => this.showToast('Enviamos um link de redefinição ao seu e-mail'),
+      doLogin: () => {
+        const em = (s.loginEmail || '').toLowerCase();
+        if (/admin|coord|renata|gest[aã]o|diretor/.test(em)) { this.setState({ role: 'admin' }); return; }
+        if (/prof|alice|educ|@aquarela/.test(em)) { this.setState({ role: 'teacher' }, () => this.go('classes')); return; }
+        this.setState({ role: 'parent' }, () => this.go('home'));
+      },
+      goSimulator: () => this.go('simulator'), backToLogin: () => this.go('login'),
+      demoLogins,
+      simPlans, simBars, simModes, simPresets,
+      simQtyValue: s.simQty, simUnitLabel,
+      onSimQty: (e) => { const v = e.target.value.replace(/\D/g, ''); this.setState({ simQty: v === '' ? '' : parseInt(v) }); },
+      simQtyDec: () => this.setState({ simQty: Math.max(1, (parseInt(s.simQty) || 1) - 1) }),
+      simQtyInc: () => this.setState({ simQty: (parseInt(s.simQty) || 0) + 1 }),
+      simMonthly: brl(simMonthlyVal), simTotal: brl(simTotalVal),
+      simUnitTop, simPeriodLabel: simTotalLabel,
+      simHasSaving: simSavingVal > 0, simSavingText: 'Você economiza ' + brl(simSavingVal) + ' no período',
+      scheduleVisit: () => this.showToast('Visita solicitada — entraremos em contato!'),
+      sFinance: isParent && s.scr === 'finance', sPix: isParent && s.scr === 'pix', sReceipt: isParent && s.scr === 'receipt', sProfile: isParent && s.scr === 'profile',
+      sClasses: !isParent && s.scr === 'classes', sStudents: !isParent && s.scr === 'students', sRegister: !isParent && s.scr === 'register', sPlans: !isParent && s.scr === 'plans', sTeacherProfile: !isParent && s.scr === 'teacherProfile',
+
+      back: () => this.back(),
+      goHome: () => this.go('home'), goFinance: () => this.go('finance'), goHistory: () => this.go('history'), goDay: () => this.go('day'),
+      goProfile: () => this.go('profile'), goClasses: () => this.go('classes'), goPlans: () => this.go('plans'), goTeacherProfile: () => this.go('teacherProfile'),
+      showParentNav: isParent && !isDesktop && ['home', 'finance', 'profile'].includes(s.scr),
+      showTeacherNav: !isParent && !isVisitor && !isDesktop && ['classes', 'plans', 'teacherProfile'].includes(s.scr),
+      navHomeColor: s.scr === 'home' ? '#2F7FCB' : 'var(--text-mute)', navFinColor: s.scr === 'finance' ? '#2F7FCB' : 'var(--text-mute)', navProfColor: s.scr === 'profile' ? '#2F7FCB' : 'var(--text-mute)',
+      navClassColor: s.scr === 'classes' ? '#2E9E7B' : 'var(--text-mute)', navPlansColor: s.scr === 'plans' ? '#2E9E7B' : 'var(--text-mute)', navTProfColor: s.scr === 'teacherProfile' ? '#2E9E7B' : 'var(--text-mute)',
+
+      child: { name: child.name, initials: child.initials, avatarBg: child.avatarBg, sub: child.age + ' · Turma ' + child.turma, hasCare: !!child.allergy, careLine: child.allergy ? ('Alergia a ' + child.allergy + '.' + (child.med ? ' ' + child.med + ' conforme autorização.' : '')) : '' },
+      avisos, avisosCount: avisos.length, todayPreview,
+      dayEntries, signedBy: 'Prof. Alice', history,
+      financeMonths, openTotalText: this.money(openTotal),
+
+      pixMonthLabel: s.pixMonth ? (s.pixMonth + ' 2026 · mensalidade') : '', pixValueText: this.money(890),
+      pixWaiting: s.pixStatus === 'waiting', pixPaid: s.pixStatus === 'paid',
+      pixCode: '00020126580014br.gov.bcb.pix0136aquarela-kids-5303986540589.005802BR5920AQUARELA KIDS LTDA6009SAO PAULO62070503***6304A1B2',
+      copyLabel: s.pixCopied ? 'Copiado' : 'Copiar',
+      copyPix: () => { this.setState({ pixCopied: true }); this.showToast('Código PIX copiado'); },
+      confirmPix: () => {
+        this.showToast('Confirmando pagamento…');
+        setTimeout(() => {
+          const cur = this.getFinance().map(m => m.name === s.pixMonth ? { ...m, status: 'pago', paidDate: '16/07/2026', txid: 'E' + Date.now().toString().slice(-8) } : m);
+          this.setState({ finance: { ...s.finance, [s.childId]: cur }, pixStatus: 'paid' });
+        }, 1300);
+      },
+      openReceiptFromPix: () => this.setState({ receiptMonth: s.pixMonth }, () => this.go('receipt')),
+      goFinance2: () => this.go('finance'),
+      receipt,
+      downloadReceipt: () => this.showToast('Comprovante baixado (PDF)'),
+      shareReceipt: () => this.showToast('Comprovante enviado por e-mail'),
+
+      teacherClasses,
+      currentClass: { name: klass.name, progressText: totalDone + ' de ' + roster.length + ' agendas registradas hoje' },
+      students,
+      currentStudent: { name: student.name || '', age: student.age || '', hasCare: !!(student.allergy || student.med), allergyText: student.allergy || 'nenhuma', medText: student.med || 'sem medicação' },
+      mealChips, acceptOpts, activityChips, moodOpts, incidentChips, incidentAlert: f.incidents.length > 0,
+      sleepOn: f.sleepOn, sleepOff: !f.sleepOn, sleepFrom: f.sleepFrom, sleepTo: f.sleepTo,
+      toggleSleep: () => this.setState({ form: { ...f, sleepOn: !f.sleepOn } }),
+      onSleepFrom: (e) => this.setState({ form: { ...f, sleepFrom: e.target.value } }),
+      onSleepTo: (e) => this.setState({ form: { ...f, sleepTo: e.target.value } }),
+      diapers: f.diapers, decDiaper: () => this.setState({ form: { ...f, diapers: Math.max(0, f.diapers - 1) } }), incDiaper: () => this.setState({ form: { ...f, diapers: f.diapers + 1 } }),
+      notes: f.notes, onNotes: (e) => this.setState({ form: { ...f, notes: e.target.value } }),
+      saveLabel: saving ? 'Salvando…' : (saved ? 'Agenda salva' : 'Salvar agenda'),
+      saveIcon: saving ? null : ic.check, saveBg: saved ? 'linear-gradient(135deg,#5FC9A6,#3FB58C)' : 'linear-gradient(135deg,#4C9BE8,#3F8FDD)',
+      saveAgenda: () => {
+        if (saving) return;
+        this.setState({ saveState: 'saving' });
+        setTimeout(() => {
+          const hasIncident = f.incidents.length > 0;
+          this.setState({ saveState: 'saved', doneMap: { ...s.doneMap, [s.classId + ':' + s.studentId]: true } });
+          this.showToast(hasIncident ? 'Salvo — alerta enviado ao responsável' : 'Agenda salva com sucesso');
+          setTimeout(() => this.go('students'), 1100);
+        }, 800);
+      },
+
+      planFilters, plans, newPlan: () => openPlanForm(null),
+      sPlanForm: !isParent && s.scr === 'planForm',
+      planFormTitle: dr.id ? 'Editar plano' : 'Novo plano',
+      planTurmaOpts, draftAtividades, noAtividades: draftAtividades.length === 0,
+      draftDate: dr.date, draftTema: dr.tema, draftObj: dr.obj, draftAtvInput: dr.atvInput, draftMateriais: dr.materiais,
+      onDraftDate: (e) => setDraft({ date: e.target.value }),
+      onDraftTema: (e) => setDraft({ tema: e.target.value }),
+      onDraftObj: (e) => setDraft({ obj: e.target.value }),
+      onDraftAtvInput: (e) => setDraft({ atvInput: e.target.value }),
+      onAtvKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); addAtividade(); } },
+      onDraftMateriais: (e) => setDraft({ materiais: e.target.value }),
+      addAtividade, savePlan,
+      planSaveOk: planValid ? 'linear-gradient(135deg,#4C9BE8,#3F8FDD)' : 'rgba(31,41,51,.2)',
+      planSaveCursor: planValid ? 'pointer' : 'not-allowed',
+      planSaveHint: planValid ? 'Pronto para salvar' : 'Preencha o tema para habilitar',
+      teacherLinks,
+
+      childProfiles, profileLinks,
+      notifBg: s.notif ? '#5FC9A6' : 'rgba(31,41,51,.18)', notifX: s.notif ? '21px' : '3px',
+      toggleNotif: () => this.setState({ notif: !s.notif }),
+      signOut: () => this.showToast('Saindo da conta…'),
+
+      openProfiles: () => this.setState({ sheet: true }), closeProfiles: () => this.setState({ sheet: false }), stop: (e) => e.stopPropagation(), sheetOpen: s.sheet,
+
+      toastShow: !!s.toast, toastText: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

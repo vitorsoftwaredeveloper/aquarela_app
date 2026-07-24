@@ -1,0 +1,44 @@
+import { api } from "./api";
+import { IS_DEV_DATA } from "@/config/env";
+import { devBalanco, devDespesas, devInadimplentes } from "./devData";
+import { normalizarBalanco, normalizarInadimplentes } from "./financeiroNormalize";
+import type { Balanco, Despesa, Inadimplente, NovaDespesa } from "@/types/financeiroAdmin";
+
+/** Balanço, inadimplentes e despesas (admin). Contrato: docs/03-Backend §5. */
+export const FinanceiroAdminService = {
+  async getBalanco(periodo = String(new Date().getFullYear())): Promise<Balanco> {
+    if (IS_DEV_DATA) return devBalanco();
+    const { data } = await api.get("/financeiro/balanco", {
+      params: { periodo },
+    });
+    if (process.env.NODE_ENV !== "production" && !data?.data?.resumo) {
+      // Ajuda a alinhar o contrato quando o formato divergir do esperado.
+      console.info("[financeiro] payload do balanço:", data);
+    }
+    return normalizarBalanco(data);
+  },
+
+  async getInadimplentes(): Promise<Inadimplente[]> {
+    if (IS_DEV_DATA) return devInadimplentes;
+    const { data } = await api.get("/financeiro/inadimplentes");
+    return normalizarInadimplentes(data);
+  },
+
+  async listDespesas(): Promise<Despesa[]> {
+    if (IS_DEV_DATA) return devDespesas;
+    const { data } = await api.get("/despesas");
+    const lista = data?.data ?? data;
+    return Array.isArray(lista) ? lista : [];
+  },
+
+  async createDespesa(payload: NovaDespesa): Promise<Despesa> {
+    if (IS_DEV_DATA) return { ...payload, _id: `dev-${Date.now()}` };
+    const { data } = await api.post("/despesas", payload);
+    return data.data;
+  },
+
+  async removeDespesa(id: string): Promise<void> {
+    if (IS_DEV_DATA) return;
+    await api.delete(`/despesas/${id}`);
+  },
+};

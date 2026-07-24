@@ -1,0 +1,124 @@
+/**
+ * Design tokens — Aquarela Kids
+ * Identidade "aquarela infantil": azul + verde-menta, cantos arredondados,
+ * neutros quentes. Derivado de docs/01-Design-UX.md e do import do Claude Design.
+ * Consumido via CSS Modules e alternado (claro/escuro) pelo ThemeContext,
+ * que escreve `data-theme` em <html>.
+ */
+
+:root {
+  /* ---- Marca / cores ---- */
+  --color-primary: #4c9be8;
+  --color-primary-strong: #3f8fdd;
+  --color-primary-link: #2f7fcb;
+  --color-primary-link-hover: #1e63a8;
+  --color-primary-soft: #eaf3fc;
+  --color-primary-soft-border: #cfe4f8;
+
+  --color-secondary: #5fc9a6;
+  --color-secondary-strong: #2e9e7b;
+  --color-secondary-soft: #e7f7f1;
+
+  --color-accent: #ff8a65; /* coral — alerta suave */
+  --color-accent-soft: #fff3ee;
+
+  --color-danger: #e5484d; /* alerta crítico de saúde */
+  --color-danger-strong: #c0342e;
+  --color-danger-soft: #fdecec;
+
+  --color-warning: #f5b841; /* dourado — avisos / estrelas */
+
+  --color-navy: #123b63; /* faixas escuras (stats, plano destaque) */
+  --color-navy-deep: #0e2e4d;
+
+  /* ---- Superfícies e texto ---- */
+  --page: #f2f0eb;
+  --screen: #fcfbf8;
+  --surface: #ffffff;
+  --surface-2: #f6f8fa;
+
+  --text: #1f2933;
+  --text-soft: #4b5563;
+  --text-soft-2: #3f4a57;
+  --text-dim: #6b7280;
+  --text-mute: #9aa1ac;
+  --text-on-brand: #ffffff;
+
+  --border-06: rgba(31, 41, 51, 0.06);
+  --border-07: rgba(31, 41, 51, 0.07);
+  --border-08: rgba(31, 41, 51, 0.08);
+  --border-10: rgba(31, 41, 51, 0.1);
+  --border-12: rgba(31, 41, 51, 0.12);
+  --border-14: rgba(31, 41, 51, 0.14);
+
+  /* ---- Gradientes de marca ---- */
+  --grad-brand: linear-gradient(135deg, #4c9be8, #5fc9a6);
+  --grad-primary: linear-gradient(135deg, #4c9be8, #3f8fdd);
+  --grad-navy: linear-gradient(120deg, #123b63, #0e2e4d);
+
+  /* ---- Tipografia ---- */
+  --font-heading: var(--font-poppins), "Poppins", system-ui, sans-serif;
+  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+
+  /* ---- Espaçamento (4/8/12/16/24/32...) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 88px;
+
+  /* ---- Raios ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
+  --radius-pill: 999px;
+
+  /* ---- Sombras ---- */
+  --shadow-sm: 0 8px 24px -16px rgba(31, 41, 51, 0.28);
+  --shadow-md: 0 14px 30px -12px rgba(76, 155, 232, 0.4);
+  --shadow-lg: 0 30px 60px -30px rgba(18, 59, 99, 0.6);
+  --shadow-brand: 0 14px 30px -12px rgba(76, 155, 232, 0.75);
+
+  /* ---- Layout ---- */
+  --content-max: 1180px;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page: #10161d;
+  --screen: #141b23;
+  --surface: #1a222c;
+  --surface-2: #202a35;
+
+  --text: #edf1f5;
+  --text-soft: #c4ccd6;
+  --text-soft-2: #aab4c0;
+  --text-dim: #94a0ad;
+  --text-mute: #6f7b88;
+
+  --color-primary-soft: #172c40;
+  --color-primary-soft-border: #21415e;
+  --color-secondary-soft: #14322a;
+  --color-accent-soft: #33231d;
+  --color-danger-soft: #3a1f20;
+
+  --border-06: rgba(255, 255, 255, 0.06);
+  --border-07: rgba(255, 255, 255, 0.08);
+  --border-08: rgba(255, 255, 255, 0.09);
+  --border-10: rgba(255, 255, 255, 0.11);
+  --border-12: rgba(255, 255, 255, 0.13);
+  --border-14: rgba(255, 255, 255, 0.16);
+
+  --shadow-sm: 0 8px 24px -16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 30px 60px -30px rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
+}

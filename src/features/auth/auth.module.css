@@ -1,0 +1,230 @@
+.wrap {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 18px;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(76, 155, 232, 0.14),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 88% 90%,
+      rgba(95, 201, 166, 0.16),
+      transparent 45%
+    ),
+    var(--screen);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.header {
+  background: linear-gradient(155deg, #4c9be8 0%, #5fc9a6 100%);
+  padding: 42px 26px 34px;
+  color: #fff;
+  text-align: center;
+}
+.headerMark {
+  width: 64px;
+  height: 64px;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+.headerTitle {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.3px;
+}
+.headerSub {
+  font-size: 13px;
+  opacity: 0.92;
+  margin-top: 5px;
+  line-height: 1.45;
+}
+
+.body {
+  padding: 26px 24px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.formTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+.formHint {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.forgotLink {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  color: var(--color-primary-link);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 0;
+}
+.forgotLink:hover {
+  color: var(--color-primary-link-hover);
+}
+
+.submit {
+  margin-top: 18px;
+  width: 100%;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger-strong);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+.alert svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--color-secondary-soft);
+  border: 1px solid var(--color-secondary);
+  color: var(--color-secondary-strong);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+.notice svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.footer {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-07);
+}
+.simBtn {
+  width: 100%;
+}
+.footerNote {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-mute);
+  margin-top: 12px;
+}
+.footerNote a {
+  font-weight: 600;
+}
+
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.back:hover {
+  color: var(--text);
+}
+
+/* Login demo (só quando o Cognito ainda não está configurado) */
+.demo {
+  margin-top: 18px;
+}
+.demoDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-mute);
+  font-size: 11.5px;
+  margin-bottom: 12px;
+}
+.demoDivider::before,
+.demoDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-08);
+}
+.demoGrid {
+  display: flex;
+  gap: 9px;
+}
+.demoBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-08);
+  border-radius: 13px;
+  padding: 12px 6px;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.demoBtn:hover {
+  border-color: var(--color-primary-soft-border);
+  transform: translateY(-1px);
+}
+.demoIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

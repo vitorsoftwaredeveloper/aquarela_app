@@ -1,0 +1,634 @@
+/* ============================================================
+   Professor — mobile/tablet first (protótipo Claude Design)
+   ============================================================ */
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background: var(--screen);
+}
+.viewport {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--screen);
+}
+@media (min-width: 480px) {
+  .viewport {
+    box-shadow: 0 20px 60px -30px rgba(18, 59, 99, 0.35);
+  }
+}
+.scroll {
+  flex: 1;
+  padding-bottom: 84px;
+}
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-08);
+}
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mute);
+}
+.tabActive,
+.tabActive:hover {
+  color: var(--color-secondary-strong);
+}
+
+/* ---------------- T-09 Minhas turmas ---------------- */
+.header {
+  background: linear-gradient(150deg, #5fc9a6 0%, #4c9be8 100%);
+  color: #fff;
+  border-radius: 0 0 28px 28px;
+  padding: 16px 22px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.headerWho {
+  font-size: 13px;
+  opacity: 0.9;
+}
+.headerTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 21px;
+  margin-top: 2px;
+}
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 15px;
+  flex: none;
+}
+
+.turmaList {
+  padding: 18px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-top: -14px;
+}
+.turmaCard {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 6px 20px -8px rgba(31, 41, 51, 0.16);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.turmaLetter {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  flex: none;
+}
+.turmaName {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+}
+.turmaMeta {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.pill {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  flex: none;
+}
+.pillPend {
+  color: #c7522b;
+  background: var(--color-accent-soft);
+}
+.pillDone {
+  color: var(--color-secondary-strong);
+  background: var(--color-secondary-soft);
+}
+
+/* ---------------- Cabeçalho "push" ---------------- */
+.pushHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--screen) 94%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  cursor: pointer;
+  flex: none;
+}
+.pushTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15.5px;
+}
+.pushSub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ---------------- T-10 Alunos da turma ---------------- */
+.alunoList {
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.alunoCard {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 16px;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.alunoAvatarWrap {
+  position: relative;
+  flex: none;
+}
+.alunoAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: #7a4a34;
+}
+.allergyDot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fde0d5;
+  color: #c0342e;
+  border: 1.5px solid var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.alunoName {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.alunoSub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 6px 11px;
+  white-space: nowrap;
+  flex: none;
+}
+
+/* ---------------- PED-02 Planos de aula ---------------- */
+.planoList {
+  padding: 14px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.planoCard {
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 16px;
+  padding: 13px 14px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.planoTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.planoTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.planoDate {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.planoDesc {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+.planoTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.planoTag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-secondary-strong);
+  background: var(--color-secondary-soft);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+.planoTagMaterial {
+  color: var(--text-dim);
+  background: var(--border-06);
+}
+.planoActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.iconBtnDanger {
+  color: var(--color-danger-strong);
+}
+
+/* ---------------- T-11 Registrar agenda ---------------- */
+.careStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff3ee, #fdecec);
+  border: 1px solid #ffd1be;
+  border-radius: 14px;
+  padding: 11px 13px;
+  margin: 12px 14px 0;
+}
+.careItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b8442a;
+}
+
+.form {
+  padding: 12px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-bottom: 12px;
+}
+.cardHeadRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+.cardHint {
+  font-size: 11.5px;
+  color: var(--text-mute);
+  margin: 5px 0 11px;
+}
+.subLabel {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 13px 0 8px;
+}
+
+/* Chips */
+.chipRow {
+  display: flex;
+  gap: 8px;
+}
+.chipWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  border: 1.5px solid var(--border-12);
+  background: var(--surface-2);
+  color: var(--text-soft);
+  border-radius: 12px;
+  padding: 11px 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  flex: 1;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.chipPill {
+  flex: none;
+  border-radius: 20px;
+  padding: 8px 13px;
+  font-size: 12.5px;
+}
+.chipOn {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+}
+.chipOnGreen {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary-strong);
+}
+.chipOnRed {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+}
+
+/* Sono */
+.sleepRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 11px;
+}
+.timeInput {
+  flex: 1;
+  border: 1.5px solid var(--border-12);
+  border-radius: 11px;
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--surface);
+}
+.sleepSep {
+  color: var(--text-mute);
+  font-size: 12px;
+}
+.addBtn {
+  margin-top: 10px;
+  width: 100%;
+  border: 1.5px dashed var(--border-14);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-radius: 11px;
+  padding: 11px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.removeBtn {
+  font-size: 11.5px;
+  color: #c7522b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Humor */
+.moodBtn {
+  flex: 1;
+  border: 1.5px solid var(--border-12);
+  background: var(--surface-2);
+  border-radius: 13px;
+  padding: 11px 2px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-soft);
+}
+.moodEmoji {
+  font-size: 20px;
+  line-height: 1;
+}
+.moodLabel {
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+/* Higiene (contador) */
+.counterCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.counterBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-12);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.counterBtnPlus {
+  border-color: var(--color-primary-soft-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+}
+.counterValue {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 19px;
+  min-width: 22px;
+  text-align: center;
+}
+
+/* Intercorrência */
+.incidentAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+  background: var(--color-danger-soft);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 40%, transparent);
+  border-radius: 12px;
+  padding: 9px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-danger-strong);
+}
+
+/* Observações */
+.textarea {
+  width: 100%;
+  min-height: 74px;
+  border: 1.5px solid var(--border-12);
+  border-radius: 12px;
+  padding: 11px;
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--surface);
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Salvar */
+.saveBtn {
+  margin-top: 4px;
+  width: 100%;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  background: var(--grad-primary);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(76, 155, 232, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.saveBtnDone {
+  background: linear-gradient(135deg, #5fc9a6, #2e9e7b);
+}
+.saveBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.saveError {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--color-danger-strong);
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+/* Estados */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 60px 30px;
+  color: var(--text-dim);
+}
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid var(--border-12);
+  border-top-color: var(--color-primary);
+  animation: spin 0.8s linear infinite;
+}
+.emptyBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-secondary-strong);
+  background: var(--color-secondary-soft);
+  border-radius: 20px;
+  padding: 5px 11px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

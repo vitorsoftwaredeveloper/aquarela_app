@@ -1,0 +1,157 @@
+.planos {
+  display: grid;
+  gap: 18px;
+}
+
+.planoCard {
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.planoHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.planoBadge {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-soft-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+}
+
+.removePlano,
+.removeDesconto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-danger-strong);
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.removePlano:hover,
+.removeDesconto:hover {
+  background: var(--color-danger-soft);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.descontos {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-08);
+}
+
+.descontosHead {
+  margin-bottom: 10px;
+}
+.descontosTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.descontosEmpty {
+  font-size: 13px;
+  color: var(--text-mute);
+  margin: 4px 0 10px;
+}
+
+.descontoRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+.descontoRow .removeDesconto {
+  height: 44px;
+  align-self: end;
+  justify-content: center;
+  color: var(--text-mute);
+}
+.descontoRow .removeDesconto:hover {
+  color: var(--color-danger-strong);
+}
+
+.addPlano,
+.addDesconto {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  background: none;
+  border: 1px dashed var(--color-primary-soft-border);
+  color: var(--color-primary-link);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 14px;
+}
+.addPlano {
+  margin-top: 18px;
+}
+.addDesconto {
+  margin-top: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.addPlano:hover,
+.addDesconto:hover {
+  background: var(--color-primary-soft);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0;
+  background: linear-gradient(to top, var(--surface-2) 70%, transparent);
+}
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-primary-link);
+  font-weight: 500;
+}
+
+.alert {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--color-danger-strong);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .descontoRow {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
