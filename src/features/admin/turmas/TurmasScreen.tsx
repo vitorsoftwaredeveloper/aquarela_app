@@ -56,8 +56,8 @@ export function TurmasScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button onClick={openCreate}>
-            <Plus size={18} /> Nova turma
+          <Button onClick={openCreate} aria-label="Nova turma">
+            <Plus size={18} />
           </Button>
         </div>
       </div>
@@ -73,8 +73,8 @@ export function TurmasScreen() {
             title="Nenhuma turma ainda"
             text="Crie a primeira turma e vincule uma professora responsável."
             action={
-              <Button size="sm" onClick={openCreate}>
-                <Plus size={16} /> Nova turma
+              <Button size="sm" onClick={openCreate} aria-label="Nova turma">
+                <Plus size={16} />
               </Button>
             }
           />

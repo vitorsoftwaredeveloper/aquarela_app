@@ -66,8 +66,8 @@ export function AvisosScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button onClick={openCreate}>
-            <Plus size={18} /> Novo aviso
+          <Button onClick={openCreate} aria-label="Novo aviso">
+            <Plus size={18} />
           </Button>
         </div>
       </div>
@@ -83,8 +83,8 @@ export function AvisosScreen() {
             title="Nenhum aviso publicado"
             text="Publique recados ou eventos para os responsáveis."
             action={
-              <Button size="sm" onClick={openCreate}>
-                <Plus size={16} /> Novo aviso
+              <Button size="sm" onClick={openCreate} aria-label="Novo aviso">
+                <Plus size={16} />
               </Button>
             }
           />

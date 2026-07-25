@@ -173,8 +173,12 @@ function Despesas() {
             onExcel={exportarExcel}
             disabled={despesas.length === 0}
           />
-          <Button size="sm" onClick={() => setFormOpen(true)}>
-            <Plus size={16} /> Nova despesa
+          <Button
+            size="sm"
+            onClick={() => setFormOpen(true)}
+            aria-label="Nova despesa"
+          >
+            <Plus size={16} />
           </Button>
         </div>
       </div>
@@ -190,8 +194,12 @@ function Despesas() {
             title="Nenhuma despesa lançada"
             text="Registre as despesas para acompanhar o balanço do mês."
             action={
-              <Button size="sm" onClick={() => setFormOpen(true)}>
-                <Plus size={16} /> Nova despesa
+              <Button
+                size="sm"
+                onClick={() => setFormOpen(true)}
+                aria-label="Nova despesa"
+              >
+                <Plus size={16} />
               </Button>
             }
           />
