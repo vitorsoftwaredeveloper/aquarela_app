@@ -663,6 +663,104 @@
   }
 }
 
+.reciboSpinner {
+  width: 15px;
+  height: 15px;
+  border: 2.5px solid rgba(255, 255, 255, 0.5);
+  border-top-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  flex: none;
+}
+
+/* Comprovante (modal) */
+.recibo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.reciboHeader {
+  width: 100%;
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.reciboMark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.reciboTitle {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+}
+.reciboSub {
+  font-size: 12px;
+  opacity: 0.92;
+}
+.reciboValueLabel {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 18px;
+}
+.reciboValue {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 30px;
+  margin-top: 2px;
+}
+.reciboPaidBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-secondary-strong);
+  background: var(--color-secondary-soft);
+  border-radius: 999px;
+  padding: 5px 12px;
+  margin-top: 10px;
+}
+.reciboRows {
+  width: 100%;
+  margin-top: 18px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-08);
+}
+.reciboRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-08);
+  font-size: 13px;
+}
+.reciboRow:last-child {
+  border-bottom: none;
+}
+.reciboRowLabel {
+  color: var(--text-dim);
+}
+.reciboRowValue {
+  font-weight: 600;
+  text-align: right;
+}
+.recibo > button {
+  margin-top: 20px;
+}
+
 /* Perfil */
 .profHeader {
   display: flex;

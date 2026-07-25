@@ -4,6 +4,10 @@
   display: grid;
   grid-template-columns: 244px 1fr;
   background: var(--screen);
+  transition: grid-template-columns 0.16s ease;
+}
+.shellCollapsed {
+  grid-template-columns: 76px 1fr;
 }
 
 .sidebar {
@@ -16,9 +20,42 @@
   padding: 20px 14px;
   background: var(--surface);
   border-right: 1px solid var(--border-08);
+  transition: padding 0.16s ease;
+}
+.sidebarCollapsed {
+  padding: 20px 10px;
 }
 .brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 6px 8px 16px;
+}
+.sidebarCollapsed .brand {
+  flex-direction: column;
+  justify-content: center;
+  padding: 6px 0 16px;
+}
+.sidebarCollapsed .nav {
+  align-items: center;
+}
+.collapseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.collapseBtn:hover {
+  color: var(--color-primary-link);
+  border-color: var(--color-primary-soft-border);
 }
 .nav {
   display: flex;
@@ -34,9 +71,15 @@
   font-size: 14.5px;
   font-weight: 500;
   color: var(--text-soft);
+  white-space: nowrap;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
+}
+.sidebarCollapsed .navItem {
+  width: 42px;
+  justify-content: center;
+  padding: 11px;
 }
 .navItem:hover {
   background: var(--surface-2);
@@ -47,6 +90,80 @@
   background: var(--color-primary-soft);
   color: var(--color-primary-link);
   font-weight: 600;
+}
+
+/* ===================== SIDEBAR FOOTER (usuário + sair) ===================== */
+.sidebarFooter {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.sidebarCollapsed .who {
+  justify-content: center;
+}
+.whoAvatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+}
+.whoText {
+  min-width: 0;
+}
+.whoName {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.whoRole {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.signOutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-soft);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.sidebarCollapsed .signOutBtn {
+  width: 42px;
+  padding: 9px;
+}
+.signOutBtn:hover {
+  color: var(--color-danger-strong);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 .main {
@@ -72,22 +189,56 @@
 .topbarMobileBrand {
   display: none;
 }
+.menuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.menuBtn:hover {
+  color: var(--color-primary-link);
+  border-color: var(--color-primary-soft-border);
+}
+.mobileNavOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, black 45%, transparent);
+  display: flex;
+}
+.mobileNav {
+  width: min(280px, 82vw);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-08);
+}
+.mobileNavHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 16px;
+}
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+}
 .topbarActions {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-left: auto;
-}
-.who {
-  text-align: right;
-}
-.whoName {
-  font-size: 13px;
-  font-weight: 600;
-}
-.whoRole {
-  font-size: 12px;
-  color: var(--text-dim);
 }
 .content {
   padding: 28px 26px 48px;
@@ -258,5 +409,14 @@
   }
   .topbarMobileBrand {
     display: block;
+  }
+  .menuBtn {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobileNavOverlay {
+    display: none;
   }
 }

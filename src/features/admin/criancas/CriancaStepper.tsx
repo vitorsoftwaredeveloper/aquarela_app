@@ -26,7 +26,10 @@ import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { UsuariosService } from "@/services/usuarios";
 import { CriancasAdminService } from "@/services/criancasAdmin";
+import { ConfigPrecosService } from "@/services/configPrecosService";
 import { getApiErrorMessage } from "@/services/apiError";
+import { inferirModo } from "@/features/simulador/precos";
+import type { PlanoConfig } from "@/types/configPrecos";
 import {
   criancaSchema,
   STEP_FIELDS,
@@ -47,6 +50,32 @@ import { ErrorState } from "../ListState";
 import adminStyles from "../admin.module.css";
 import styles from "./criancas.module.css";
 
+/**
+ * Descobre qual plano (e, se "Diária…", quantos dias) gerou o valor salvo —
+ * best-effort, já que o backend só guarda o valor final, não o plano de origem.
+ */
+function detectarPlano(
+  valor: number | undefined,
+  lista: PlanoConfig[] | null,
+): { nome: string; dias: number } {
+  if (!lista || lista.length === 0 || valor === undefined) {
+    return { nome: "", dias: 20 };
+  }
+  const mensal = lista.find(
+    (p) => inferirModo(p.nome) === "meses" && p.valorMensal === valor,
+  );
+  if (mensal) return { nome: mensal.nome, dias: 20 };
+  for (const p of lista.filter((p) => inferirModo(p.nome) === "dias")) {
+    const diario = p.valorDiario ?? Math.round(p.valorMensal / 30);
+    if (diario <= 0) continue;
+    const dias = Math.round(valor / diario);
+    if (dias >= 1 && dias <= 31 && diario * dias === valor) {
+      return { nome: p.nome, dias };
+    }
+  }
+  return { nome: "", dias: 20 };
+}
+
 const RESP_VAZIO = {
   nome: "",
   cpf: "",
@@ -64,6 +93,17 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const [acessos, setAcessos] = useState<AcessoResponsavel[] | null>(null);
 
   const turmas = useFetch(() => TurmasService.list());
+  // Mesma fonte de planos do simulador — mensalidade da criança tem que bater
+  // com um plano vigente, nunca um valor digitado à mão. Planos "Diária…"
+  // (inferirModo) cobram por dia contratado, não um valor mensal fixo.
+  const planos = useFetch(() => ConfigPrecosService.listPlanos());
+  const planoOptions = (planos.data ?? []).map((p) => ({
+    value: p.nome,
+    label:
+      inferirModo(p.nome) === "dias"
+        ? `${p.nome} — ${formatBRL(p.valorDiario ?? Math.round(p.valorMensal / 30))}/dia`
+        : `${p.nome} — ${formatBRL(p.valorMensal)}/mês`,
+  }));
   // Usuários responsáveis já cadastrados — para avisar se o e-mail do
   // responsável já tem acesso ao app (o create de criança NÃO cria o acesso).
   const usuariosResp = useFetch(() => UsuariosService.list());
@@ -86,6 +126,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
     handleSubmit,
     trigger,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CriancaFormData>({
     resolver: yupResolver(criancaSchema),
@@ -140,6 +181,54 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
       },
     });
   }, [existente.data, reset]);
+
+  // Derivado (sem efeito): a escolha manual do admin vive em `overridePlano`
+  // e tem prioridade sobre o valor detectado a partir do que já foi salvo.
+  const planoDetectado = detectarPlano(
+    (existente.data as CriancaCadastro | null)?.financeiro?.valorMensalidade,
+    planos.data,
+  );
+
+  const [overridePlano, setOverridePlano] = useState<{
+    nome: string;
+    dias: number;
+  } | null>(null);
+  const planoNome = overridePlano?.nome ?? planoDetectado.nome;
+  const diasContratados = overridePlano?.dias ?? planoDetectado.dias;
+  const planoSelecionado = (planos.data ?? []).find(
+    (p) => p.nome === planoNome,
+  );
+  const modoPlano = planoNome ? inferirModo(planoNome) : null;
+
+  function selecionarPlano(nome: string) {
+    const plano = (planos.data ?? []).find((p) => p.nome === nome);
+    setOverridePlano({ nome, dias: diasContratados });
+    if (!plano) return;
+    if (inferirModo(nome) === "meses") {
+      setValue("financeiro.valorMensalidade", plano.valorMensal, {
+        shouldValidate: true,
+      });
+    } else {
+      const diario = plano.valorDiario ?? Math.round(plano.valorMensal / 30);
+      setValue(
+        "financeiro.valorMensalidade",
+        Math.round(diario * diasContratados),
+        { shouldValidate: true },
+      );
+    }
+  }
+
+  function alterarDias(dias: number) {
+    const d = Math.max(1, Math.min(31, Math.floor(dias) || 1));
+    setOverridePlano({ nome: planoNome, dias: d });
+    if (!planoSelecionado) return;
+    const diario =
+      planoSelecionado.valorDiario ??
+      Math.round(planoSelecionado.valorMensal / 30);
+    setValue("financeiro.valorMensalidade", Math.round(diario * d), {
+      shouldValidate: true,
+    });
+  }
 
   const responsaveis = useFieldArray({ control, name: "responsaveis" });
   const medicacoes = useFieldArray({
@@ -591,31 +680,65 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                     Valor e vencimento usados para gerar as mensalidades.
                   </p>
                   <div className={styles.fields}>
-                    <div className={styles.grid2}>
-                      <Input
-                        label="Valor da mensalidade (R$)"
-                        type="number"
-                        step="0.01"
-                        min={0}
-                        placeholder="1490"
-                        error={errors.financeiro?.valorMensalidade?.message}
-                        {...register("financeiro.valorMensalidade", {
-                          valueAsNumber: true,
-                        })}
-                      />
-                      <Input
-                        label="Dia do vencimento"
-                        type="number"
-                        min={1}
-                        max={28}
-                        placeholder="5"
-                        error={errors.financeiro?.diaVencimento?.message}
-                        {...register("financeiro.diaVencimento", {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </div>
-                    <Resumo control={control} turmaOptions={turmaOptions} />
+                    {(() => {
+                      const selectPlano = (
+                        <Select
+                          label="Plano"
+                          placeholder={
+                            planos.loading
+                              ? "Carregando planos…"
+                              : "Selecione o plano"
+                          }
+                          options={planoOptions}
+                          disabled={planos.loading}
+                          error={errors.financeiro?.valorMensalidade?.message}
+                          value={planoNome}
+                          onChange={(e) => selecionarPlano(e.target.value)}
+                        />
+                      );
+                      const inputVencimento = (
+                        <Input
+                          label="Dia do vencimento"
+                          type="number"
+                          min={1}
+                          max={28}
+                          placeholder="5"
+                          error={errors.financeiro?.diaVencimento?.message}
+                          {...register("financeiro.diaVencimento", {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      );
+                      return modoPlano === "dias" ? (
+                        <>
+                          {selectPlano}
+                          <div className={styles.grid2}>
+                            <Input
+                              label="Dias contratados por mês"
+                              type="number"
+                              min={1}
+                              max={31}
+                              value={diasContratados}
+                              onChange={(e) =>
+                                alterarDias(Number(e.target.value))
+                              }
+                            />
+                            {inputVencimento}
+                          </div>
+                        </>
+                      ) : (
+                        <div className={styles.grid2}>
+                          {selectPlano}
+                          {inputVencimento}
+                        </div>
+                      );
+                    })()}
+                    <Resumo
+                      control={control}
+                      turmaOptions={turmaOptions}
+                      planoSelecionado={planoSelecionado}
+                      diasContratados={diasContratados}
+                    />
                   </div>
                 </>
               )}
@@ -640,11 +763,11 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                     Cancelar
                   </Button>
                   {step < STEP_LABELS.length - 1 ? (
-                    <Button type="button" onClick={avancar}>
+                    <Button key="nav-continuar" type="button" onClick={avancar}>
                       Continuar <ArrowRight size={16} />
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button key="nav-salvar" type="submit" disabled={isSubmitting}>
                       {isSubmitting
                         ? "Salvando…"
                         : editing
@@ -804,9 +927,13 @@ function AcessosResponsavelModal({
 function Resumo({
   control,
   turmaOptions,
+  planoSelecionado,
+  diasContratados,
 }: {
   control: Control<CriancaFormData>;
   turmaOptions: { value: string; label: string }[];
+  planoSelecionado?: PlanoConfig;
+  diasContratados: number;
 }) {
   const nome = useWatch({ control, name: "nome" });
   const turmaId = useWatch({ control, name: "turmaId" });
@@ -815,6 +942,12 @@ function Resumo({
   const valor = useWatch({ control, name: "financeiro.valorMensalidade" });
   const dia = useWatch({ control, name: "financeiro.diaVencimento" });
   const turma = turmaOptions.find((t) => t.value === turmaId)?.label ?? "—";
+  const temValor = typeof valor === "number" && !Number.isNaN(valor);
+  const plano = planoSelecionado
+    ? inferirModo(planoSelecionado.nome) === "dias"
+      ? `${planoSelecionado.nome} — ${diasContratados} dias/mês`
+      : planoSelecionado.nome
+    : null;
 
   return (
     <div className={styles.summary}>
@@ -839,11 +972,15 @@ function Resumo({
         </span>
       </div>
       <div className={styles.summaryRow}>
-        <span className={styles.summaryKey}>Mensalidade</span>
+        <span className={styles.summaryKey}>Plano</span>
         <span className={styles.summaryVal}>
-          {typeof valor === "number" && !Number.isNaN(valor)
-            ? `${formatBRL(valor)} · vence dia ${dia ?? "—"}`
-            : "—"}
+          {plano ? `${plano} · vence dia ${dia ?? "—"}` : "—"}
+        </span>
+      </div>
+      <div className={styles.summaryRow}>
+        <span className={styles.summaryKey}>Total mensal</span>
+        <span className={styles.summaryVal}>
+          {temValor ? formatBRL(valor) : "—"}
         </span>
       </div>
     </div>

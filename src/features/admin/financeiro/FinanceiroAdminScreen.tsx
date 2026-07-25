@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AlertCircle,
-  Download,
+  FileSpreadsheet,
+  FileText,
   Plus,
   Receipt,
   Trash2,
@@ -19,6 +20,7 @@ import { despesaSchema, type DespesaFormData } from "@/schemas/despesa";
 import { CATEGORIAS_DESPESA, type Despesa } from "@/types/financeiroAdmin";
 import { formatBRL } from "@/types/financeiro";
 import { exportToXlsx, hojeSufixo } from "@/utils/exportXlsx";
+import { exportToPdfTable } from "@/utils/exportPdfTable";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
@@ -72,6 +74,28 @@ export function FinanceiroAdminScreen() {
   );
 }
 
+/** Par de botões PDF/Excel para telas de exportação em tabela. */
+function ExportButtons({
+  onPdf,
+  onExcel,
+  disabled,
+}: {
+  onPdf: () => void;
+  onExcel: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      <Button variant="secondary" size="sm" onClick={onPdf} disabled={disabled}>
+        <FileText size={16} /> PDF
+      </Button>
+      <Button variant="secondary" size="sm" onClick={onExcel} disabled={disabled}>
+        <FileSpreadsheet size={16} /> Excel
+      </Button>
+    </div>
+  );
+}
+
 /* ===================== Despesas (FIN-09/FIN-10) ===================== */
 
 function Despesas() {
@@ -101,7 +125,7 @@ function Despesas() {
     }
   }
 
-  function exportar() {
+  function exportarExcel() {
     exportToXlsx(
       despesas.map((d) => ({
         Data: formatData(d.data),
@@ -111,6 +135,20 @@ function Despesas() {
       })),
       `despesas-${hojeSufixo()}.xlsx`,
       "Despesas",
+    );
+  }
+
+  function exportarPdf() {
+    exportToPdfTable(
+      "Despesas",
+      ["Data", "Descrição", "Categoria", "Valor"],
+      despesas.map((d) => [
+        formatData(d.data),
+        d.descricao,
+        d.categoria,
+        formatBRL(d.valor),
+      ]),
+      `despesas-${hojeSufixo()}.pdf`,
     );
   }
 
@@ -130,14 +168,11 @@ function Despesas() {
           <b style={{ color: "var(--text)" }}>{formatBRL(total)}</b>
         </span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={exportar}
+          <ExportButtons
+            onPdf={exportarPdf}
+            onExcel={exportarExcel}
             disabled={despesas.length === 0}
-          >
-            <Download size={16} /> Exportar Excel
-          </Button>
+          />
           <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus size={16} /> Nova despesa
           </Button>
@@ -354,7 +389,7 @@ function Inadimplentes() {
   const lista = data ?? [];
   const total = lista.reduce((s, i) => s + i.valorTotal, 0);
 
-  function exportar() {
+  function exportarExcel() {
     exportToXlsx(
       lista.map((i) => ({
         Criança: i.criancaNome,
@@ -366,6 +401,20 @@ function Inadimplentes() {
       })),
       `inadimplentes-${hojeSufixo()}.xlsx`,
       "Inadimplentes",
+    );
+  }
+
+  function exportarPdf() {
+    exportToPdfTable(
+      "Inadimplentes",
+      ["Criança", "Responsável", "Atraso", "Valor total"],
+      lista.map((i) => [
+        i.criancaNome,
+        i.responsavelNome,
+        `${i.mesesEmAtraso} ${i.mesesEmAtraso === 1 ? "mês" : "meses"}`,
+        formatBRL(i.valorTotal),
+      ]),
+      `inadimplentes-${hojeSufixo()}.pdf`,
     );
   }
 
@@ -388,14 +437,11 @@ function Inadimplentes() {
           · {lista.length} famílias
         </span>
         <div style={{ marginLeft: "auto" }}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={exportar}
+          <ExportButtons
+            onPdf={exportarPdf}
+            onExcel={exportarExcel}
             disabled={lista.length === 0}
-          >
-            <Download size={16} /> Exportar Excel
-          </Button>
+          />
         </div>
       </div>
 

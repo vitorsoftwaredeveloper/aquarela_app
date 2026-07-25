@@ -264,56 +264,95 @@
   padding: 13px 14px;
   box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
 }
-.planoTop {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
+.planoDate {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  border-radius: 20px;
+  padding: 4px 11px;
 }
 .planoTitle {
+  display: block;
   font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 14.5px;
+  font-weight: 700;
+  font-size: 16px;
   color: var(--text);
-}
-.planoDate {
-  font-size: 11.5px;
-  color: var(--text-dim);
-  white-space: nowrap;
+  margin-top: 9px;
 }
 .planoDesc {
   font-size: 13px;
   color: var(--text-soft);
-  margin: 6px 0 0;
+  margin: 5px 0 0;
   line-height: 1.5;
 }
-.planoTags {
+.planoChecklist {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
-  margin-top: 10px;
 }
-.planoTag {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-secondary-strong);
-  background: var(--color-secondary-soft);
-  border-radius: 20px;
-  padding: 4px 10px;
+.planoChecklist li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-soft);
 }
-.planoTagMaterial {
+.planoChecklist li svg {
+  flex-shrink: 0;
+  color: var(--color-success-strong, #2f9e5f);
+}
+.planoFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-06);
+}
+.planoMateriais {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   color: var(--text-dim);
-  background: var(--border-06);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.planoMateriais svg {
+  flex-shrink: 0;
 }
 .planoActions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-left: auto;
+}
+.editBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
+  border: none;
+  border-radius: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .iconBtn {
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
   border-radius: 10px;
   border: 1px solid var(--border-10);
   background: var(--surface);
@@ -325,6 +364,32 @@
 }
 .iconBtnDanger {
   color: var(--color-danger-strong);
+}
+.modalCancelBtn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.modalConfirmBtn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: none;
+  background: var(--grad-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.modalConfirmBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* ---------------- T-11 Registrar agenda ---------------- */
@@ -489,6 +554,23 @@
   cursor: pointer;
   font-size: 12.5px;
   font-weight: 600;
+}
+
+.novoPlanoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  margin: 14px 16px 0;
+  border: 1.5px dashed var(--color-primary-soft-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
 }
 .removeBtn {
   font-size: 11.5px;

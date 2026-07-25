@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { CheckCircle2, Clock, Download, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Download,
+  AlertTriangle,
+  Droplet,
+} from "lucide-react";
 import { Button, Modal, Skeleton } from "@/components";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
 import { getApiErrorCode, getApiErrorMessage } from "@/services/apiError";
 import { IS_DEV_DATA } from "@/config/env";
+import { baixarReciboPdf } from "@/utils/exportRecibo";
 import {
   formatBRL,
   type Mensalidade,
@@ -44,6 +51,7 @@ const STATUS_VISUAL: Record<
 export function FinanceiroScreen() {
   const { active, loading: ctxLoading } = useResponsavel();
   const [paying, setPaying] = useState<Mensalidade | null>(null);
+  const [recibo, setRecibo] = useState<Mensalidade | null>(null);
 
   const { data, loading, error, reload } = useFetch(
     () =>
@@ -179,7 +187,10 @@ export function FinanceiroScreen() {
                   </div>
                 </div>
                 {m.status === "pago" ? (
-                  <button className={styles.receiptBtn}>
+                  <button
+                    className={styles.receiptBtn}
+                    onClick={() => setRecibo(m)}
+                  >
                     <Download size={14} /> Recibo
                   </button>
                 ) : (
@@ -209,6 +220,88 @@ export function FinanceiroScreen() {
           />
         )}
       </Modal>
+
+      <Modal open={!!recibo} onClose={() => setRecibo(null)} title="Comprovante">
+        {recibo && active && (
+          <ReciboContent mensalidade={recibo} crianca={active} />
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+function formatDataPagamento(iso?: string): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+function ReciboContent({
+  mensalidade,
+  crianca,
+}: {
+  mensalidade: Mensalidade;
+  crianca: { nome: string; cpf?: string };
+}) {
+  const [gerando, setGerando] = useState(false);
+  const linhas: [string, string][] = [
+    ["Aluno(a)", crianca.nome],
+    ...(crianca.cpf ? ([["CPF do aluno(a)", crianca.cpf]] as [string, string][]) : []),
+    ["Competência", `${mensalidade.mesLabel}/${mensalidade.ano}`],
+    ["Forma de pagamento", "PIX"],
+    ["Data do pagamento", formatDataPagamento(mensalidade.updatedAt)],
+    ["ID da transação", mensalidade._id],
+    ["Beneficiário", "Aquarela Kids LTDA"],
+  ];
+
+  return (
+    <div className={styles.recibo}>
+      <div className={`${styles.gradHeader} ${styles.reciboHeader}`}>
+        <span className={styles.reciboMark} aria-hidden>
+          <Droplet size={20} fill="#fff" strokeWidth={0} />
+        </span>
+        <div className={styles.reciboTitle}>Comprovante de pagamento</div>
+        <div className={styles.reciboSub}>Aquarela Kids · Berçário</div>
+      </div>
+
+      <div className={styles.reciboValueLabel}>Valor pago</div>
+      <div className={styles.reciboValue}>{formatBRL(mensalidade.valor)}</div>
+      <span className={styles.reciboPaidBadge}>
+        <CheckCircle2 size={13} /> Pago
+      </span>
+
+      <div className={styles.reciboRows}>
+        {linhas.map(([label, valor]) => (
+          <div key={label} className={styles.reciboRow}>
+            <span className={styles.reciboRowLabel}>{label}</span>
+            <span className={styles.reciboRowValue}>{valor}</span>
+          </div>
+        ))}
+      </div>
+
+      <Button
+        style={{ width: "100%" }}
+        disabled={gerando}
+        onClick={() => {
+          setGerando(true);
+          setTimeout(() => {
+            baixarReciboPdf(
+              { valor: formatBRL(mensalidade.valor), linhas },
+              `recibo-${mensalidade.mesLabel.toLowerCase()}-${mensalidade.ano}.pdf`,
+            );
+            setGerando(false);
+          }, 400);
+        }}
+      >
+        {gerando ? (
+          <>
+            <span className={styles.reciboSpinner} aria-hidden /> Gerando PDF…
+          </>
+        ) : (
+          <>
+            <Download size={16} /> Baixar PDF
+          </>
+        )}
+      </Button>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export interface Mensalidade {
   mesShort: string; // "Jul"
   valor: number;
   status: StatusMensalidade;
-  pagoEm?: string;
+  updatedAt?: string;
 }
 
 /** Cobrança PIX gerada para uma mensalidade. */

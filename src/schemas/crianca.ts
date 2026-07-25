@@ -67,8 +67,8 @@ export const criancaSchema = yup.object({
   financeiro: yup.object({
     valorMensalidade: yup
       .number()
-      .typeError("Informe o valor da mensalidade")
-      .required("Informe o valor da mensalidade")
+      .typeError("Selecione um plano")
+      .required("Selecione um plano")
       .min(0, "Valor inválido"),
     diaVencimento: yup
       .number()

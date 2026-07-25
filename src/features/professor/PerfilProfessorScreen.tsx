@@ -1,16 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut, Moon } from "lucide-react";
+import { LogOut, Moon, School } from "lucide-react";
+import { Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useFetch } from "@/hooks/useFetch";
+import { ProfessorService } from "@/services/professorService";
 import styles from "./professor.module.css";
+
+const CORES = [
+  { bg: "#EAF3FC", fg: "#2168B8" },
+  { bg: "#E7F7F1", fg: "#2E9E7B" },
+  { bg: "#FBEAF3", fg: "#C0468A" },
+  { bg: "#FFF3EE", fg: "#C7522B" },
+];
 
 export function PerfilProfessorScreen() {
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useTheme();
   const router = useRouter();
   const nome = user?.name ?? user?.email ?? "Professor(a)";
+  const { data: turmas, loading: loadingTurmas } = useFetch(() =>
+    ProfessorService.listMinhasTurmas(),
+  );
 
   async function sair() {
     await logout();
@@ -28,6 +41,63 @@ export function PerfilProfessorScreen() {
       </div>
 
       <div className={styles.form}>
+        <div className={styles.pushTitle}>Minhas turmas</div>
+        {loadingTurmas ? (
+          <div className={styles.turmaList} role="status" aria-label="Carregando…">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className={styles.turmaCard}>
+                <Skeleton width={50} height={50} radius={15} />
+                <span style={{ flex: 1 }}>
+                  <Skeleton width="55%" height={16} style={{ marginBottom: 8 }} />
+                  <Skeleton width="35%" height={12} />
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : !turmas || turmas.length === 0 ? (
+          <div className={styles.state}>
+            <School size={26} />
+            <p>Você ainda não tem turmas vinculadas.</p>
+          </div>
+        ) : (
+          <div className={styles.turmaList}>
+            {turmas.map((t, i) => {
+              const cor = CORES[i % CORES.length];
+              return (
+                <button
+                  key={t._id}
+                  type="button"
+                  className={styles.turmaCard}
+                  onClick={() => router.push(`/professor/turmas/${t._id}`)}
+                >
+                  <span
+                    className={styles.turmaLetter}
+                    style={{ background: cor.bg, color: cor.fg }}
+                  >
+                    {t.nome.charAt(0).toUpperCase()}
+                  </span>
+                  <span style={{ flex: 1 }}>
+                    <span
+                      className={styles.turmaName}
+                      style={{ display: "block" }}
+                    >
+                      Turma {t.nome}
+                    </span>
+                    <span
+                      className={styles.turmaMeta}
+                      style={{ display: "block" }}
+                    >
+                      {t.totalCriancas}{" "}
+                      {t.totalCriancas === 1 ? "criança" : "crianças"}
+                      {t.periodo ? ` · ${t.periodo}` : ""}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <section className={`${styles.card} ${styles.counterCard}`}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Moon size={17} color="#2168B8" />

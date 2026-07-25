@@ -215,6 +215,7 @@ export const devCriancas: Crianca[] = [
   {
     _id: "c-lorena",
     nome: "Lorena Souza",
+    cpf: "39053344705",
     iniciais: "LS",
     avatarBg: "#F6D9C0",
     turmaNome: "Girassol",
@@ -400,7 +401,7 @@ export function devMensalidades(criancaId: string): Mensalidade[] {
       mesShort,
       valor,
       status,
-      pagoEm: status === "pago" ? `2026-0${mes}-05` : undefined,
+      updatedAt: status === "pago" ? `2026-0${mes}-05` : undefined,
     };
   });
 }

@@ -2,6 +2,7 @@
 export interface Crianca {
   _id: string;
   nome: string;
+  cpf?: string;
   /** Iniciais para o avatar (fallback quando não há foto). */
   iniciais: string;
   avatarBg: string;
