@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, ChevronRight, RefreshCw, X } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
-import { iniciaisNome, type Crianca } from "@/types/crianca";
+import { type Crianca } from "@/types/crianca";
 import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
 
@@ -114,12 +114,12 @@ export function InicioScreen() {
           </button>
         </div>
         <button className={styles.childCard} onClick={abrirTrocaFilho}>
-          <span
-            className={styles.childAvatar}
-            style={{ background: avatarColors[active._id] }}
-          >
-            {iniciaisNome(active.nome)}
-          </span>
+          <Avatar
+            nome={active.nome}
+            fotoUrl={active.fotoUrl}
+            bg={avatarColors[active._id]}
+            size={48}
+          />
           <span style={{ flex: 1 }}>
             <span className={styles.childName} style={{ display: "block" }}>
               {active.nome}
@@ -220,12 +220,12 @@ function ChildSwitcherSheet({
                 className={`${styles.profChild} ${isActive ? styles.profChildActive : ""}`}
                 onClick={() => onSelect(c._id)}
               >
-                <span
-                  className={styles.profChildAvatar}
-                  style={{ background: avatarColors[c._id] }}
-                >
-                  {iniciaisNome(c.nome)}
-                </span>
+                <Avatar
+                  nome={c.nome}
+                  fotoUrl={c.fotoUrl}
+                  bg={avatarColors[c._id]}
+                  size={46}
+                />
                 <span style={{ flex: 1 }}>
                   <span
                     className={styles.childName}
@@ -247,9 +247,7 @@ function ChildSwitcherSheet({
                     {c.sub}
                   </span>
                 </span>
-                {isActive && (
-                  <span className={styles.emptyBadge}>Ativo</span>
-                )}
+                {isActive && <span className={styles.emptyBadge}>Ativo</span>}
               </button>
             );
           })}
@@ -274,11 +272,7 @@ function Avisos() {
             <div key={i} className={styles.aviso}>
               <Skeleton width={38} height={38} radius={11} />
               <span style={{ flex: 1 }}>
-                <Skeleton
-                  width="45%"
-                  height={13}
-                  style={{ marginBottom: 6 }}
-                />
+                <Skeleton width="45%" height={13} style={{ marginBottom: 6 }} />
                 <Skeleton width="90%" height={12} />
               </span>
             </div>
@@ -337,11 +331,7 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
             <div key={i} className={styles.todayRow}>
               <Skeleton width={34} height={34} radius={10} />
               <span style={{ flex: 1 }}>
-                <Skeleton
-                  width="35%"
-                  height={11}
-                  style={{ marginBottom: 6 }}
-                />
+                <Skeleton width="35%" height={11} style={{ marginBottom: 6 }} />
                 <Skeleton width="65%" height={13} />
               </span>
             </div>

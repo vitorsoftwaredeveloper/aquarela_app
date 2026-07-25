@@ -5,8 +5,13 @@ import { unwrapList } from "./unwrap";
 import type {
   CriancaCadastro,
   CriancaCriada,
+  FotoUpload,
   NovaCrianca,
 } from "@/types/criancaCadastro";
+
+function dataUrlDaFoto(foto?: FotoUpload): string | undefined {
+  return foto ? `data:${foto.contentType};base64,${foto.base64}` : undefined;
+}
 
 /** CRUD completo de crianças (admin). Contrato: docs/03-Backend §5. */
 export const CriancasAdminService = {
@@ -34,8 +39,14 @@ export const CriancasAdminService = {
   /** Retorna a criança + `acessosResponsaveis` (senhas temporárias para o admin). */
   async create(payload: NovaCrianca): Promise<CriancaCriada> {
     if (IS_DEV_DATA) {
+      const { foto, ...resto } = payload;
       return {
-        crianca: { ...payload, _id: `dev-${Date.now()}`, ativo: true },
+        crianca: {
+          ...resto,
+          _id: `dev-${Date.now()}`,
+          ativo: true,
+          fotoUrl: dataUrlDaFoto(foto),
+        },
         acessosResponsaveis: [],
       };
     }
@@ -52,8 +63,17 @@ export const CriancasAdminService = {
     id: string,
     payload: Omit<NovaCrianca, "cpf" | "turmaId">,
   ): Promise<CriancaCadastro> {
-    if (IS_DEV_DATA)
-      return { ...payload, _id: id, cpf: "", turmaId: "", ativo: true };
+    if (IS_DEV_DATA) {
+      const { foto, ...resto } = payload;
+      return {
+        ...resto,
+        _id: id,
+        cpf: "",
+        turmaId: "",
+        ativo: true,
+        fotoUrl: dataUrlDaFoto(foto),
+      };
+    }
     const { data } = await api.put(`/criancas/${id}`, payload);
     return data.data;
   },
@@ -76,6 +96,12 @@ export const CriancasAdminService = {
     }
     const { data } = await api.put(`/criancas/${id}`, { ativo });
     return data.data;
+  },
+
+  /** Apaga só a foto (admin). O cadastro da criança permanece. */
+  async removerFoto(id: string): Promise<void> {
+    if (IS_DEV_DATA) return;
+    await api.delete(`/criancas/${id}/foto`);
   },
 
   /** Remoção DEFINITIVA em cadeia: apaga agenda, mensalidades e pagamentos da criança. */

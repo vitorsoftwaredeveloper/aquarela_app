@@ -1,0 +1,153 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.alvo {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  border-radius: 20px;
+  flex: none;
+}
+.alvo:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.alvo:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.alvoVazio .placeholder {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--border-14);
+  background: var(--surface-2);
+  color: var(--color-primary-link);
+}
+.alvo:hover:not(:disabled) .placeholder {
+  background: var(--color-primary-soft);
+}
+
+.badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: #fff;
+  border: 2px solid var(--surface);
+}
+
+.girando {
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.acoes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+}
+
+.botao,
+.botaoSutil,
+.botaoPerigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+.botao {
+  padding: 8px 15px;
+  font-size: 13.5px;
+  border: 1.5px solid var(--color-primary-soft-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+}
+.botao:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+.botaoSutil,
+.botaoPerigo {
+  padding: 2px 0;
+  font-size: 12.5px;
+  border: none;
+  background: none;
+}
+.botaoSutil {
+  color: var(--text-dim);
+}
+.botaoPerigo {
+  color: var(--color-danger-strong);
+}
+.botao:disabled,
+.botaoSutil:disabled,
+.botaoPerigo:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-mute);
+  line-height: 1.4;
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.erro {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+@media (max-width: 480px) {
+  .row {
+    gap: 13px;
+  }
+}

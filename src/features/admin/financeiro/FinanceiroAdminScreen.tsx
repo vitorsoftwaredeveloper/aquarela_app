@@ -27,7 +27,8 @@ import styles from "../admin.module.css";
 type Aba = "despesas" | "inadimplentes";
 
 function formatData(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`);
+  const dataPart = iso.split("T")[0];
+  const d = new Date(`${dataPart}T00:00:00`);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("pt-BR");
 }
 

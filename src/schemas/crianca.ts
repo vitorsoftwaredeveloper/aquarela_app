@@ -29,6 +29,9 @@ export const criancaSchema = yup.object({
     .array()
     .of(
       yup.object({
+        // Vem do backend quando o responsável já tem acesso ao app. Fica no
+        // form só para a tela saber que aquele e-mail é o login dele.
+        usuarioId: yup.string().optional(),
         nome: yup.string().required("Informe o nome"),
         cpf: cpfField("do responsável"),
         parentesco: yup.string().required("Informe o parentesco"),
@@ -81,6 +84,20 @@ export const criancaSchema = yup.object({
 });
 
 export type CriancaFormData = yup.InferType<typeof criancaSchema>;
+
+/**
+ * Edição pelo responsável: sem `cpf`/`turmaId` (o PUT rejeita) e sem
+ * `financeiro` (403 — só o admin muda mensalidade).
+ */
+export const criancaResponsavelSchema = criancaSchema.omit([
+  "cpf",
+  "turmaId",
+  "financeiro",
+]);
+
+export type CriancaResponsavelFormData = yup.InferType<
+  typeof criancaResponsavelSchema
+>;
 
 /** Campos validados em cada etapa do stepper (para `trigger`). */
 export const STEP_FIELDS = [

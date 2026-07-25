@@ -149,8 +149,42 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | POST | `/criancas` | admin | Cadastrar criança (+ vínculo de turma e responsáveis) |
 | GET | `/criancas` | admin/professor/responsavel* | Listar (filtro por turma, nome, ativo). *`responsavel` só recebe os próprios filhos (via `usuarios.criancasVinculadas` ou `responsaveis[].usuarioId`) — usado pela tela "Início" do responsável |
 | GET | `/criancas/{id}` | admin/professor/responsavel* | Detalhe (*só o próprio filho) |
-| PUT | `/criancas/{id}` | admin | Editar dados/saúde/responsáveis |
+| PUT | `/criancas/{id}` | admin/responsavel* | Editar dados/saúde/responsáveis/foto (*só o próprio filho e sem `financeiro`/`ativo`) |
+| DELETE | `/criancas/{id}/foto` | admin | Apagar só a foto (o cadastro permanece) |
 | DELETE | `/criancas/{id}` | admin | Remover **em definitivo, em cadeia** (apaga agenda diária, mensalidades e pagamentos da criança; desvincula — sem apagar — os usuários responsáveis) |
+
+> **Foto da criança — base64 no corpo.** `POST /criancas` e `PUT /criancas/{id}`
+> aceitam o campo opcional `foto: { contentType, base64 }`. A Lambda decodifica,
+> grava no S3 e o Mongo guarda **só a key**; toda resposta traz `fotoUrl`
+> (presigned de leitura). Regras que o front precisa respeitar:
+>
+> - **Teto de 2MB decodificados** (payload síncrono de Lambda = 6MB e base64
+>   infla 33%). Acima disso: `422 FOTO_MUITO_GRANDE`. O front **sempre**
+>   redimensiona no canvas antes de enviar (`utils/imagem.ts`: 800px de lado
+>   maior, JPEG 0.8 ≈ 150KB) — foto de celular vem com 3–8MB e bateria no teto.
+> - `base64` **sem** o prefixo `data:...;base64,` — o ajv recusa por `pattern`,
+>   porque `Buffer.from` ignoraria os caracteres inválidos em silêncio e
+>   gravaria imagem corrompida. O front manda `dataUrl.split(",")[1]`.
+> - Magic bytes conferidos contra o `contentType` declarado
+>   (`422 TIPO_IMAGEM_INVALIDO`) — o cliente é quem declara o tipo.
+>
+> **Responsável editando o próprio filho.** `PUT /criancas/{id}` aceita
+> `admin` e `responsavel`; como o payload é todo opcional, mandar só `{ foto }`
+> cobre o caso "só trocar a foto". O backend devolve `403` se o responsável
+> tocar em `financeiro` ou `ativo` (senão ele editaria a própria mensalidade).
+> `PATCH /criancas/{id}/turma`, `DELETE /criancas/{id}` e
+> `DELETE /criancas/{id}/foto` seguem **admin-only**.
+>
+> ⚠️ **`PUT` não sincroniza e-mail de responsável.** Quem provisiona o usuário
+> a partir do e-mail é só o `POST /criancas` (`ensureResponsavelUsuario`); o
+> `PUT` faz `$set` cru em `responsaveis`. Trocar o e-mail ali muda **apenas o
+> array embutido na criança** — Cognito e a coleção `usuarios` ficam com o
+> antigo, então o login e o "esqueci minha senha" continuam no e-mail velho
+> enquanto a escola passa a ver o novo. O vínculo não quebra (`usuarioId` fica
+> intacto), o que torna a divergência silenciosa. Enquanto o backend não
+> bloquear ou sincronizar de verdade (`AdminUpdateUserAttributes` + `usuarios`
+> + verificação do novo endereço), o front trava o campo: e-mail de responsável
+> com `usuarioId` é `readOnly` na tela do responsável.
 
 > **`POST /criancas` cria/vincula o acesso dos responsáveis.** Para cada responsável, o backend garante um **usuário papel=responsavel** pelo e-mail: reusa se já existir, senão cria (Cognito + banco, senha temporária). Grava `usuarioId` no responsável embutido e adiciona a criança em `usuarios.criancasVinculadas`. CPF duplicado é checado **antes** de criar acessos (evita usuário órfão). Resposta: **`{ crianca, acessosResponsaveis: [{ nome, email, senhaTemporaria }] }`** — as senhas dos acessos **recém-criados** são entregues **uma vez** ao admin (front mostra em modal). Responsáveis cujo usuário já existia não retornam senha.
 >

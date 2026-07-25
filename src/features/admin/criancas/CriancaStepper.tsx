@@ -21,7 +21,15 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Button, Input, Modal, Select, Skeleton, Stepper } from "@/components";
+import {
+  Button,
+  FotoField,
+  Input,
+  Modal,
+  Select,
+  Skeleton,
+  Stepper,
+} from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { UsuariosService } from "@/services/usuarios";
@@ -44,6 +52,7 @@ import {
   type NovaCrianca,
 } from "@/types/criancaCadastro";
 import { maskCPF, maskPhone } from "@/utils/cpf";
+import type { FotoUpload } from "@/utils/imagem";
 import { formatBRL } from "@/types/financeiro";
 import { TagInput } from "./TagInput";
 import { ErrorState } from "../ListState";
@@ -91,6 +100,9 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const [step, setStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [acessos, setAcessos] = useState<AcessoResponsavel[] | null>(null);
+  const [foto, setFoto] = useState<FotoUpload | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [removendoFoto, setRemovendoFoto] = useState(false);
 
   const turmas = useFetch(() => TurmasService.list());
   // Mesma fonte de planos do simulador — mensalidade da criança tem que bater
@@ -263,6 +275,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
         await CriancasAdminService.update(criancaId, {
           ...resto,
           responsaveis,
+          ...(foto ? { foto } : {}),
         } as unknown as Omit<NovaCrianca, "cpf" | "turmaId">);
 
         if (turmaId && turmaId !== existente.data?.turmaId) {
@@ -273,6 +286,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
           ...values,
           cpf: values.cpf.replace(/\D/g, ""),
           responsaveis,
+          ...(foto ? { foto } : {}),
         } as unknown as NovaCrianca;
         const { acessosResponsaveis } =
           await CriancasAdminService.create(payload);
@@ -288,8 +302,26 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
     }
   }
 
+  async function removerFoto() {
+    if (!criancaId) return;
+    setRemovendoFoto(true);
+    setSubmitError(null);
+    try {
+      await CriancasAdminService.removerFoto(criancaId);
+      setFoto(null);
+      setFotoPreview(null);
+      existente.reload();
+    } catch (err) {
+      setSubmitError(getApiErrorMessage(err));
+    } finally {
+      setRemovendoFoto(false);
+    }
+  }
+
   const nascimento = useWatch({ control, name: "dataNascimento" });
   const idade = idadeEmAnos(nascimento ?? "");
+  const nomeAtual = useWatch({ control, name: "nome" });
+  const fotoAtual = (existente.data as CriancaCadastro | null)?.fotoUrl;
 
   return (
     <div className={styles.wizard}>
@@ -355,6 +387,19 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                     matriculada.
                   </p>
                   <div className={styles.fields}>
+                    <FotoField
+                      nome={nomeAtual || "Criança"}
+                      fotoUrl={fotoAtual}
+                      previewUrl={fotoPreview}
+                      bg="var(--color-primary-soft)"
+                      hint="Opcional. A imagem é reduzida no navegador antes do envio."
+                      removendo={removendoFoto}
+                      onSelect={(f, p) => {
+                        setFoto(f);
+                        setFotoPreview(p);
+                      }}
+                      onRemove={editing ? removerFoto : undefined}
+                    />
                     <Input
                       label="Nome completo"
                       placeholder="Ex.: Lorena Souza"
@@ -767,7 +812,11 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       Continuar <ArrowRight size={16} />
                     </Button>
                   ) : (
-                    <Button key="nav-salvar" type="submit" disabled={isSubmitting}>
+                    <Button
+                      key="nav-salvar"
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
                       {isSubmitting
                         ? "Salvando…"
                         : editing

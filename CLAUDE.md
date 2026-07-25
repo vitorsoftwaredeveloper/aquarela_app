@@ -158,6 +158,27 @@ Layout mobile-first com bottom-tabs (`ResponsavelShell`), estado do filho ativo 
 Login redireciona por papel: admin→`/admin/dashboard`, professor→`/turmas`,
 responsável→`/inicio` (`HOME_BY_ROLE`).
 
+**Foto da criança + edição pelo responsável** ✅ — `components/FotoField`
+(preview + `utils/imagem.ts`, que redimensiona no canvas para 800px/JPEG 0.8) e
+`components/Avatar` (foto com fallback de iniciais). A foto trafega em
+**base64 no corpo** do `POST`/`PUT /criancas` (`foto: { contentType, base64 }`,
+sem o prefixo `data:`); a Lambda grava no S3 e devolve `fotoUrl`. **Teto de 2MB
+decodificados** — Lambda síncrona aceita 6MB de payload e base64 infla 33%, daí
+o resize ser obrigatório e não só um "se passar do limite". O admin envia no
+passo Identificação do stepper e pode apagar (`DELETE /criancas/{id}/foto`,
+admin-only). O responsável edita o próprio filho em `/crianca/{id}/editar`
+(`EditarCriancaScreen`): nome, nascimento, responsáveis, saúde e foto — **sem**
+`financeiro`/`ativo` (backend responde 403) e sem `cpf`/`turmaId` (derrubam o
+`PUT` inteiro por `additionalProperties:false`). Entrada pela tela Perfil.
+
+> **E-mail de responsável vinculado é `readOnly` na tela do responsável.** O
+> `PUT /criancas/{id}` faz `$set` cru em `responsaveis` — quem provisiona
+> usuário/Cognito a partir do e-mail é só o `POST`. Trocar o e-mail ali mudaria
+> apenas o array embutido: login e recuperação de senha continuariam no e-mail
+> antigo enquanto a escola veria o novo, sem nada falhar. `usuarioId` viaja no
+> form (declarado em `schemas/crianca.ts`) justamente para a linha saber se
+> aquele e-mail é um login.
+
 **Épico B/F — Professor (front):** T-09 (Minhas turmas, com pendências do dia),
 T-10 (Alunos da turma, com marcador de alergia e status da agenda) e **T-11
 Registrar agenda** ✅ — chips de refeição com **aceitação por refeição**

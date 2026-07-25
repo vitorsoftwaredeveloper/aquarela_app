@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, LogOut, Moon } from "lucide-react";
+import { Bell, LogOut, Moon, Pencil } from "lucide-react";
+import { Avatar } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { iniciaisNome } from "@/types/crianca";
 import styles from "./responsavel.module.css";
 
 function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
@@ -76,52 +77,65 @@ export function PerfilScreen() {
           {criancas.map((c) => {
             const isActive = c._id === activeId;
             return (
-              <button
+              <div
                 key={c._id}
                 className={`${styles.profChild} ${isActive ? styles.profChildActive : ""}`}
-                onClick={() => setActive(c._id)}
               >
-                <span
-                  className={styles.profChildAvatar}
-                  style={{ background: avatarColors[c._id] }}
+                <button
+                  type="button"
+                  className={styles.profChildMain}
+                  onClick={() => setActive(c._id)}
                 >
-                  {iniciaisNome(c.nome)}
-                </span>
-                <span style={{ flex: 1 }}>
-                  <span
-                    className={styles.childName}
-                    style={{
-                      display: "block",
-                      color: "var(--text)",
-                      fontSize: 14.5,
-                    }}
-                  >
-                    {c.nome}
+                  <Avatar
+                    nome={c.nome}
+                    fotoUrl={c.fotoUrl}
+                    bg={avatarColors[c._id]}
+                    size={46}
+                  />
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      className={styles.childName}
+                      style={{
+                        display: "block",
+                        color: "var(--text)",
+                        fontSize: 14.5,
+                      }}
+                    >
+                      {c.nome}
+                    </span>
+                    <span
+                      style={{
+                        display: "block",
+                        fontSize: 12,
+                        color: "var(--text-dim)",
+                      }}
+                    >
+                      {c.sub}
+                    </span>
                   </span>
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 12,
-                      color: "var(--text-dim)",
-                    }}
-                  >
-                    {c.sub}
-                  </span>
-                </span>
-                {isActive ? (
-                  <span className={styles.emptyBadge}>Ativo</span>
-                ) : (
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      color: "var(--color-primary-link)",
-                    }}
-                  >
-                    Acessar
-                  </span>
-                )}
-              </button>
+                  {isActive ? (
+                    <span className={styles.emptyBadge}>Ativo</span>
+                  ) : (
+                    <span
+                      style={{
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        color: "var(--color-primary-link)",
+                      }}
+                    >
+                      Acessar
+                    </span>
+                  )}
+                </button>
+                <Link
+                  href={`/crianca/${c._id}/editar`}
+                  className={styles.profChildEdit}
+                  aria-label={`Editar dados de ${c.nome}`}
+                  title="Editar dados"
+                >
+                  <Pencil size={16} />
+                </Link>
+              </div>
             );
           })}
         </div>

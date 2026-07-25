@@ -131,7 +131,8 @@ export const criancaSchema = yup.object({
 ## 6. Telas técnicas por domínio
 
 - **Agenda diária (professor):** formulário otimista — salva rápido, chips para valores comuns, faixa fixa de alergias/medicações vinda do cadastro da criança.
-- **Portal do pai:** somente leitura da agenda + histórico paginado por data.
+- **Portal do pai:** somente leitura da agenda + histórico paginado por data. **Exceção:** o responsável edita o cadastro do próprio filho em `/crianca/{id}/editar` (`EditarCriancaScreen`) — nome, nascimento, responsáveis, saúde e foto. Sem `financeiro`, `turma` e `cpf`: o backend responde `403`/rejeita o `PUT`, e a tela nem oferece os campos (faixa explicativa apontando a secretaria). **E-mail de responsável com `usuarioId` é `readOnly`** — o `PUT` não propaga para o Cognito nem para `usuarios`, então editar ali só criaria divergência entre o e-mail exibido e o de login (ver aviso em docs/03-Backend §5).
+- **Foto da criança:** `components/FotoField` (admin no passo "Identificação" do stepper, responsável na tela de edição). O upload vai em **base64 no corpo** do `POST`/`PUT /criancas` e o front **sempre** redimensiona antes (`utils/imagem.ts` — 800px de lado maior, JPEG 0.8, teto de 2MB decodificados; a API corta em `422` acima disso). O preview é **controlado pelo pai** (`previewUrl`), para que um salvamento bem-sucedido volte a exibir a imagem gravada em vez do rascunho local. Exibição via `components/Avatar` (foto com fallback de iniciais + cor).
 - **Financeiro (pai):** grade de meses (`ChargeContext`); botão "Pagar via PIX" abre modal com `qrcode.react` (QR) e copia-e-cola; faz polling do status até "pago".
 - **Simulador:** cálculo no cliente a partir dos valores configurados; gráfico de barras comparando períodos.
 - **Relatórios (admin):** exportação `.xlsx` com `xlsx` (SheetJS) a partir dos dados do `DashboardContext`.

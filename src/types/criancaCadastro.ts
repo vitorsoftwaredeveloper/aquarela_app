@@ -1,5 +1,9 @@
 /** Modelo completo da criança — espelha a coleção `criancas` (docs/04 §3). */
 
+import type { FotoUpload } from "@/utils/imagem";
+
+export type { FotoUpload };
+
 export interface ResponsavelVinculo {
   usuarioId?: string;
   nome: string;
@@ -38,6 +42,7 @@ export interface CriancaCadastro {
   dataNascimento: string;
   cpf: string;
   foto?: string;
+  fotoUrl?: string;
   turmaId: string;
   turmaNome?: string;
   responsaveis: ResponsavelVinculo[];
@@ -46,10 +51,13 @@ export interface CriancaCadastro {
   ativo: boolean;
 }
 
-/** Payload de criação/edição (sem campos derivados). */
 export type NovaCrianca = Omit<
   CriancaCadastro,
-  "_id" | "ativo" | "turmaNome" | "foto"
+  "_id" | "ativo" | "turmaNome" | "foto" | "fotoUrl"
+> & { foto?: FotoUpload };
+
+export type CriancaEditavelResponsavel = Partial<
+  Omit<NovaCrianca, "cpf" | "turmaId" | "financeiro">
 >;
 
 /** Acesso de responsável criado junto com a criança (senha entregue 1x). */

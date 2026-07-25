@@ -1,4 +1,6 @@
+export { Avatar } from "./Avatar/Avatar";
 export { Button } from "./Button/Button";
+export { FotoField } from "./FotoField/FotoField";
 export { Container } from "./Container/Container";
 export { Input } from "./Input/Input";
 export { Textarea } from "./Textarea/Textarea";

@@ -209,6 +209,34 @@ export const devCriancasCadastro: CriancaCadastro[] = [
     },
     financeiro: { valorMensalidade: 1490, diaVencimento: 5 },
   },
+  {
+    _id: "c-theo",
+    nome: "Theo Souza",
+    dataNascimento: "2021-02-08",
+    cpf: "52998224725",
+    turmaId: "t-sol",
+    turmaNome: "Sol",
+    ativo: true,
+    responsaveis: [
+      {
+        nome: "Marina Souza",
+        cpf: "11144477735",
+        parentesco: "Mãe",
+        telefone: "11990000000",
+        email: "marina.souza@email.com",
+        podeRetirar: true,
+      },
+    ],
+    saude: {
+      alergias: [],
+      restricoesAlimentares: [],
+      medicacoesContinuas: [],
+      condicoesAtipicas: [],
+      cuidadosEspeciais: "",
+      observacoes: "",
+    },
+    financeiro: { valorMensalidade: 1290, diaVencimento: 5 },
+  },
 ];
 
 export const devCriancas: Crianca[] = [

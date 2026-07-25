@@ -6,6 +6,7 @@ export interface Crianca {
   /** Iniciais para o avatar (fallback quando não há foto). */
   iniciais: string;
   avatarBg: string;
+  fotoUrl?: string;
   turmaNome?: string;
   idadeLabel?: string;
   /** "Turma Girassol · 3 anos" — linha de apoio. */
