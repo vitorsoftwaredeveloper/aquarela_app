@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { BalancoMes } from "@/types/financeiroAdmin";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Skeleton } from "@/components";
+import { useFetch } from "@/hooks/useFetch";
+import { FinanceiroAdminService } from "@/services/financeiroAdminService";
+import { ErrorState } from "../ListState";
 import styles from "./dashboard.module.css";
 
 /**
@@ -37,10 +41,21 @@ function escalaMaxima(valores: number[]): number {
   return Math.ceil(max / passo) * passo;
 }
 
-export function BalancoChart({ meses }: { meses: BalancoMes[] }) {
-  const [ativo, setAtivo] = useState<number | null>(null);
+const ANO_MINIMO = 2020;
 
-  const max = escalaMaxima(meses.flatMap((m) => [m.entradas, m.despesas]));
+export function BalancoChart() {
+  const [ativo, setAtivo] = useState<number | null>(null);
+  const [ano, setAno] = useState(() => new Date().getFullYear());
+  const anoAtual = new Date().getFullYear();
+
+  const { data: meses, loading, error, reload } = useFetch(
+    () => FinanceiroAdminService.getBalanco(String(ano)).then((b) => b.meses),
+    [ano],
+  );
+
+  const max = escalaMaxima(
+    (meses ?? []).flatMap((m) => [m.entradas, m.despesas]),
+  );
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
 
   return (
@@ -48,29 +63,58 @@ export function BalancoChart({ meses }: { meses: BalancoMes[] }) {
       <figcaption className={styles.chartHead}>
         <div>
           <h2 className={styles.chartTitle}>Entradas × despesas</h2>
-          <p className={styles.chartSub}>Últimos 12 meses · 2026</p>
+          <p className={styles.chartSub}>Balanço mensal do ano</p>
         </div>
-        {/* Legenda sempre presente para 2+ séries (identidade nunca só por cor). */}
-        <ul className={styles.legend}>
-          <li className={styles.legendItem}>
-            <span
-              className={styles.legendSwatch}
-              style={{ background: COR_ENTRADAS }}
-              aria-hidden
-            />
-            Entradas
-          </li>
-          <li className={styles.legendItem}>
-            <span
-              className={styles.legendSwatch}
-              style={{ background: COR_DESPESAS }}
-              aria-hidden
-            />
-            Despesas
-          </li>
-        </ul>
+
+        <div className={styles.chartHeadRight}>
+          <div className={styles.anoSwitcher}>
+            <button
+              type="button"
+              className={styles.anoBtn}
+              onClick={() => setAno((a) => Math.max(ANO_MINIMO, a - 1))}
+              disabled={ano <= ANO_MINIMO}
+              aria-label="Ano anterior"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className={styles.anoLabel}>{ano}</span>
+            <button
+              type="button"
+              className={styles.anoBtn}
+              onClick={() => setAno((a) => Math.min(anoAtual, a + 1))}
+              disabled={ano >= anoAtual}
+              aria-label="Próximo ano"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+          {/* Legenda sempre presente para 2+ séries (identidade nunca só por cor). */}
+          <ul className={styles.legend}>
+            <li className={styles.legendItem}>
+              <span
+                className={styles.legendSwatch}
+                style={{ background: COR_ENTRADAS }}
+                aria-hidden
+              />
+              Entradas
+            </li>
+            <li className={styles.legendItem}>
+              <span
+                className={styles.legendSwatch}
+                style={{ background: COR_DESPESAS }}
+                aria-hidden
+              />
+              Despesas
+            </li>
+          </ul>
+        </div>
       </figcaption>
 
+      {loading ? (
+        <Skeleton width="100%" height={220} radius="var(--radius-md)" />
+      ) : error || !meses ? (
+        <ErrorState message={error ?? "Sem dados."} onRetry={reload} />
+      ) : (
       <div className={styles.chartScroll}>
         <div className={styles.plot}>
           {/* Eixo Y + gridlines hairline recessivas */}
@@ -150,6 +194,7 @@ export function BalancoChart({ meses }: { meses: BalancoMes[] }) {
           </div>
         </div>
       </div>
+      )}
     </figure>
   );
 }

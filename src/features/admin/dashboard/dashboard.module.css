@@ -73,6 +73,48 @@
   color: var(--text-dim);
   margin-top: 2px;
 }
+.chartHeadRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.anoSwitcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.anoBtn:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-link);
+}
+.anoBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.anoLabel {
+  min-width: 40px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
 .legend {
   display: flex;
   gap: 16px;

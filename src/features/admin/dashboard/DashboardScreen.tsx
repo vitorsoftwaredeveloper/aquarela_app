@@ -94,7 +94,7 @@ export function DashboardScreen() {
             />
           </div>
 
-          <BalancoChart meses={data.meses} />
+          <BalancoChart />
         </>
       )}
     </div>
