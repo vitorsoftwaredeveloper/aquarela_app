@@ -54,11 +54,13 @@ export function FinanceiroScreen() {
   const [recibo, setRecibo] = useState<Mensalidade | null>(null);
 
   const { data, loading, error, reload } = useFetch(
-    () =>
-      active
+    () => {
+      if (ctxLoading) return new Promise<Mensalidade[]>(() => {});
+      return active
         ? FinanceiroService.listMensalidades(active._id)
-        : Promise.resolve([]),
-    [active?._id],
+        : Promise.resolve([]);
+    },
+    [active?._id, ctxLoading],
   );
   const meses = data ?? [];
   const emAberto = meses
@@ -323,14 +325,19 @@ function PixContent({
   const [erro, setErro] = useState<string | null>(null);
   const [tentativa, setTentativa] = useState(0);
   const onCloseRef = useRef(onClose);
+  const onPaidRef = useRef(onPaid);
 
   useEffect(() => {
     onCloseRef.current = onClose;
+    onPaidRef.current = onPaid;
   });
 
   useEffect(() => {
     if (paid) return;
-    const id = setTimeout(() => onCloseRef.current(), 5 * 60 * 1000);
+    const id = setTimeout(() => {
+      onPaidRef.current();
+      onCloseRef.current();
+    }, 5 * 60 * 1000);
     return () => clearTimeout(id);
   }, [paid]);
 

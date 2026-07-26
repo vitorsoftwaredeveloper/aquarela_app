@@ -265,9 +265,13 @@ describe("FinanceiroScreen", () => {
     await user.click(await screen.findByRole("button", { name: "Pagar" }));
     await screen.findByText(pagamento.pixCopiaECola);
 
+    vi.mocked(FinanceiroService.listMensalidades).mockClear();
     await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(FinanceiroService.listMensalidades).toHaveBeenCalled(),
+    );
     vi.useRealTimers();
   });
 
