@@ -7,6 +7,7 @@ import {
   AlertCircle,
   FileSpreadsheet,
   FileText,
+  Pencil,
   Plus,
   Receipt,
   Trash2,
@@ -104,6 +105,7 @@ function Despesas() {
     FinanceiroAdminService.listDespesas(),
   );
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Despesa | null>(null);
   const [deleting, setDeleting] = useState<Despesa | null>(null);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -228,6 +230,13 @@ function Despesas() {
                     <td>
                       <div className={styles.rowActions}>
                         <button
+                          className={styles.iconBtn}
+                          onClick={() => setEditing(d)}
+                          aria-label={`Editar ${d.descricao}`}
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
                           className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
                           onClick={() => {
                             setActionError(null);
@@ -259,6 +268,23 @@ function Despesas() {
             reload();
           }}
         />
+      </Modal>
+
+      <Modal
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        title="Editar despesa"
+      >
+        {editing && (
+          <DespesaForm
+            despesa={editing}
+            onCancel={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
+              reload();
+            }}
+          />
+        )}
       </Modal>
 
       <Modal
@@ -299,9 +325,11 @@ function Despesas() {
 }
 
 function DespesaForm({
+  despesa,
   onCancel,
   onSaved,
 }: {
+  despesa?: Despesa;
   onCancel: () => void;
   onSaved: () => void;
 }) {
@@ -312,13 +340,24 @@ function DespesaForm({
     formState: { errors, isSubmitting },
   } = useForm<DespesaFormData>({
     resolver: yupResolver(despesaSchema),
-    defaultValues: { descricao: "", categoria: "", data: "" },
+    defaultValues: despesa
+      ? {
+          descricao: despesa.descricao,
+          categoria: despesa.categoria,
+          valor: despesa.valor,
+          data: despesa.data.split("T")[0],
+        }
+      : { descricao: "", categoria: "", data: "" },
   });
 
   async function onSubmit(values: DespesaFormData) {
     setSubmitError(null);
     try {
-      await FinanceiroAdminService.createDespesa(values);
+      if (despesa) {
+        await FinanceiroAdminService.updateDespesa(despesa._id, values);
+      } else {
+        await FinanceiroAdminService.createDespesa(values);
+      }
       onSaved();
     } catch (err) {
       setSubmitError(getApiErrorMessage(err));
@@ -382,7 +421,11 @@ function DespesaForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : "Lançar despesa"}
+          {isSubmitting
+            ? "Salvando…"
+            : despesa
+              ? "Salvar despesa"
+              : "Lançar despesa"}
         </Button>
       </div>
     </form>

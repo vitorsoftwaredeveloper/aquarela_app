@@ -248,6 +248,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | POST | `/webhooks/mercadopago` | público (assinado) | Confirmação de pagamento |
 | GET | `/financeiro/balanco?periodo=` | admin | Balanço mensal/anual |
 | POST/GET | `/despesas` | admin | Lançar/listar despesas |
+| PUT/DELETE | `/despesas/{id}` | admin | Editar/remover despesa |
 | GET | `/financeiro/inadimplentes` | admin | Lista de inadimplentes |
 
 > **`/financeiro/inadimplentes` devolve uma linha por mensalidade em atraso**,

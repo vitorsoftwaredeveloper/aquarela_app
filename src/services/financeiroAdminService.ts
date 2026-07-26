@@ -47,6 +47,12 @@ export const FinanceiroAdminService = {
     return data.data;
   },
 
+  async updateDespesa(id: string, payload: NovaDespesa): Promise<Despesa> {
+    if (IS_DEV_DATA) return { ...payload, _id: id };
+    const { data } = await api.put(`/despesas/${id}`, payload);
+    return data.data;
+  },
+
   async removeDespesa(id: string): Promise<void> {
     if (IS_DEV_DATA) return;
     await api.delete(`/despesas/${id}`);
