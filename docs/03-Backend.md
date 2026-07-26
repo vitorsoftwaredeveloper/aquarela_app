@@ -302,6 +302,8 @@ Validar todo payload de entrada antes do service. `ajv-formats` para data/hora/e
 2. Cliente exibe QR e faz polling em `GET /pagamentos/{txid}`.
 3. `POST /webhooks/mercadopago` recebe a confirmação → valida assinatura → marca a mensalidade como **paga** → gera recibo (PDF/HTML) e salva no **S3** → (fase 2) dispara push.
 4. Idempotência: usar `txid`/`payment_id` para evitar dupla baixa.
+5. **Pagamento pendente já existente:** `POST /pagamentos` para uma mensalidade que já tem cobrança `pendente` responde `409 PAGAMENTO_PENDENTE` (em vez de devolver a cobrança antiga). O front trata isso como qualquer erro genérico de `criarPagamento` — mostra a mensagem da API no modal PIX com o botão "Tentar de novo" (ver [`FinanceiroScreen.tsx`](../src/features/responsavel/FinanceiroScreen.tsx), bloco `erro`). **Não confundir com `409 MENSALIDADE_PAGA`**, que é tratado como confirmação (mensalidade já quitada), não como erro.
+6. **Reconciliação de pendências:** um cron (a cada 30 min) consulta o MercadoPago para cobranças `pendente` sem confirmação. A cada consulta sem resolução incrementa `tentativasReconciliacao`; na 2ª tentativa sem sucesso a cobrança pendente é **removida**, liberando o responsável para gerar uma nova (sem erro). Enquanto a cobrança pendente existir, o responsável recebe `PAGAMENTO_PENDENTE` ao tentar gerar outra para a mesma mensalidade.
 
 Credenciais do MercadoPago e strings de conexão do Mongo ficam em **SSM Parameter Store** por stage, referenciadas em `config/<stage>.json`.
 

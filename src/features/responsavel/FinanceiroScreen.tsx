@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   CheckCircle2,
@@ -108,11 +108,7 @@ export function FinanceiroScreen() {
             <div key={i} className={styles.monthRow}>
               <Skeleton width={42} height={42} radius={12} />
               <span style={{ flex: 1 }}>
-                <Skeleton
-                  width="40%"
-                  height={14}
-                  style={{ marginBottom: 6 }}
-                />
+                <Skeleton width="40%" height={14} style={{ marginBottom: 6 }} />
                 <Skeleton width="55%" height={12} />
               </span>
               <Skeleton width={70} height={30} radius={12} />
@@ -221,7 +217,11 @@ export function FinanceiroScreen() {
         )}
       </Modal>
 
-      <Modal open={!!recibo} onClose={() => setRecibo(null)} title="Comprovante">
+      <Modal
+        open={!!recibo}
+        onClose={() => setRecibo(null)}
+        title="Comprovante"
+      >
         {recibo && active && (
           <ReciboContent mensalidade={recibo} crianca={active} />
         )}
@@ -245,7 +245,9 @@ function ReciboContent({
   const [gerando, setGerando] = useState(false);
   const linhas: [string, string][] = [
     ["Aluno(a)", crianca.nome],
-    ...(crianca.cpf ? ([["CPF do aluno(a)", crianca.cpf]] as [string, string][]) : []),
+    ...(crianca.cpf
+      ? ([["CPF do aluno(a)", crianca.cpf]] as [string, string][])
+      : []),
     ["Competência", `${mensalidade.mesLabel}/${mensalidade.ano}`],
     ["Forma de pagamento", "PIX"],
     ["Data do pagamento", formatDataPagamento(mensalidade.updatedAt)],
@@ -320,38 +322,40 @@ function PixContent({
   const [copied, setCopied] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [tentativa, setTentativa] = useState(0);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  useEffect(() => {
+    if (paid) return;
+    const id = setTimeout(() => onCloseRef.current(), 5 * 60 * 1000);
+    return () => clearTimeout(id);
+  }, [paid]);
 
   useEffect(() => {
     let cancelado = false;
-    // Reset controlado antes de gerar a cobrança (sincroniza a UI com a busca).
-    /* eslint-disable react-hooks/set-state-in-effect */
     setErro(null);
     setPagamento(null);
-    /* eslint-enable react-hooks/set-state-in-effect */
     FinanceiroService.criarPagamento(mensalidade._id)
       .then((p) => {
         if (!cancelado) setPagamento(p);
       })
       .catch((err) => {
         if (cancelado) return;
-        // A mensalidade já foi paga (cobrança anterior, outra aba ou efeito
-        // duplicado do StrictMode). Isso não é erro — é confirmação: mostra o
-        // estado "pago" em vez do vermelho "Tentar de novo".
         if (getApiErrorCode(err) === "MENSALIDADE_PAGA") {
           setPaid(true);
           onPaid();
           return;
         }
-        // Sem isto o modal ficava preso em "Gerando cobrança…" para sempre.
         setErro(getApiErrorMessage(err));
       });
     return () => {
       cancelado = true;
     };
-    // `onPaid` (reload do useFetch) é estável — não refaz a cobrança por render.
   }, [mensalidade._id, tentativa, onPaid]);
 
-  // Em produção: polling do status até "pago".
   useEffect(() => {
     if (IS_DEV_DATA || !pagamento || paid) return;
     const id = setInterval(async () => {

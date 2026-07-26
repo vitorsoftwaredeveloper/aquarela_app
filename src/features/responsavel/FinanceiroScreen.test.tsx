@@ -200,6 +200,30 @@ describe("FinanceiroScreen", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows the pending-payment message when criarPagamento returns PAGAMENTO_PENDENTE", async () => {
+    mockResponsavel();
+    vi.mocked(FinanceiroService.listMensalidades).mockResolvedValue([
+      mensalidadeAberta,
+    ]);
+    const mensagem =
+      "Já existe um pagamento pendente para esta mensalidade. Aguarde a resolução do pagamento até 1 hora após a criação.";
+    vi.mocked(FinanceiroService.criarPagamento).mockRejectedValue(
+      new AxiosError("conflict", "ERR_BAD_REQUEST", undefined, undefined, {
+        status: 409,
+        data: { code: "PAGAMENTO_PENDENTE", message: mensagem },
+      } as AxiosError["response"]),
+    );
+    const user = userEvent.setup();
+
+    render(<FinanceiroScreen />);
+    await user.click(await screen.findByRole("button", { name: "Pagar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(mensagem);
+    expect(
+      screen.getByRole("button", { name: "Tentar de novo" }),
+    ).toBeInTheDocument();
+  });
+
   it("polls payment status and shows confirmation when pago", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     mockResponsavel();
@@ -220,6 +244,55 @@ describe("FinanceiroScreen", () => {
     await screen.findByText(pagamento.pixCopiaECola);
 
     await vi.advanceTimersByTimeAsync(4000);
+
+    expect(await screen.findByText("Pagamento confirmado")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("closes the modal automatically after 5 minutes if still unpaid", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mockResponsavel();
+    vi.mocked(FinanceiroService.listMensalidades).mockResolvedValue([
+      mensalidadeAberta,
+    ]);
+    vi.mocked(FinanceiroService.criarPagamento).mockResolvedValue(pagamento);
+    vi.mocked(FinanceiroService.getPagamento).mockResolvedValue(pagamento);
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+    });
+
+    render(<FinanceiroScreen />);
+    await user.click(await screen.findByRole("button", { name: "Pagar" }));
+    await screen.findByText(pagamento.pixCopiaECola);
+
+    await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("does not auto-close the modal once the payment is confirmed", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mockResponsavel();
+    vi.mocked(FinanceiroService.listMensalidades).mockResolvedValue([
+      mensalidadeAberta,
+    ]);
+    vi.mocked(FinanceiroService.criarPagamento).mockResolvedValue(pagamento);
+    vi.mocked(FinanceiroService.getPagamento).mockResolvedValue({
+      ...pagamento,
+      status: "pago",
+    });
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+    });
+
+    render(<FinanceiroScreen />);
+    await user.click(await screen.findByRole("button", { name: "Pagar" }));
+    await screen.findByText(pagamento.pixCopiaECola);
+    await vi.advanceTimersByTimeAsync(4000);
+    await screen.findByText("Pagamento confirmado");
+
+    await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
 
     expect(await screen.findByText("Pagamento confirmado")).toBeInTheDocument();
     vi.useRealTimers();

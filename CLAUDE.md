@@ -2,6 +2,12 @@
 
 > Contexto para agentes de IA e devs. Leia antes de codar. Fonte da verdade detalhada: pasta [`docs/`](./docs).
 
+## 0. Modo de resposta
+
+Toda resposta neste repo usa o modo caveman (skill `/caveman`, nível `ultra`) por padrão, sem precisar invocar manualmente a cada comando.
+
+Toda tarefa de UI/front-end neste repo (tela nova, componente, ajuste visual) usa a skill `design-taste-frontend` por padrão, sem precisar invocar manualmente a cada comando — instalada em `.agents/skills`.
+
 ---
 
 ## 1. O que é o Aquarela Kids
@@ -85,6 +91,23 @@ Detalhes completos: [`docs/02-Frontend.md`](./docs/02-Frontend.md).
 > isso ele ficava preso em "Gerando cobrança…". Em dev o `reactStrictMode`
 > executa o efeito duas vezes, então **duas cobranças são criadas por abertura**
 > — idempotência é responsabilidade do backend.
+>
+> **Não é mais possível criar um pagamento para um mês que já tenha um
+> pagamento pendente.** `POST /pagamentos` responde `409 PAGAMENTO_PENDENTE`
+> nesse caso (cobrança pendente é reconciliada por cron a cada 30 min; some
+> após 2 tentativas sem confirmação — ver [`docs/03-Backend.md` §7](./docs/03-Backend.md)).
+> O front **não precisa de tratamento especial** para esse código: ele já cai
+> no branch genérico de erro do `PixContent` (mensagem da API + "Tentar de
+> novo"), o mesmo caminho coberto pelo teste "shows error with retry…". Só o
+> `MENSALIDADE_PAGA` tem branch dedicado (confirma pagamento em vez de mostrar
+> erro) — não confundir os dois códigos.
+>
+> **A modal PIX fecha sozinha após 5 minutos aberta** (`PixContent` em
+> [`FinanceiroScreen.tsx`](./src/features/responsavel/FinanceiroScreen.tsx)) —
+> tempo de sobra pro fluxo inteiro; evita que o polling de `GET
+> /pagamentos/{txid}` (a cada 4s) rode indefinidamente se o responsável deixar
+> a tela aberta sem pagar. Não fecha se o pagamento já foi confirmado
+> (`paid`).
 
 ## 7. Como rodar
 
