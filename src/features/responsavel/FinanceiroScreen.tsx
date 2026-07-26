@@ -53,15 +53,12 @@ export function FinanceiroScreen() {
   const [paying, setPaying] = useState<Mensalidade | null>(null);
   const [recibo, setRecibo] = useState<Mensalidade | null>(null);
 
-  const { data, loading, error, reload } = useFetch(
-    () => {
-      if (ctxLoading) return new Promise<Mensalidade[]>(() => {});
-      return active
-        ? FinanceiroService.listMensalidades(active._id)
-        : Promise.resolve([]);
-    },
-    [active?._id, ctxLoading],
-  );
+  const { data, loading, error, reload } = useFetch(() => {
+    if (ctxLoading) return new Promise<Mensalidade[]>(() => {});
+    return active
+      ? FinanceiroService.listMensalidades(active._id)
+      : Promise.resolve([]);
+  }, [active?._id, ctxLoading]);
   const meses = data ?? [];
   const emAberto = meses
     .filter((m) => m.status !== "pago")
@@ -334,10 +331,13 @@ function PixContent({
 
   useEffect(() => {
     if (paid) return;
-    const id = setTimeout(() => {
-      onPaidRef.current();
-      onCloseRef.current();
-    }, 5 * 60 * 1000);
+    const id = setTimeout(
+      () => {
+        onPaidRef.current();
+        onCloseRef.current();
+      },
+      5 * 60 * 1000,
+    );
     return () => clearTimeout(id);
   }, [paid]);
 
@@ -428,7 +428,6 @@ function PixContent({
           }}
           role="alert"
         >
-          <AlertTriangle size={16} color="var(--color-danger-strong)" />
           <span
             className={styles.pixWaitingText}
             style={{ color: "var(--color-danger-strong)" }}
