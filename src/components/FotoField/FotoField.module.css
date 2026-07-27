@@ -82,6 +82,12 @@
   min-width: 0;
 }
 
+.botoesPrincipais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .botao,
 .botaoSutil,
 .botaoPerigo {

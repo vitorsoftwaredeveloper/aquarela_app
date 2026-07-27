@@ -35,7 +35,8 @@ export function FotoField({
   onSelect,
   onRemove,
 }: FotoFieldProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputGaleriaRef = useRef<HTMLInputElement>(null);
+  const inputCameraRef = useRef<HTMLInputElement>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [processando, setProcessando] = useState(false);
 
@@ -75,7 +76,7 @@ export function FotoField({
         <button
           type="button"
           className={`${styles.alvo} ${mostrada ? "" : styles.alvoVazio}`}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => inputGaleriaRef.current?.click()}
           disabled={ocupado}
           aria-label={mostrada ? "Trocar foto" : "Escolher foto"}
         >
@@ -102,18 +103,26 @@ export function FotoField({
         </button>
 
         <div className={styles.acoes}>
-          <button
-            type="button"
-            className={styles.botao}
-            onClick={() => inputRef.current?.click()}
-            disabled={ocupado}
-          >
-            {processando
-              ? "Preparando…"
-              : mostrada
-                ? "Trocar foto"
-                : "Escolher foto"}
-          </button>
+          <div className={styles.botoesPrincipais}>
+            <button
+              type="button"
+              className={styles.botao}
+              onClick={() => inputCameraRef.current?.click()}
+              disabled={ocupado}
+            >
+              <Camera size={14} />
+              {processando ? "Preparando…" : "Tirar foto"}
+            </button>
+            <button
+              type="button"
+              className={styles.botao}
+              onClick={() => inputGaleriaRef.current?.click()}
+              disabled={ocupado}
+            >
+              <ImagePlus size={14} />
+              {processando ? "Preparando…" : "Da galeria"}
+            </button>
+          </div>
 
           {preview ? (
             <button
@@ -141,9 +150,18 @@ export function FotoField({
       </div>
 
       <input
-        ref={inputRef}
+        ref={inputGaleriaRef}
         type="file"
         accept="image/*"
+        className={styles.input}
+        onChange={escolher}
+        tabIndex={-1}
+      />
+      <input
+        ref={inputCameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className={styles.input}
         onChange={escolher}
         tabIndex={-1}
