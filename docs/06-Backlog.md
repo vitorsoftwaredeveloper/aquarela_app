@@ -161,7 +161,7 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 |---|---|---|---|---|---|---|
 | QA-01 | Testes unitários de services/validações (Jest) — cobertura crítica | 🔴 | 5 | BE | Épicos A–D | Cobertura em agenda, financeiro, auth |
 | QA-02 | Testes de componentes críticos (agenda, pagamento) | 🟡 | 3 | FE | AGD-05, FIN-08 | RTL nos fluxos-chave |
-| QA-03 | Revisão **LGPD**: consentimento, acesso, criptografia, retenção | 🔴 | 5 | FS | CAD-08 | Consentimento no cadastro; acesso por papel; política de retenção |
+| QA-03 | Revisão **LGPD**: consentimento, acesso, criptografia, retenção | 🔴 | 5 | FS | CAD-08 | **Consentimento no cadastro ✅ FE+BE** (checkbox obrigatório no `CriancaStepper` + `POST /criancas` exige `consentimentoLgpd:true`, 422 se ausente/falso, `aceitoEm` gravado pelo servidor — ver docs/03-Backend §5); acesso por papel; política de retenção seguem em aberto |
 | QA-04 | Trilha de auditoria (cadastro de criança + baixas financeiras) | 🟡 | 3 | BE | CAD-09, FIN-05 | Log de quem alterou o quê e quando |
 | QA-05 | Seeds e dados de demonstração | 🟡 | 2 | BE | Épicos A–B | Turmas/crianças fictícias para demo |
 | QA-06 | Teste de usabilidade com 1 professor + 2 pais | 🟡 | 3 | UX | Épicos B–C | Ajustes de UX priorizados a partir do teste |

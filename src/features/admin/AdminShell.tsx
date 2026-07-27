@@ -136,7 +136,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""}`}>
+    <div
+      className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""}`}
+    >
       <aside
         className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ""}`}
       >
@@ -181,7 +183,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {menuOpen && (
-        <div className={styles.mobileNavOverlay} onClick={() => setMenuOpen(false)}>
+        <div
+          className={styles.mobileNavOverlay}
+          onClick={() => setMenuOpen(false)}
+        >
           <nav
             id="admin-mobile-nav"
             className={styles.mobileNav}
@@ -199,7 +204,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <X size={22} />
               </button>
             </div>
-            <div className={styles.mobileNavLinks}>{navLinks(() => setMenuOpen(false))}</div>
+            <div className={styles.mobileNavLinks}>
+              {navLinks(() => setMenuOpen(false))}
+            </div>
             {sidebarFooter()}
           </nav>
         </div>

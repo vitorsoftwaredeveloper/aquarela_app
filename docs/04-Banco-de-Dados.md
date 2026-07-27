@@ -63,6 +63,7 @@ Perfil de app espelhando o Cognito.
     observacoes?: string
   },
   financeiro: { planoId?: ObjectId, valorMensalidade: number, diaVencimento: number },
+  consentimentoLgpd: { aceito: boolean, aceitoEm: Date }, // obrigatório no POST, imutável depois (ver 03-Backend §5)
   ativo: boolean,
   createdAt, updatedAt
 }

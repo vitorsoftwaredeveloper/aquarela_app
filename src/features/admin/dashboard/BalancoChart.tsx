@@ -48,7 +48,12 @@ export function BalancoChart() {
   const [ano, setAno] = useState(() => new Date().getFullYear());
   const anoAtual = new Date().getFullYear();
 
-  const { data: meses, loading, error, reload } = useFetch(
+  const {
+    data: meses,
+    loading,
+    error,
+    reload,
+  } = useFetch(
     () => FinanceiroAdminService.getBalanco(String(ano)).then((b) => b.meses),
     [ano],
   );
@@ -115,85 +120,87 @@ export function BalancoChart() {
       ) : error || !meses ? (
         <ErrorState message={error ?? "Sem dados."} onRetry={reload} />
       ) : (
-      <div className={styles.chartScroll}>
-        <div className={styles.plot}>
-          {/* Eixo Y + gridlines hairline recessivas */}
-          <div className={styles.yAxis}>
-            {[...ticks].reverse().map((t) => (
-              <span key={t} className={styles.yTick}>
-                {formatCompacto(t)}
-              </span>
-            ))}
-          </div>
-          <div className={styles.grid}>
-            {[...ticks].reverse().map((t) => (
-              <span key={t} className={styles.gridline} aria-hidden />
-            ))}
+        <div className={styles.chartScroll}>
+          <div className={styles.plot}>
+            {/* Eixo Y + gridlines hairline recessivas */}
+            <div className={styles.yAxis}>
+              {[...ticks].reverse().map((t) => (
+                <span key={t} className={styles.yTick}>
+                  {formatCompacto(t)}
+                </span>
+              ))}
+            </div>
+            <div className={styles.grid}>
+              {[...ticks].reverse().map((t) => (
+                <span key={t} className={styles.gridline} aria-hidden />
+              ))}
 
-            <div className={styles.groups}>
-              {meses.map((m, i) => {
-                const saldo = m.entradas - m.despesas;
-                return (
-                  <div
-                    key={m.mes}
-                    className={styles.group}
-                    onMouseEnter={() => setAtivo(i)}
-                    onMouseLeave={() => setAtivo(null)}
-                    onFocus={() => setAtivo(i)}
-                    onBlur={() => setAtivo(null)}
-                    tabIndex={0}
-                    aria-label={`${m.mesLabel}: entradas ${formatBRL(m.entradas)}, despesas ${formatBRL(m.despesas)}`}
-                  >
-                    {ativo === i && (
-                      <div className={styles.tooltip} role="tooltip">
-                        <div className={styles.tooltipTitle}>{m.mesLabel}</div>
-                        <div className={styles.tooltipRow}>
-                          <span
-                            className={styles.legendSwatch}
-                            style={{ background: COR_ENTRADAS }}
-                            aria-hidden
-                          />
-                          Entradas
-                          <b>{formatBRL(m.entradas)}</b>
+              <div className={styles.groups}>
+                {meses.map((m, i) => {
+                  const saldo = m.entradas - m.despesas;
+                  return (
+                    <div
+                      key={m.mes}
+                      className={styles.group}
+                      onMouseEnter={() => setAtivo(i)}
+                      onMouseLeave={() => setAtivo(null)}
+                      onFocus={() => setAtivo(i)}
+                      onBlur={() => setAtivo(null)}
+                      tabIndex={0}
+                      aria-label={`${m.mesLabel}: entradas ${formatBRL(m.entradas)}, despesas ${formatBRL(m.despesas)}`}
+                    >
+                      {ativo === i && (
+                        <div className={styles.tooltip} role="tooltip">
+                          <div className={styles.tooltipTitle}>
+                            {m.mesLabel}
+                          </div>
+                          <div className={styles.tooltipRow}>
+                            <span
+                              className={styles.legendSwatch}
+                              style={{ background: COR_ENTRADAS }}
+                              aria-hidden
+                            />
+                            Entradas
+                            <b>{formatBRL(m.entradas)}</b>
+                          </div>
+                          <div className={styles.tooltipRow}>
+                            <span
+                              className={styles.legendSwatch}
+                              style={{ background: COR_DESPESAS }}
+                              aria-hidden
+                            />
+                            Despesas
+                            <b>{formatBRL(m.despesas)}</b>
+                          </div>
+                          <div className={styles.tooltipSaldo}>
+                            Saldo <b>{formatBRL(saldo)}</b>
+                          </div>
                         </div>
-                        <div className={styles.tooltipRow}>
-                          <span
-                            className={styles.legendSwatch}
-                            style={{ background: COR_DESPESAS }}
-                            aria-hidden
-                          />
-                          Despesas
-                          <b>{formatBRL(m.despesas)}</b>
-                        </div>
-                        <div className={styles.tooltipSaldo}>
-                          Saldo <b>{formatBRL(saldo)}</b>
-                        </div>
+                      )}
+                      <div className={styles.groupBars}>
+                        <span
+                          className={styles.bar}
+                          style={{
+                            height: `${(m.entradas / max) * 100}%`,
+                            background: COR_ENTRADAS,
+                          }}
+                        />
+                        <span
+                          className={styles.bar}
+                          style={{
+                            height: `${(m.despesas / max) * 100}%`,
+                            background: COR_DESPESAS,
+                          }}
+                        />
                       </div>
-                    )}
-                    <div className={styles.groupBars}>
-                      <span
-                        className={styles.bar}
-                        style={{
-                          height: `${(m.entradas / max) * 100}%`,
-                          background: COR_ENTRADAS,
-                        }}
-                      />
-                      <span
-                        className={styles.bar}
-                        style={{
-                          height: `${(m.despesas / max) * 100}%`,
-                          background: COR_DESPESAS,
-                        }}
-                      />
+                      <span className={styles.xTick}>{m.mesLabel}</span>
                     </div>
-                    <span className={styles.xTick}>{m.mesLabel}</span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       )}
     </figure>
   );

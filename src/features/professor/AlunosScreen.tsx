@@ -48,16 +48,16 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
       </div>
 
       {loading ? (
-        <div className={styles.alunoList} role="status" aria-label="Carregando…">
+        <div
+          className={styles.alunoList}
+          role="status"
+          aria-label="Carregando…"
+        >
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className={styles.alunoCard}>
               <Skeleton width={46} height={46} radius={14} />
               <span style={{ flex: 1 }}>
-                <Skeleton
-                  width="50%"
-                  height={14}
-                  style={{ marginBottom: 8 }}
-                />
+                <Skeleton width="50%" height={14} style={{ marginBottom: 8 }} />
                 <Skeleton width="30%" height={11} />
               </span>
               <Skeleton width={86} height={24} radius={20} />

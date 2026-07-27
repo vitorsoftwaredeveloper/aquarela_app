@@ -7,6 +7,7 @@ import type {
   CriancaCriada,
   FotoUpload,
   NovaCrianca,
+  NovaCriancaPayload,
 } from "@/types/criancaCadastro";
 
 function dataUrlDaFoto(foto?: FotoUpload): string | undefined {
@@ -37,9 +38,10 @@ export const CriancasAdminService = {
   },
 
   /** Retorna a criança + `acessosResponsaveis` (senhas temporárias para o admin). */
-  async create(payload: NovaCrianca): Promise<CriancaCriada> {
+  async create(payload: NovaCriancaPayload): Promise<CriancaCriada> {
     if (IS_DEV_DATA) {
-      const { foto, ...resto } = payload;
+      const { foto, consentimentoLgpd: _consentimentoLgpd, ...resto } = payload;
+      void _consentimentoLgpd;
       return {
         crianca: {
           ...resto,

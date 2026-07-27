@@ -106,11 +106,7 @@ export function PlanoAulaFormScreen({
             <Skeleton width={90} height={13} style={{ marginBottom: 16 }} />
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} style={{ marginBottom: 14 }}>
-                <Skeleton
-                  width="25%"
-                  height={11}
-                  style={{ marginBottom: 8 }}
-                />
+                <Skeleton width="25%" height={11} style={{ marginBottom: 8 }} />
                 <Skeleton width="100%" height={40} radius="var(--radius-md)" />
               </div>
             ))}

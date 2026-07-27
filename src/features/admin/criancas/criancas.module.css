@@ -230,6 +230,23 @@
   margin-bottom: 16px;
 }
 
+.consentBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-soft-border);
+  border-radius: 12px;
+  padding: 13px 14px;
+}
+.consentBox .check {
+  color: var(--text);
+}
+.consentError {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
 @media (max-width: 640px) {
   .grid2 {
     grid-template-columns: 1fr;

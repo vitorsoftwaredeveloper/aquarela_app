@@ -55,7 +55,11 @@ export function exportToPdfTable(
     }
     doc.setTextColor("#1f2933");
     row.forEach((cell, i) => {
-      doc.text(String(cell), MARGIN_X + i * colWidth + 8, y + ROW_HEIGHT / 2 + 3);
+      doc.text(
+        String(cell),
+        MARGIN_X + i * colWidth + 8,
+        y + ROW_HEIGHT / 2 + 3,
+      );
     });
     doc.setDrawColor("#e2e8ef");
     doc.line(MARGIN_X, y + ROW_HEIGHT, MARGIN_X + usableWidth, y + ROW_HEIGHT);

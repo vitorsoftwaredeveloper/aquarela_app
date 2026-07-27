@@ -40,9 +40,7 @@ export function ResponsavelProvider({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [avatarColors, setAvatarColors] = useState<Record<string, string>>(
-    {},
-  );
+  const [avatarColors, setAvatarColors] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);

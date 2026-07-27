@@ -55,6 +55,7 @@ export type NovaCrianca = Omit<
   CriancaCadastro,
   "_id" | "ativo" | "turmaNome" | "foto" | "fotoUrl"
 > & { foto?: FotoUpload };
+export type NovaCriancaPayload = NovaCrianca & { consentimentoLgpd: boolean };
 
 export type CriancaEditavelResponsavel = Partial<
   Omit<NovaCrianca, "cpf" | "turmaId" | "financeiro">

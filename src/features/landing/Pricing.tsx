@@ -44,9 +44,7 @@ export async function Pricing() {
                 <div className={styles.planBadge}>Mais escolhido</div>
               )}
               <div className={styles.planName}>{p.nome}</div>
-              <div className={styles.planTagline}>
-                {SUBTITULO_TIPO[p.tipo]}
-              </div>
+              <div className={styles.planTagline}>{SUBTITULO_TIPO[p.tipo]}</div>
               <div className={styles.planPrice}>
                 <span className={styles.planPriceValue}>
                   {formatBRLCompacto(valor)}

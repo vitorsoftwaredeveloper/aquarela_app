@@ -227,7 +227,11 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
       </div>
 
       {carregando ? (
-        <div className={styles.form} role="status" aria-label="Carregando agenda…">
+        <div
+          className={styles.form}
+          role="status"
+          aria-label="Carregando agenda…"
+        >
           {Array.from({ length: 4 }).map((_, i) => (
             <section key={i} className={styles.card}>
               <Skeleton width={130} height={15} style={{ marginBottom: 14 }} />

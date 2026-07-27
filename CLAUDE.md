@@ -172,6 +172,18 @@ professores,turmas}.ts` (contrato em docs/03-Backend §5).
 
 > **Área admin fica sob `/admin/*`** (evita colisão de rota com `(professor)/turmas`).
 
+> **Consentimento LGPD (QA-03) no cadastro de criança** — o último passo do
+> stepper (`CriancaStepper.tsx`) exige marcar um checkbox de consentimento
+> antes de habilitar "Cadastrar criança" (bloqueia com mensagem inline se
+> tentar salvar sem marcar) e manda `consentimentoLgpd: true` de verdade no
+> `POST /criancas`. Backend já exige o campo (`additionalProperties:false` +
+> `required`): sem ele, ou com `false`, responde **`422
+> CONSENTIMENTO_LGPD_OBRIGATORIO`** — o gate do front é só UX pra evitar esse
+> round-trip, quem manda é a validação do backend. `aceitoEm` é timestamp do
+> servidor (nunca do client) e o campo é **imutável depois de criado** — fora
+> de `IUpdateCriancaPayload`, não faz parte do `PUT /criancas/{id}`. Só
+> aparece na criação (`!editing`) — edição não pede de novo.
+
 **Épico C — Portal do responsável (front):** PAI-01..PAI-04 ✅ — Início (lista de
 filhos + avisos + agenda de hoje), Agenda do dia (com faixa de cuidados
 alergias/medicações em destaque), Histórico, Financeiro (grade de meses) e

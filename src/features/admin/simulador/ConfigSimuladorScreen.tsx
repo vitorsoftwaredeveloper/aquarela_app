@@ -98,11 +98,7 @@ function ConfigSimuladorSkeleton() {
           <div className={styles.grid}>
             {Array.from({ length: 4 }).map((_, f) => (
               <div key={f}>
-                <Skeleton
-                  width="40%"
-                  height={11}
-                  style={{ marginBottom: 8 }}
-                />
+                <Skeleton width="40%" height={11} style={{ marginBottom: 8 }} />
                 <Skeleton width="100%" height={44} radius="var(--radius-md)" />
               </div>
             ))}

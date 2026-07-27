@@ -91,7 +91,12 @@ function ExportButtons({
       <Button variant="secondary" size="sm" onClick={onPdf} disabled={disabled}>
         <FileText size={16} /> PDF
       </Button>
-      <Button variant="secondary" size="sm" onClick={onExcel} disabled={disabled}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={onExcel}
+        disabled={disabled}
+      >
         <FileSpreadsheet size={16} /> Excel
       </Button>
     </div>

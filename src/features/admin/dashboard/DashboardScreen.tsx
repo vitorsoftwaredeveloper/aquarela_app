@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  TrendingDown,
-  TrendingUp,
-  TriangleAlert,
-  Wallet,
-} from "lucide-react";
+import { TrendingDown, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
 import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasAdminService } from "@/services/criancasAdmin";

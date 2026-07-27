@@ -191,6 +191,17 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > Como `createCrianca` chama o mesmo fluxo de criação de usuário (Cognito), a function precisa das mesmas `environment.USER_POOL_ID` + permissões IAM (`AdminCreateUser`/`AdminAddUserToGroup`/`AdminGetUser`/`AdminDeleteUser`) que `createUsuario` — configurado em `src/handlers/criancas/functions.yml`.
 >
 > **Ativar/desativar × remover.** `PUT /criancas/{id}` aceita `ativo:boolean` — desativar bloqueia o acesso mantendo o cadastro e o histórico. `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são só desvinculados (`$pull` em `criancasVinculadas`), suas contas não são apagadas.
+>
+> **Consentimento LGPD (QA-03).** `POST /criancas` exige `consentimentoLgpd:
+> boolean` no corpo (`additionalProperties:false` + `required` — sem o campo,
+> ou com `false`, o backend responde **`422 CONSENTIMENTO_LGPD_OBRIGATORIO`**).
+> O stepper de cadastro (`CriancaStepper.tsx`) trava o botão "Cadastrar
+> criança" até o checkbox de consentimento ser marcado e já manda
+> `consentimentoLgpd: true` real no payload — o gate do front é só UX (evita o
+> round-trip do 422), a fonte da verdade é a validação do backend. O backend
+> grava `aceitoEm` com **timestamp do servidor** (não vem do client) e o campo
+> é **imutável depois de criado**: não existe em `IUpdateCriancaPayload`, então
+> nem faz sentido mandar em `PUT /criancas/{id}`.
 
 **Regras de vínculo e remoção:**
 - Uma criança pertence a **uma turma por vez**. Vincular a uma nova turma (ou `PATCH .../turma`) substitui o vínculo anterior.

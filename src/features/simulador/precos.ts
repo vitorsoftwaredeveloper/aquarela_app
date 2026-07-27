@@ -6,7 +6,11 @@
  * backend, com `PLANOS_PADRAO` (types/configPrecos.ts) como referência
  * enquanto a lista carrega ou se a API estiver fora do ar.
  */
-import type { DescontoConfig, PlanoConfig, PlanoTipo } from "@/types/configPrecos";
+import type {
+  DescontoConfig,
+  PlanoConfig,
+  PlanoTipo,
+} from "@/types/configPrecos";
 
 export type Modo = "meses" | "dias";
 

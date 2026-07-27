@@ -45,7 +45,9 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
   const [destinoTurmaId, setDestinoTurmaId] = useState("");
   const [duplicateBusy, setDuplicateBusy] = useState(false);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
-  const { data: turmasData } = useFetch(() => ProfessorService.listMinhasTurmas());
+  const { data: turmasData } = useFetch(() =>
+    ProfessorService.listMinhasTurmas(),
+  );
   const outrasTurmas = useMemo(
     () => (turmasData ?? []).filter((t) => t._id !== turmaId),
     [turmasData, turmaId],
@@ -124,7 +126,11 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
       </button>
 
       {loading ? (
-        <div className={styles.planoList} role="status" aria-label="Carregando…">
+        <div
+          className={styles.planoList}
+          role="status"
+          aria-label="Carregando…"
+        >
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={styles.planoCard}>
               <Skeleton width={78} height={20} radius={20} />

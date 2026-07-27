@@ -90,7 +90,11 @@ export function ProfessoresScreen() {
             title="Nenhum professor cadastrado"
             text="Cadastre educadoras para vinculá-las às turmas."
             action={
-              <Button size="sm" onClick={openCreate} aria-label="Novo professor">
+              <Button
+                size="sm"
+                onClick={openCreate}
+                aria-label="Novo professor"
+              >
                 <Plus size={16} />
               </Button>
             }

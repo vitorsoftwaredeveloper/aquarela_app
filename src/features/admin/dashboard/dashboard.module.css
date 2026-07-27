@@ -96,7 +96,9 @@
   background: var(--surface);
   color: var(--text-dim);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .anoBtn:hover:not(:disabled) {
   background: var(--color-primary-soft);

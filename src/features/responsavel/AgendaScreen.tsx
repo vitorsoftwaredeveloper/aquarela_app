@@ -55,11 +55,7 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
             <div key={i} className={styles.entry}>
               <Skeleton width={40} height={40} radius={12} />
               <span style={{ flex: 1 }}>
-                <Skeleton
-                  width="40%"
-                  height={13}
-                  style={{ marginBottom: 6 }}
-                />
+                <Skeleton width="40%" height={13} style={{ marginBottom: 6 }} />
                 <Skeleton width="80%" height={13} />
               </span>
             </div>

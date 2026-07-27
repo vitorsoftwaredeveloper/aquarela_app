@@ -50,6 +50,7 @@ import {
   type AcessoResponsavel,
   type CriancaCadastro,
   type NovaCrianca,
+  type NovaCriancaPayload,
 } from "@/types/criancaCadastro";
 import { maskCPF, maskPhone } from "@/utils/cpf";
 import type { FotoUpload } from "@/utils/imagem";
@@ -103,6 +104,8 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const [foto, setFoto] = useState<FotoUpload | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [removendoFoto, setRemovendoFoto] = useState(false);
+  const [consentimento, setConsentimento] = useState(false);
+  const [consentimentoError, setConsentimentoError] = useState(false);
 
   const turmas = useFetch(() => TurmasService.list());
   // Mesma fonte de planos do simulador — mensalidade da criança tem que bater
@@ -260,6 +263,10 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
 
   async function onSubmit(values: CriancaFormData) {
     setSubmitError(null);
+    if (!editing && !consentimento) {
+      setConsentimentoError(true);
+      return;
+    }
     const responsaveis = values.responsaveis.map((r) => ({
       ...r,
       cpf: r.cpf.replace(/\D/g, ""),
@@ -286,8 +293,9 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
           ...values,
           cpf: values.cpf.replace(/\D/g, ""),
           responsaveis,
+          consentimentoLgpd: consentimento,
           ...(foto ? { foto } : {}),
-        } as unknown as NovaCrianca;
+        } as unknown as NovaCriancaPayload;
         const { acessosResponsaveis } =
           await CriancasAdminService.create(payload);
         // Acessos novos → mostra as senhas temporárias antes de sair.
@@ -784,6 +792,29 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       planoSelecionado={planoSelecionado}
                       diasContratados={diasContratados}
                     />
+                    {!editing && (
+                      <div className={styles.consentBox}>
+                        <label className={styles.check}>
+                          <input
+                            type="checkbox"
+                            checked={consentimento}
+                            onChange={(e) => {
+                              setConsentimento(e.target.checked);
+                              if (e.target.checked)
+                                setConsentimentoError(false);
+                            }}
+                          />
+                          Os responsáveis autorizam o tratamento dos dados desta
+                          criança (inclusive dados de saúde) pela Aquarela Kids,
+                          conforme a LGPD.
+                        </label>
+                        {consentimentoError && (
+                          <span className={styles.consentError} role="alert">
+                            Confirme o consentimento para cadastrar a criança.
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </>
               )}

@@ -43,12 +43,20 @@ export function PerfilProfessorScreen() {
       <div className={styles.form}>
         <div className={styles.pushTitle}>Minhas turmas</div>
         {loadingTurmas ? (
-          <div className={styles.turmaList} role="status" aria-label="Carregando…">
+          <div
+            className={styles.turmaList}
+            role="status"
+            aria-label="Carregando…"
+          >
             {Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className={styles.turmaCard}>
                 <Skeleton width={50} height={50} radius={15} />
                 <span style={{ flex: 1 }}>
-                  <Skeleton width="55%" height={16} style={{ marginBottom: 8 }} />
+                  <Skeleton
+                    width="55%"
+                    height={16}
+                    style={{ marginBottom: 8 }}
+                  />
                   <Skeleton width="35%" height={12} />
                 </span>
               </div>
