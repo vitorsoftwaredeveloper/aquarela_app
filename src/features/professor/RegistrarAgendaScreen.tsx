@@ -269,7 +269,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             {/* Alimentação */}
             <section className={styles.card}>
               <div className={styles.cardHead}>
-                <Utensils size={17} color="#2168B8" /> Alimentação
+                <Utensils size={17} color="#6D45C4" /> Alimentação
               </div>
               <div className={styles.chipRow}>
                 {REFEICOES.map((r) => (
@@ -307,7 +307,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             {/* Sono */}
             <section className={styles.card}>
               <div className={styles.cardHead}>
-                <Moon size={17} color="#2168B8" /> Sono
+                <Moon size={17} color="#6D45C4" /> Sono
               </div>
               {sonecas.length > 0 && (
                 <div className={styles.sleepBlock}>
@@ -405,7 +405,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             {/* Higiene */}
             <section className={`${styles.card} ${styles.counterCard}`}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Baby size={17} color="#2168B8" />
+                <Baby size={17} color="#6D45C4" />
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 13.5 }}>Higiene</div>
                   <div

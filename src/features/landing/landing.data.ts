@@ -13,7 +13,7 @@ import type { PlanoTipo } from "@/types/configPrecos";
 
 /** Avatares empilhados na prova social do hero. */
 export const heroAvatars = [
-  { bg: "#4C9BE8", txt: "L" },
+  { bg: "#7C5AE6", txt: "L" },
   { bg: "#5FC9A6", txt: "M" },
   { bg: "#F5B841", txt: "T" },
   { bg: "#E8825F", txt: "+" },
@@ -38,8 +38,8 @@ export const mockAgenda: AgendaEntry[] = [
   },
   {
     icon: Moon,
-    bg: "#EAF3FC",
-    fg: "#2F7FCB",
+    bg: "#F1ECFB",
+    fg: "#6D45C4",
     title: "Soneca tranquila",
     time: "13:00",
   },
@@ -77,8 +77,8 @@ export interface Feature {
 export const features: Feature[] = [
   {
     icon: BookOpen,
-    bg: "#EAF3FC",
-    fg: "#2F7FCB",
+    bg: "#F1ECFB",
+    fg: "#6D45C4",
     title: "Agenda diária",
     desc: "Refeições, sono, higiene e humor registrados pela educadora em tempo real.",
   },
@@ -105,8 +105,8 @@ export const features: Feature[] = [
   },
   {
     icon: MessageCircle,
-    bg: "#EAF3FC",
-    fg: "#2F7FCB",
+    bg: "#F1ECFB",
+    fg: "#6D45C4",
     title: "Conversa direta",
     desc: "Fale com a educadora e tire dúvidas por um canal só para a sua família.",
   },
@@ -175,7 +175,7 @@ export const testimonials: Testimonial[] = [
     initials: "CM",
     name: "Camila Moraes",
     role: "Mãe da Lorena",
-    bg: "#4C9BE8",
+    bg: "#7C5AE6",
   },
   {
     stars: 5,

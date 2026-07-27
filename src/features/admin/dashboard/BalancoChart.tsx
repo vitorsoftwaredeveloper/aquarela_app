@@ -12,9 +12,9 @@ import styles from "./dashboard.module.css";
  * Entradas × despesas nos 12 meses — barras agrupadas, eixo único.
  *
  * Paleta validada (checks de CVD/contraste em claro e escuro):
- * entradas #2F7FCB · despesas #C7522B.
+ * entradas #6D45C4 · despesas #C7522B.
  */
-const COR_ENTRADAS = "#2F7FCB";
+const COR_ENTRADAS = "#6D45C4";
 const COR_DESPESAS = "#C7522B";
 
 function formatCompacto(v: number): string {

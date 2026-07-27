@@ -12,7 +12,7 @@ import { type Crianca } from "@/types/crianca";
 import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
 
-const AVISO_TONE = { bg: "#EAF3FC", fg: "#2F7FCB" };
+const AVISO_TONE = { bg: "#F1ECFB", fg: "#6D45C4" };
 
 export function InicioScreen() {
   const { user } = useAuth();

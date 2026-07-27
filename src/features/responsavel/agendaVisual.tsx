@@ -17,7 +17,7 @@ export const AGENDA_VISUAL: Record<
   { icon: LucideIcon; bg: string; fg: string }
 > = {
   alimentacao: { icon: Utensils, bg: "#FDECEC", fg: "#C0342E" },
-  sono: { icon: Moon, bg: "#EAF3FC", fg: "#2F7FCB" },
+  sono: { icon: Moon, bg: "#F1ECFB", fg: "#6D45C4" },
   atividade: { icon: Palette, bg: "#E7F7F1", fg: "#2E9E7B" },
   humor: { icon: Smile, bg: "#FBEAF3", fg: "#C0468A" },
   higiene: { icon: Baby, bg: "#F2EEFB", fg: "#7A57C2" },

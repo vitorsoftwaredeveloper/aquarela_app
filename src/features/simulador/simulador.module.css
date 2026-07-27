@@ -45,14 +45,14 @@
 }
 
 .intro {
-  background: linear-gradient(135deg, #eef6ff, #eaf7f1);
-  border: 1px solid #d5e8f7;
+  background: linear-gradient(135deg, #f3ecff, #eaf7f1);
+  border: 1px solid #e0d3f6;
   border-radius: 18px;
   padding: 16px;
 }
 :root[data-theme="dark"] .intro {
-  background: linear-gradient(135deg, #16273a, #14302a);
-  border-color: #21415e;
+  background: linear-gradient(135deg, #241a3d, #14302a);
+  border-color: #3c2a63;
 }
 .introTitle {
   font-family: var(--font-heading);
@@ -221,7 +221,7 @@
 
 /* Resultado */
 .result {
-  background: linear-gradient(150deg, #4c9be8, #5fc9a6);
+  background: linear-gradient(150deg, #7c5ae6, #5fc9a6);
   border-radius: 20px;
   padding: 20px 20px 18px;
   color: #fff;

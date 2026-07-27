@@ -18,7 +18,7 @@ export function exportToPdfTable(
   const colWidth = usableWidth / headers.length;
 
   function drawHeader() {
-    doc.setFillColor("#4c9be8");
+    doc.setFillColor("#7c5ae6");
     doc.rect(0, 0, PAGE_WIDTH, 64, "F");
     doc.setTextColor("#ffffff");
     doc.setFont("helvetica", "bold");

@@ -11,7 +11,7 @@ export function baixarReciboPdf(data: ReciboPdfData, filename: string): void {
   const marginX = 48;
   let y = 64;
 
-  doc.setFillColor("#4c9be8");
+  doc.setFillColor("#7c5ae6");
   doc.rect(0, 0, 595, 90, "F");
   doc.setTextColor("#ffffff");
   doc.setFont("helvetica", "bold");

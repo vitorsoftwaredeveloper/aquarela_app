@@ -10,7 +10,7 @@ import { ProfessorService } from "@/services/professorService";
 import styles from "./professor.module.css";
 
 const CORES = [
-  { bg: "#EAF3FC", fg: "#2168B8" },
+  { bg: "#F1ECFB", fg: "#6D45C4" },
   { bg: "#E7F7F1", fg: "#2E9E7B" },
   { bg: "#FBEAF3", fg: "#C0468A" },
   { bg: "#FFF3EE", fg: "#C7522B" },
@@ -108,7 +108,7 @@ export function PerfilProfessorScreen() {
 
         <section className={`${styles.card} ${styles.counterCard}`}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Moon size={17} color="#2168B8" />
+            <Moon size={17} color="#6D45C4" />
             <span style={{ fontWeight: 500, fontSize: 13.5 }}>Modo escuro</span>
           </div>
           <button

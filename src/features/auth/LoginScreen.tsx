@@ -48,8 +48,8 @@ const DEMO_ROLES: {
     role: "admin",
     label: "Admin",
     icon: <Shield size={18} />,
-    bg: "#EAF3FC",
-    fg: "#2F7FCB",
+    bg: "#F1ECFB",
+    fg: "#6D45C4",
   },
   {
     role: "professor",

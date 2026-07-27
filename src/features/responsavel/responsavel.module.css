@@ -57,7 +57,7 @@
 
 /* ---------- Cabeçalho gradiente (início/financeiro/perfil) ---------- */
 .gradHeader {
-  background: linear-gradient(150deg, #4c9be8 0%, #5fc9a6 100%);
+  background: linear-gradient(150deg, #7c5ae6 0%, #5fc9a6 100%);
   color: #fff;
   border-radius: 0 0 28px 28px;
 }
