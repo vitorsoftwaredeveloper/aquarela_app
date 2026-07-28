@@ -3,6 +3,7 @@
 import { TrendingDown, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
 import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
+import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { CriancasAdminService } from "@/services/criancasAdmin";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { TurmasService } from "@/services/turmas";
@@ -43,6 +44,8 @@ export function DashboardScreen() {
           </p>
         </div>
       </div>
+
+      <NotificationOnboarding />
 
       {loading ? (
         <DashboardSkeleton />

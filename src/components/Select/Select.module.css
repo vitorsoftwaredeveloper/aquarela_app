@@ -39,6 +39,9 @@
   padding: 12px 38px 12px 13px;
   cursor: pointer;
 }
+.select:focus-visible {
+  outline: none;
+}
 .chevron {
   position: absolute;
   right: 12px;

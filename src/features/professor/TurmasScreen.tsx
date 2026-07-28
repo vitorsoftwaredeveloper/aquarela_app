@@ -5,6 +5,7 @@ import { School } from "lucide-react";
 import { Skeleton, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
+import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { ProfessorService } from "@/services/professorService";
 import styles from "./professor.module.css";
 
@@ -33,6 +34,8 @@ export function TurmasScreen() {
         </div>
         <ThemeToggle variant="onBrand" />
       </div>
+
+      <NotificationOnboarding />
 
       {loading ? (
         <TurmaListSkeleton />
