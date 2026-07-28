@@ -1,4 +1,5 @@
 import {
+  AuthRedirect,
   Features,
   FinalCta,
   Hero,
@@ -19,6 +20,7 @@ export const revalidate = 300;
 export default function LandingPage() {
   return (
     <div className={styles.page}>
+      <AuthRedirect />
       <Navbar />
       <main>
         <Hero />

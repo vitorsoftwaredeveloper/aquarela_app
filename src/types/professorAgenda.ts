@@ -14,6 +14,8 @@ export interface TurmaProfessor {
 /** Criança dentro da turma, com o status da agenda de hoje. */
 export interface AlunoTurma extends Crianca {
   agendaRegistrada: boolean;
+  /** Agenda de hoje já enviada aos pais (`POST /agenda/{id}/enviar`). */
+  agendaEnviada: boolean;
 }
 
 export type Aceitacao = "tudo" | "parte" | "recusou";

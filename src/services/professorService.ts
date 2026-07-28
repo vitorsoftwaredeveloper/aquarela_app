@@ -28,6 +28,8 @@ const devAgendasRegistradasHoje = new Set<string>();
 const devAgendaPorCrianca = new Map<string, AgendaRegistroPayload>();
 /** Guarda `enviadaEm` por agenda em dev, pra tela de agenda refletir o estado "Enviada". */
 const devEnviadaEmPorAgenda = new Map<string, string>();
+/** Guarda quais crianças já tiveram a agenda de hoje enviada, pra `listAlunos` refletir. */
+const devAgendasEnviadasHoje = new Set<string>();
 
 /** Cadastro do professor demo — mutável em dev pra refletir edições da tela Perfil. */
 let devMeuCadastro: Professor = {
@@ -71,18 +73,21 @@ export const ProfessorService = {
       return devCriancas.map((c, i) => ({
         ...c,
         agendaRegistrada: i > 0 || devAgendasRegistradasHoje.has(c._id),
+        agendaEnviada: devAgendasEnviadasHoje.has(c._id),
       }));
     }
     const { data } = await api.get(`/turmas/${turmaId}/criancas`);
-    // Backend (docs/03-Backend §"Turmas") manda `agendaRegistradaHoje`, não
-    // `agendaRegistrada` — sem este remapeamento o card fica preso em
-    // "Pendente" mesmo com a agenda salva (campo sempre undefined).
-    const raw = unwrapList<AlunoTurma & { agendaRegistradaHoje?: boolean }>(
-      data,
-    );
-    return raw.map(({ agendaRegistradaHoje, ...c }) => ({
+    // Backend (docs/03-Backend §"Turmas") manda `agendaRegistradaHoje`/
+    // `agendaEnviadaHoje`, não `agendaRegistrada`/`agendaEnviada` — sem este
+    // remapeamento o card fica preso em "Pendente" mesmo com a agenda salva
+    // e enviada (campos sempre undefined).
+    const raw = unwrapList<
+      AlunoTurma & { agendaRegistradaHoje?: boolean; agendaEnviadaHoje?: boolean }
+    >(data);
+    return raw.map(({ agendaRegistradaHoje, agendaEnviadaHoje, ...c }) => ({
       ...c,
       agendaRegistrada: agendaRegistradaHoje ?? false,
+      agendaEnviada: agendaEnviadaHoje ?? false,
     }));
   },
 
@@ -148,6 +153,7 @@ export const ProfessorService = {
       devAgendasRegistradasHoje.delete(criancaId);
       devAgendaPorCrianca.delete(criancaId);
       devEnviadaEmPorAgenda.delete(id);
+      devAgendasEnviadasHoje.delete(criancaId);
       return;
     }
     await api.delete(`/agenda/${id}`);
@@ -163,6 +169,7 @@ export const ProfessorService = {
       const enviadaEm = new Date().toISOString();
       devEnviadaEmPorAgenda.set(id, enviadaEm);
       const criancaId = id.replace(/^dev-/, "");
+      devAgendasEnviadasHoje.add(criancaId);
       const payload = devAgendaPorCrianca.get(criancaId);
       return { ...(payload as AgendaRegistroPayload), _id: id, enviadaEm };
     }

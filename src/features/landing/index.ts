@@ -1,3 +1,4 @@
+export { AuthRedirect } from "./AuthRedirect";
 export { Navbar } from "./Navbar";
 export { Hero } from "./Hero";
 export { Stats } from "./Stats";

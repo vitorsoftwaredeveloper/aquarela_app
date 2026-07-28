@@ -1,8 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BookOpen, Check, ChevronLeft, Clock, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components";
+import {
+  BookOpen,
+  Check,
+  CheckCheck,
+  ChevronLeft,
+  Clock,
+  ShieldAlert,
+} from "lucide-react";
+import { Avatar, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { temCuidados } from "@/types/crianca";
@@ -85,12 +92,12 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                 onClick={() => router.push(`/professor/agenda/${a._id}`)}
               >
                 <span className={styles.alunoAvatarWrap}>
-                  <span
+                  <Avatar
+                    nome={a.nome}
+                    fotoUrl={a.fotoUrl}
+                    bg={a.avatarBg}
                     className={styles.alunoAvatar}
-                    style={{ background: a.avatarBg }}
-                  >
-                    {a.iniciais}
-                  </span>
+                  />
                   {alerta && (
                     <span
                       className={styles.allergyDot}
@@ -116,24 +123,36 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                 </span>
                 <span
                   className={styles.status}
+                  title={a.agendaEnviada ? "Registrada e enviada aos pais" : undefined}
                   style={
-                    a.agendaRegistrada
+                    a.agendaEnviada
                       ? {
                           color: "var(--color-secondary-strong)",
                           background: "var(--color-secondary-soft)",
                         }
-                      : {
-                          color: "#C7522B",
-                          background: "var(--color-accent-soft)",
-                        }
+                      : a.agendaRegistrada
+                        ? {
+                            color: "var(--color-primary-link)",
+                            background: "var(--color-primary-soft)",
+                          }
+                        : {
+                            color: "#C7522B",
+                            background: "var(--color-accent-soft)",
+                          }
                   }
                 >
-                  {a.agendaRegistrada ? (
+                  {a.agendaEnviada ? (
+                    <CheckCheck size={13} />
+                  ) : a.agendaRegistrada ? (
                     <Check size={13} />
                   ) : (
                     <Clock size={13} />
                   )}
-                  {a.agendaRegistrada ? "Registrada" : "Pendente"}
+                  {a.agendaEnviada
+                    ? "Enviada"
+                    : a.agendaRegistrada
+                      ? "Registrada"
+                      : "Pendente"}
                 </span>
               </button>
             );

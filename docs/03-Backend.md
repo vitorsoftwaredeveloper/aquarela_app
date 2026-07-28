@@ -159,6 +159,13 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > "Pendente" mesmo depois do professor salvar a agenda do dia (confirmado em produção:
 > `POST /agenda` retorna sucesso, mas o `GET` seguinte não reflete o registro). Verificado que
 > não é bug de cache do front — o mesmo fluxo com dado mutável local atualiza corretamente.
+>
+> **Também precisa devolver `agendaEnviada: boolean`** (agenda de hoje já passou por
+> `POST /agenda/{id}/enviar`, ou seja, `enviadaEm` preenchido). O front já remapeia esse campo
+> (`agendaEnviadaHoje` → `agendaEnviada`, mesmo padrão do remapeamento acima) pra distinguir, na
+> tela **Alunos da turma**, três estados: "Pendente" (sem registro), "Registrada" (salva mas
+> ainda não enviada aos pais) e "Registrada e enviada". Sem o campo, o card nunca sai de
+> "Registrada" mesmo depois do professor enviar.
 
 ### Crianças (CRUD completo)
 | Método | Rota | Papel | Descrição |
