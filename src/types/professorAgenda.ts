@@ -35,17 +35,17 @@ export interface AgendaRegistroPayload {
 }
 
 /** Opções pré-definidas — preencher em toques, sem digitar (docs §UX). */
-export const REFEICOES = ["Café", "Almoço", "Lanche", "Janta"] as const;
+export const REFEICOES = ["Café", "Almoço", "Lanche", "Jantar"] as const;
 
 /**
  * A API exige o código em `refeicao` (docs/03-Backend §6:
- * cafe|almoco|lanche|janta) — os chips mostram o rótulo em pt-BR.
+ * cafe|almoco|lanche|jantar) — os chips mostram o rótulo em pt-BR.
  */
 export const REFEICAO_CODIGO: Record<(typeof REFEICOES)[number], string> = {
   Café: "cafe",
   Almoço: "almoco",
   Lanche: "lanche",
-  Janta: "janta",
+  Jantar: "jantar",
 };
 
 export const ACEITACAO_OPTS: { value: Aceitacao; label: string }[] = [
