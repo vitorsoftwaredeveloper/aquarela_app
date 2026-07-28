@@ -9,6 +9,7 @@ import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { type Crianca } from "@/types/crianca";
+import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
 
@@ -137,6 +138,7 @@ export function InicioScreen() {
         </div>
       </div>
 
+      <NotificationOnboarding />
       <Avisos />
       <AgendaHoje criancaId={active._id} />
       <ChildSwitcherSheet

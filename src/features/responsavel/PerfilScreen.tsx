@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Pencil } from "lucide-react";
+import { Bell, ChevronRight, LogOut, Pencil } from "lucide-react";
 import { Avatar, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
@@ -100,6 +100,20 @@ export function PerfilScreen() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className={styles.block}>
+        <div className={styles.settingsCard}>
+          <Link href="/perfil/notificacoes" className={styles.settingRow}>
+            <span className={styles.settingIcon}>
+              <Bell size={17} />
+            </span>
+            <span className={styles.settingLabel}>Notificações</span>
+            <span className={styles.settingChevron}>
+              <ChevronRight size={18} />
+            </span>
+          </Link>
         </div>
       </div>
 

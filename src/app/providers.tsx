@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { configureAmplify } from "@/config/amplify";
 
@@ -14,7 +15,9 @@ configureAmplify();
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <NotificationsProvider>{children}</NotificationsProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

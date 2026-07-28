@@ -231,6 +231,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/agenda/{id}` | professor | Editar registro do dia |
 | GET | `/agenda?criancaId=&data=` | professor/responsavel* | Registro por dia |
 | GET | `/agenda/historico?criancaId=&de=&ate=` | professor/responsavel* | Histórico |
+| POST | `/agenda/{id}/enviar` | professor | Gatilho **"Enviar para os pais"** — dispara a notificação push (ver §Notificações push abaixo). Só a professora da turma (mesma regra de `PUT /agenda/{id}`); 2ª chamada → `409 AGENDA_JA_ENVIADA`. Resposta é a agenda com `enviadaEm` preenchido |
 
 > **`GET /agenda` e `GET /agenda/historico` devolvem `professor: { _id, nome }`**
 > junto com o `registradoPor` cru (o `_id` do professor, sem nome). O front
@@ -240,6 +241,20 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > `fotoUrl` opcional (`AgendaProfessor` em `src/types/agenda.ts`) para quando o
 > backend passar a projetar a foto do professor nessa rota; até lá o avatar cai
 > no fallback de iniciais (`components/Avatar`).
+
+### Notificações push (Web Push / FCM)
+| Método | Rota | Papel | Descrição |
+|---|---|---|---|
+| POST | `/dispositivos` | admin/professor/responsavel | Upsert do token FCM do dispositivo do usuário logado — `{ token, plataforma: "android"\|"ios"\|"web"\|"desktop" }`. Idempotente por `token`: reenviar não duplica |
+| DELETE | `/dispositivos/{token}` | admin/professor/responsavel | Remove um dispositivo próprio (logout). Token de terceiro é no-op silencioso (204) |
+
+> **Implementado e testado no back (`aquarela_serverless`, NOT-01…NOT-08).** Ainda **não implementado no front** — é o Épico I (`NOT-10`…`NOT-18`) em `docs/06-Backlog.md`. O que falta construir aqui:
+> - `public/firebase-messaging-sw.js` na **raiz** do domínio + `manifest.json` (`display: standalone`) — sem isso não há push, principalmente no iPhone
+> - Fluxo de permissão: pedir `Notification.requestPermission()` só **depois** de explicar o benefício (o browser só pergunta uma vez — negou, só reverte manualmente nas configs do browser)
+> - `getToken()` do Firebase SDK (`firebase/messaging`) → `POST /dispositivos` no login; reenviar em `onTokenRefresh`; `DELETE /dispositivos/{token}` no logout
+> - **iPhone só recebe push com o PWA instalado na tela de início** (iOS 16.4+) — abrir pelo Safari normal não funciona, e abrir pelo **webview do WhatsApp/Instagram também não** (confirmado no spike `NOT-00`: `PushManager` indisponível). Precisa detectar os dois casos e instruir o responsável
+> - Botão **"Enviar para os pais"** na tela de agenda do professor chamando `POST /agenda/{id}/enviar` (ver acima) — é o gatilho, não dispara em `save`
+> - Corpo da notificação vem do back sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio)
 
 ### Planos de aula (PED-01/02)
 | Método | Rota | Papel | Descrição |
