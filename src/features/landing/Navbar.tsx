@@ -12,9 +12,6 @@ export function Navbar() {
           <Button href="/login" size="sm">
             Entrar
           </Button>
-          <Button href="/simulador" variant="secondary" size="sm">
-            Simular preço
-          </Button>
         </div>
       </Container>
     </header>

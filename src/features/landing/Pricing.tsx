@@ -65,11 +65,11 @@ export async function Pricing() {
               </div>
               <div className={styles.planCtaWrap}>
                 <Button
-                  href="#"
+                  href="/simulador"
                   variant={featured ? "onBrand" : "primary"}
                   style={{ width: "100%" }}
                 >
-                  Agende uma visita
+                  Simular valores
                 </Button>
               </div>
             </div>

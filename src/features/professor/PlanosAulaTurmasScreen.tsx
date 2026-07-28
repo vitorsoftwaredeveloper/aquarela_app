@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { TurmaListSkeleton } from "./TurmasScreen";
@@ -29,6 +30,7 @@ export function PlanosAulaTurmasScreen() {
           <div className={styles.headerWho}>Planos de aula</div>
           <div className={styles.headerTitle}>Escolha a turma</div>
         </div>
+        <ThemeToggle variant="onBrand" />
       </div>
 
       {loading ? (

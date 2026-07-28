@@ -101,6 +101,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | DELETE | `/usuarios/{id}` | admin | Remover usuário **em definitivo** (hard delete: apaga do banco + `AdminDeleteUser` no Cognito) |
 | GET | `/me` | todos | Dados do usuário logado + papel |
 
+> **`GET /me` (papel `professor`) inclui `professorId`, resolvido sob demanda.** O schema `usuarios.professorId` nunca é gravado na criação — o backend resolve `professores._id` a partir de `usuarioId` a cada chamada (`getMeService`) e injeta como `professorId` na resposta. Sem essa resolução (versão antiga do backend) o campo vem `undefined` e a tela Perfil do professor não mostra o card "Meus dados".
+
 > **`POST /usuarios` — sem senha no body, senha temporária no retorno.** Body: `{ nome, email, papel, telefone? }` (`nome`≥3, `papel`∈`admin|professor|responsavel`). O backend cria o usuário no **Cognito com senha temporária gerada** (`AdminCreateUser` com `MessageAction: "SUPPRESS"` — **não** manda e-mail de convite), marca `email_verified`, adiciona ao grupo do papel e guarda o `cognitoSub`.
 >
 > **Modelo de entrega = "admin define e comunica":** a resposta inclui **`senhaTemporaria`** (retornada **uma única vez**, não persistida) — o front mostra num modal para o admin copiar e repassar ao usuário. O usuário loga com ela e troca no 1º login (challenge `NEW_PASSWORD`). **O front nunca coleta senha.** Falha na gravação faz rollback do usuário no Cognito.
@@ -114,13 +116,28 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 |---|---|---|---|
 | POST | `/professores` | admin | Cadastrar professor |
 | GET | `/professores` | admin | Listar professores |
-| GET | `/professores/{id}` | admin | Detalhe |
-| PUT | `/professores/{id}` | admin | Atualizar dados |
+| GET | `/professores/{id}` | admin/professor* | Detalhe (*só o próprio cadastro) |
+| PUT | `/professores/{id}` | admin/professor* | Atualizar dados (*só o próprio cadastro, e sem `email`) |
 | DELETE | `/professores/{id}` | admin | Remover (bloqueado/aviso se houver turma vinculada) |
+| DELETE | `/professores/{id}/foto` | admin | Apagar só a foto (cadastro permanece) — **contrato assumido**, mesmo padrão de `DELETE /criancas/{id}/foto` |
 
-> **`POST /professores` — cria o usuário (papel=professor) junto, sem `usuarioId`.** Body: `{ nome, cpf, telefone, email, formacao? }` — todos obrigatórios exceto `formacao`. **Contrato assumido** (mesmo padrão de `POST /usuarios`): o backend cria o usuário no Cognito com senha temporária gerada (`AdminCreateUser`, `MessageAction: "SUPPRESS"`), grupo `professor`, guarda `cognitoSub`, cria o registro em `professores` vinculado (`usuarioId` interno) e retorna **`senhaTemporaria`** no payload (uma única vez, não persistida) — o front mostra num modal para o admin copiar e repassar. Valida CPF por dígitos verificadores (`400`) e e-mail único (`409`). Falha em qualquer etapa faz rollback (usuário no Cognito + registro). Elimina o fluxo antigo de "criar Usuário primeiro, depois vincular no Professor" — reduz erro de vínculo errado e usuário órfão papel=professor sem professor associado.
+> **`POST /professores` — cria o usuário (papel=professor) junto, sem `usuarioId`.** Body: `{ nome, cpf, telefone, email, formacao?, foto? }` — todos obrigatórios exceto `formacao` e `foto`. **Contrato assumido** (mesmo padrão de `POST /usuarios`): o backend cria o usuário no Cognito com senha temporária gerada (`AdminCreateUser`, `MessageAction: "SUPPRESS"`), grupo `professor`, guarda `cognitoSub`, cria o registro em `professores` vinculado (`usuarioId` interno) e retorna **`senhaTemporaria`** no payload (uma única vez, não persistida) — o front mostra num modal para o admin copiar e repassar. Valida CPF por dígitos verificadores (`400`) e e-mail único (`409`). Falha em qualquer etapa faz rollback (usuário no Cognito + registro). Elimina o fluxo antigo de "criar Usuário primeiro, depois vincular no Professor" — reduz erro de vínculo errado e usuário órfão papel=professor sem professor associado.
 >
-> **`PUT /professores/{id}` — só `{ nome?, telefone?, email?, formacao? }`** (`additionalProperties:false`). **Não aceita** trocar `usuarioId` nem `cpf` — enviar esses campos causa `400`.
+> **`PUT /professores/{id}` — só `{ nome?, telefone?, email?, formacao?, foto? }`** (`additionalProperties:false`). **Não aceita** trocar `usuarioId` nem `cpf` — enviar esses campos causa `400`.
+>
+> **Professor edita o próprio cadastro (tela Perfil), nunca `email`.** `GET`/`PUT /professores/{id}` agora aceitam papel `professor` além de `admin` — ownership checado no backend (`professor.usuarioId === requester._id`); pedir o cadastro de outro professor, ou mandar o campo `email` (mesmo com o valor igual ao atual), responde **`403 FORBIDDEN`**. O front (`ProfessorService.getMeuCadastro`/`atualizarMeuCadastro` em `services/professorService.ts`) por isso **nunca inclui `email`** no payload do PUT — o formulário mostra o campo só como leitura. O `_id` do próprio cadastro vem de `GET /me` → `IUsuario.professorId` (`AppUser.professorId` em `types/user.ts`, populado no `AuthContext`).
+>
+> **Foto do professor — contrato assumido, mesmo padrão da foto de criança**
+> (base64 no corpo, teto de 2MB decodificados, `utils/imagem.ts` redimensiona
+> pra 800px/JPEG antes de enviar — ver §"Crianças" abaixo pros detalhes). `POST`
+> e `PUT /professores/{id}` aceitam o campo opcional `foto: { contentType,
+> base64 }`; toda resposta deve trazer `fotoUrl`. **Tanto admin quanto o
+> próprio professor podem mandar `foto` no `PUT`** — é o mesmo payload que já
+> aceita `nome`/`telefone`/`formacao` (professor continua sem poder tocar em
+> `email`). `DELETE /professores/{id}/foto` é **admin-only** (professor não
+> tem botão de remover a própria foto, só trocar). Ainda não confirmado se o
+> backend já implementa — enquanto isso, `IS_DEV_DATA` simula localmente
+> (`services/professores.ts`, `services/professorService.ts`).
 
 ### Turmas (CRUD completo + vínculo de crianças)
 | Método | Rota | Papel | Descrição |
@@ -214,6 +231,15 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/agenda/{id}` | professor | Editar registro do dia |
 | GET | `/agenda?criancaId=&data=` | professor/responsavel* | Registro por dia |
 | GET | `/agenda/historico?criancaId=&de=&ate=` | professor/responsavel* | Histórico |
+
+> **`GET /agenda` e `GET /agenda/historico` devolvem `professor: { _id, nome }`**
+> junto com o `registradoPor` cru (o `_id` do professor, sem nome). O front
+> (`AgendaService.getDia`, `src/services/agendaService.ts`) usa `professor.nome`
+> para assinar a carta da agenda (`AgendaStory.tsx`) — antes disso o nome real
+> nunca chegava à tela do responsável, só o `_id`. O tipo aceita também um
+> `fotoUrl` opcional (`AgendaProfessor` em `src/types/agenda.ts`) para quando o
+> backend passar a projetar a foto do professor nessa rota; até lá o avatar cai
+> no fallback de iniciais (`components/Avatar`).
 
 ### Planos de aula (PED-01/02)
 | Método | Rota | Papel | Descrição |

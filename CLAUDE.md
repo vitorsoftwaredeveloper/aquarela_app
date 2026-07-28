@@ -239,6 +239,22 @@ deploy do backend.
 > `/professor/*`, responsável na raiz (`/inicio`, `/agenda/[id]`, `/financeiro`…).
 > Route groups não criam segmento de URL, então o prefixo é obrigatório.
 
+**Professor edita o próprio cadastro** ✅ — `PerfilProfessorScreen.tsx` ficou só
+com "Configurações" (atalho **Editar dados pessoais**) e "Sair da conta"; a
+lista "Minhas turmas" saiu de lá (já duplicava a tab **Turmas**). O form em si
+mora na rota própria `/professor/perfil/editar`
+(`EditarDadosProfessorScreen.tsx`, com `pushHeader`/voltar como as demais
+telas roteadas do professor): nome, telefone e formação editáveis; **e-mail
+sempre `readOnly`** (login vinculado, só a administração troca). Backend
+(`aquarela_serverless`) libera `GET`/`PUT /professores/{id}` pro papel
+`professor` além de `admin`, com ownership (`professor.usuarioId ===
+requester._id`) — mandar o campo `email` no PUT, mesmo sem mudar o valor,
+responde `403`, então o front **nunca inclui `email`** no payload
+(`ProfessorService.getMeuCadastro`/`atualizarMeuCadastro`,
+`schemas/professor.ts` → `meuCadastroProfessorSchema` sem esse campo). O `_id`
+do próprio cadastro vem de `GET /me` → `IUsuario.professorId`, propagado em
+`AppUser.professorId` (`types/user.ts`) pelo `AuthContext`.
+
 **Épico D — Financeiro admin (front):** FIN-10/12/13/14 ✅ — **Dashboard** com KPIs
 (entradas, despesas, saldo, inadimplentes) e **gráfico de barras agrupadas
 entradas × despesas (12 meses)**; **Financeiro** com abas de despesas (CRUD) e

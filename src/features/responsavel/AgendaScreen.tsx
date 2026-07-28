@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Skeleton, ThemeToggle } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
 import { linhaCuidados, temCuidados } from "@/types/crianca";
-import { AGENDA_VISUAL } from "./agendaVisual";
+import { AgendaStory } from "./AgendaStory";
 import styles from "./responsavel.module.css";
 
 export function AgendaScreen({ criancaId }: { criancaId: string }) {
@@ -36,6 +36,7 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
         <Link href={`/historico/${criancaId}`} className={styles.pushAction}>
           Histórico
         </Link>
+        <ThemeToggle />
       </div>
 
       {c && temCuidados(c) && (
@@ -67,39 +68,19 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
           <p>Ainda não há anotações para este dia.</p>
         </div>
       ) : (
-        <div className={styles.entries}>
-          {dia.entries.map((e, i) => {
-            const v = AGENDA_VISUAL[e.tipo];
-            const Icon = v.icon;
-            return (
-              <div
-                key={i}
-                className={`${styles.entry} ${e.destaque ? styles.entryDestaque : ""}`}
-              >
-                <span
-                  className={styles.entryIcon}
-                  style={{ background: v.bg, color: v.fg }}
-                >
-                  <Icon size={19} />
-                </span>
-                <div style={{ flex: 1 }}>
-                  <div
-                    className={styles.entryTitle}
-                    style={e.destaque ? { color: "#9A2F1B" } : undefined}
-                  >
-                    {e.title}
-                  </div>
-                  <div className={styles.entryText}>{e.text}</div>
-                </div>
-              </div>
-            );
-          })}
-          {dia.registradoPor && (
+        <>
+          <AgendaStory
+            entries={dia.entries}
+            criancaNome={c?.nome}
+            professor={dia.professor}
+            dataLabel={dia.dataLabel}
+          />
+          {dia.entries.length > 0 && (
             <div className={styles.signedBy}>
-              registrado por <b>{dia.registradoPor}</b>
+              Registrado no fim do dia · Aquarela Kids
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

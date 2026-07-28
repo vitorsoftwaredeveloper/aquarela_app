@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AlertCircle,
@@ -13,7 +13,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Badge, Button, Input, Modal } from "@/components";
+import { Badge, Button, FotoField, Input, Modal } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessoresService } from "@/services/professores";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -23,8 +23,9 @@ import {
   type EditProfessorFormData,
   type ProfessorFormData,
 } from "@/schemas/professor";
-import { onlyDigits } from "@/utils/cpf";
+import { maskCPF, maskPhone, onlyDigits } from "@/utils/cpf";
 import type { Professor, ProfessorCriado } from "@/types/professor";
+import type { FotoUpload } from "@/utils/imagem";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
@@ -384,8 +385,11 @@ function CreateProfessorForm({
   onSaved: (criado?: ProfessorCriado) => void;
 }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [foto, setFoto] = useState<FotoUpload | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProfessorFormData>({
@@ -399,15 +403,18 @@ function CreateProfessorForm({
     },
   });
 
+  const nomeAtual = useWatch({ control, name: "nome" });
+
   async function onSubmit(values: ProfessorFormData) {
     setSubmitError(null);
     try {
       const criado = await ProfessoresService.create({
         nome: values.nome,
         cpf: onlyDigits(values.cpf),
-        telefone: values.telefone,
+        telefone: onlyDigits(values.telefone),
         email: values.email,
         formacao: values.formacao,
+        ...(foto ? { foto } : {}),
       });
       onSaved(criado);
     } catch (err) {
@@ -418,17 +425,36 @@ function CreateProfessorForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
       {submitError && <ErrorAlert message={submitError} />}
+      <FotoField
+        nome={nomeAtual || "Professor"}
+        previewUrl={fotoPreview}
+        label="Foto de perfil (opcional)"
+        hint="A imagem é reduzida no navegador antes do envio."
+        onSelect={(f, p) => {
+          setFoto(f);
+          setFotoPreview(p);
+        }}
+      />
       <Input
         label="Nome"
         placeholder="Nome completo"
         error={errors.nome?.message}
         {...register("nome")}
       />
-      <Input
-        label="CPF"
-        placeholder="000.000.000-00"
-        error={errors.cpf?.message}
-        {...register("cpf")}
+      <Controller
+        control={control}
+        name="cpf"
+        render={({ field }) => (
+          <Input
+            label="CPF"
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+            error={errors.cpf?.message}
+            value={field.value ?? ""}
+            onChange={(e) => field.onChange(maskCPF(e.target.value))}
+            onBlur={field.onBlur}
+          />
+        )}
       />
       <Input
         label="E-mail"
@@ -437,11 +463,20 @@ function CreateProfessorForm({
         error={errors.email?.message}
         {...register("email")}
       />
-      <Input
-        label="Telefone"
-        placeholder="(11) 90000-0000"
-        error={errors.telefone?.message}
-        {...register("telefone")}
+      <Controller
+        control={control}
+        name="telefone"
+        render={({ field }) => (
+          <Input
+            label="Telefone"
+            placeholder="(11) 90000-0000"
+            inputMode="numeric"
+            error={errors.telefone?.message}
+            value={field.value ?? ""}
+            onChange={(e) => field.onChange(maskPhone(e.target.value))}
+            onBlur={field.onBlur}
+          />
+        )}
       />
       <Input
         label="Formação (opcional)"
@@ -469,8 +504,13 @@ function EditProfessorForm({
   onSaved: () => void;
 }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [foto, setFoto] = useState<FotoUpload | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [fotoAtual, setFotoAtual] = useState(editing.fotoUrl);
+  const [removendoFoto, setRemovendoFoto] = useState(false);
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EditProfessorFormData>({
@@ -478,24 +518,58 @@ function EditProfessorForm({
     defaultValues: {
       nome: editing.nome,
       email: editing.email,
-      telefone: editing.telefone ?? "",
+      telefone: maskPhone(editing.telefone ?? ""),
       formacao: editing.formacao ?? "",
     },
   });
 
+  const nomeAtual = useWatch({ control, name: "nome" });
+
   async function onSubmit(values: EditProfessorFormData) {
     setSubmitError(null);
     try {
-      await ProfessoresService.update(editing._id, values);
+      await ProfessoresService.update(editing._id, {
+        ...values,
+        telefone: onlyDigits(values.telefone),
+        ...(foto ? { foto } : {}),
+      });
       onSaved();
     } catch (err) {
       setSubmitError(getApiErrorMessage(err));
     }
   }
 
+  async function removerFoto() {
+    setRemovendoFoto(true);
+    setSubmitError(null);
+    try {
+      await ProfessoresService.removerFoto(editing._id);
+      setFoto(null);
+      setFotoPreview(null);
+      setFotoAtual(null);
+    } catch (err) {
+      setSubmitError(getApiErrorMessage(err));
+    } finally {
+      setRemovendoFoto(false);
+    }
+  }
+
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
       {submitError && <ErrorAlert message={submitError} />}
+      <FotoField
+        nome={nomeAtual || editing.nome}
+        fotoUrl={fotoAtual}
+        previewUrl={fotoPreview}
+        label="Foto de perfil"
+        hint="A imagem é reduzida no navegador antes do envio."
+        removendo={removendoFoto}
+        onSelect={(f, p) => {
+          setFoto(f);
+          setFotoPreview(p);
+        }}
+        onRemove={fotoAtual ? removerFoto : undefined}
+      />
       <Input
         label="Nome"
         placeholder="Nome completo"
@@ -510,11 +584,20 @@ function EditProfessorForm({
         error={errors.email?.message}
         {...register("email")}
       />
-      <Input
-        label="Telefone"
-        placeholder="(11) 90000-0000"
-        error={errors.telefone?.message}
-        {...register("telefone")}
+      <Controller
+        control={control}
+        name="telefone"
+        render={({ field }) => (
+          <Input
+            label="Telefone"
+            placeholder="(11) 90000-0000"
+            inputMode="numeric"
+            error={errors.telefone?.message}
+            value={field.value ?? ""}
+            onChange={(e) => field.onChange(maskPhone(e.target.value))}
+            onBlur={field.onBlur}
+          />
+        )}
       />
       <Input
         label="Formação (opcional)"

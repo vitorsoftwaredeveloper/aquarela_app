@@ -11,17 +11,48 @@ import {
 } from "lucide-react";
 import type { AgendaTipo } from "@/types/agenda";
 
-/** Ícone + cores por tipo de item da agenda. */
 export const AGENDA_VISUAL: Record<
   AgendaTipo,
   { icon: LucideIcon; bg: string; fg: string }
 > = {
-  alimentacao: { icon: Utensils, bg: "#FDECEC", fg: "#C0342E" },
-  sono: { icon: Moon, bg: "#F1ECFB", fg: "#6D45C4" },
-  atividade: { icon: Palette, bg: "#E7F7F1", fg: "#2E9E7B" },
-  humor: { icon: Smile, bg: "#FBEAF3", fg: "#C0468A" },
-  higiene: { icon: Baby, bg: "#F2EEFB", fg: "#7A57C2" },
-  medicacao: { icon: Pill, bg: "#FFF3EE", fg: "#C7522B" },
-  intercorrencia: { icon: AlertTriangle, bg: "#FDECEC", fg: "#C0342E" },
-  observacao: { icon: StickyNote, bg: "#FFF7E9", fg: "#9A6B14" },
+  alimentacao: {
+    icon: Utensils,
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-strong)",
+  },
+  sono: {
+    icon: Moon,
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-strong)",
+  },
+  atividade: {
+    icon: Palette,
+    bg: "var(--color-secondary-soft)",
+    fg: "var(--color-secondary-strong)",
+  },
+  humor: {
+    icon: Smile,
+    bg: "var(--color-secondary-soft)",
+    fg: "var(--color-secondary-strong)",
+  },
+  higiene: {
+    icon: Baby,
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-strong)",
+  },
+  medicacao: {
+    icon: Pill,
+    bg: "var(--color-danger-soft)",
+    fg: "var(--color-danger-strong)",
+  },
+  intercorrencia: {
+    icon: AlertTriangle,
+    bg: "var(--color-danger-soft)",
+    fg: "var(--color-danger-strong)",
+  },
+  observacao: {
+    icon: StickyNote,
+    bg: "var(--surface-2)",
+    fg: "var(--text-dim)",
+  },
 };

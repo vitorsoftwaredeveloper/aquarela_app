@@ -53,6 +53,7 @@ function devUser(role: Role): AppUser {
     email: `${role}@aquarela.dev`,
     name: `Demo ${role[0].toUpperCase()}${role.slice(1)}`,
     role,
+    professorId: role === "professor" ? "dev-professor" : undefined,
   };
 }
 
@@ -113,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...base,
           name: me?.nome ?? me?.name ?? base.name,
           role: (me?.papel as Role) ?? base.role,
+          professorId: me?.professorId,
         });
       } catch {
         setUser(base);

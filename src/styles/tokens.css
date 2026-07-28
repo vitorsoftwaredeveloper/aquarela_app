@@ -59,6 +59,7 @@
   /* ---- Tipografia ---- */
   --font-heading: var(--font-poppins), "Poppins", system-ui, sans-serif;
   --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-signature: var(--font-caveat), "Segoe Script", cursive;
 
   /* ---- Espaçamento (4/8/12/16/24/32...) ---- */
   --space-1: 4px;
@@ -108,6 +109,9 @@
   --color-primary-soft-border: #3c2a63;
   --color-secondary-soft: #14322a;
   --color-accent-soft: #33231d;
+
+  --color-danger: #d9726d;
+  --color-danger-strong: #b85c53;
   --color-danger-soft: #3a1f20;
 
   --border-06: rgba(255, 255, 255, 0.06);

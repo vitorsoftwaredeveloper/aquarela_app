@@ -19,6 +19,7 @@ import {
   Select,
   Skeleton,
   Textarea,
+  ThemeToggle,
 } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
@@ -204,6 +205,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
           <div className={shell.pushTitle}>Editar dados</div>
           <div className={shell.pushSub}>{c.nome}</div>
         </div>
+        <ThemeToggle />
       </div>
 
       {erro && (

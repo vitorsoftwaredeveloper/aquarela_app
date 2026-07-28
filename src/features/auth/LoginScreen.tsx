@@ -257,7 +257,7 @@ export function LoginScreen() {
               </Button>
               <div className={styles.footerNote}>
                 Ainda não é da Aquarela?{" "}
-                <Link href="/#planos">Agende uma visita</Link>
+                <Link href="/#planos">Conheça os planos</Link>
               </div>
             </div>
           )}

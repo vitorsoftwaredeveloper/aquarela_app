@@ -1,56 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, LogOut, Moon, Pencil } from "lucide-react";
-import { Avatar } from "@/components";
+import { LogOut, Pencil } from "lucide-react";
+import { Avatar, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import styles from "./responsavel.module.css";
-
-function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-pressed={on}
-      style={{
-        width: 44,
-        height: 26,
-        borderRadius: 20,
-        border: "none",
-        cursor: "pointer",
-        background: on ? "var(--color-secondary)" : "var(--border-14)",
-        position: "relative",
-        transition: "background .2s",
-        flex: "none",
-      }}
-    >
-      <span
-        style={{
-          position: "absolute",
-          top: 3,
-          left: on ? 21 : 3,
-          width: 20,
-          height: 20,
-          borderRadius: "50%",
-          background: "#fff",
-          boxShadow: "0 1px 3px rgba(0,0,0,.25)",
-          transition: "left .2s",
-        }}
-      />
-    </button>
-  );
-}
 
 export function PerfilScreen() {
   const { user, logout } = useAuth();
   const { criancas, activeId, setActive, avatarColors } = useResponsavel();
-  const { mode, toggleTheme } = useTheme();
   const router = useRouter();
-  const [notif, setNotif] = useState(true);
 
   const initial = (user?.name ?? "M").charAt(0).toUpperCase();
 
@@ -63,10 +24,11 @@ export function PerfilScreen() {
     <div>
       <div className={`${styles.gradHeader} ${styles.profHeader}`}>
         <span className={styles.profAvatar}>{initial}</span>
-        <div>
+        <div style={{ flex: 1 }}>
           <div className={styles.profName}>{user?.name ?? "Responsável"}</div>
           <div className={styles.profEmail}>{user?.email}</div>
         </div>
+        <ThemeToggle variant="onBrand" />
       </div>
 
       <div className={styles.block}>
@@ -142,25 +104,6 @@ export function PerfilScreen() {
       </div>
 
       <div className={styles.block}>
-        <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
-          Configurações
-        </div>
-        <div className={styles.settingsCard}>
-          <div className={styles.settingRow}>
-            <span className={styles.settingIcon}>
-              <Moon size={17} />
-            </span>
-            <span className={styles.settingLabel}>Modo escuro</span>
-            <Switch on={mode === "dark"} onToggle={toggleTheme} />
-          </div>
-          <div className={styles.settingRow}>
-            <span className={styles.settingIcon}>
-              <Bell size={17} />
-            </span>
-            <span className={styles.settingLabel}>Notificações</span>
-            <Switch on={notif} onToggle={() => setNotif((v) => !v)} />
-          </div>
-        </div>
         <button className={styles.signOut} onClick={handleSignOut}>
           <LogOut size={17} /> Sair da conta
         </button>

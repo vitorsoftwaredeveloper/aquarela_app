@@ -9,6 +9,7 @@ import type {
   AlunoTurma,
   TurmaProfessor,
 } from "@/types/professorAgenda";
+import type { EditMeuCadastroProfessor, Professor } from "@/types/professor";
 
 /** Documento devolvido por `GET /agenda` — mesma forma do POST/PUT + `_id` (docs §"Agenda diária"). */
 export interface AgendaDoDia extends AgendaRegistroPayload {
@@ -23,6 +24,17 @@ export interface AgendaDoDia extends AgendaRegistroPayload {
 const devAgendasRegistradasHoje = new Set<string>();
 /** Guarda o último payload salvo em dev, para a tela de edição pré-preencher. */
 const devAgendaPorCrianca = new Map<string, AgendaRegistroPayload>();
+
+/** Cadastro do professor demo — mutável em dev pra refletir edições da tela Perfil. */
+let devMeuCadastro: Professor = {
+  _id: "dev-professor",
+  usuarioId: "dev-professor-usuario",
+  nome: "Demo Professor",
+  email: "professor@aquarela.dev",
+  telefone: "11999999999",
+  formacao: "Pedagogia",
+  ativo: true,
+};
 
 /** Turmas/alunos do professor logado + registro da agenda diária. */
 export const ProfessorService = {
@@ -118,5 +130,32 @@ export const ProfessorService = {
     // backend rejeita `criancaId`/`data` no corpo com 400 additionalProperties.
     const { criancaId: _criancaId, data: _data, ...campos } = payload;
     await api.put(`/agenda/${id}`, campos);
+  },
+
+  /** Próprio cadastro (tela Perfil). `GET /professores/{id}` — professor só lê o próprio. */
+  async getMeuCadastro(professorId: string): Promise<Professor> {
+    if (IS_DEV_DATA) return { ...devMeuCadastro };
+    const { data } = await api.get(`/professores/${professorId}`);
+    return data.data;
+  },
+
+  /** Edita o próprio cadastro. Nunca manda `email` — backend bloqueia (403) mesmo que igual ao atual. */
+  async atualizarMeuCadastro(
+    professorId: string,
+    payload: EditMeuCadastroProfessor,
+  ): Promise<Professor> {
+    if (IS_DEV_DATA) {
+      const { foto, ...resto } = payload;
+      devMeuCadastro = {
+        ...devMeuCadastro,
+        ...resto,
+        fotoUrl: foto
+          ? `data:${foto.contentType};base64,${foto.base64}`
+          : devMeuCadastro.fotoUrl,
+      };
+      return { ...devMeuCadastro };
+    }
+    const { data } = await api.put(`/professores/${professorId}`, payload);
+    return data.data;
   },
 };

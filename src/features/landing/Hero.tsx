@@ -24,8 +24,8 @@ export function Hero() {
           Aquarela Kids aproxima famílias e escola com carinho e transparência.
         </p>
         <div className={styles.heroCtas}>
-          <Button href="#planos" size="lg">
-            Agende uma visita <ArrowRight size={18} />
+          <Button href="/simulador" size="lg">
+            Simular valores <ArrowRight size={18} />
           </Button>
           <Button href="#como" variant="secondary" size="lg">
             <Play size={16} /> Ver como funciona

@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Skeleton, ThemeToggle } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
+import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
+
+const ObsIcon = AGENDA_VISUAL.observacao.icon;
 
 export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
@@ -24,12 +27,13 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
         >
           <ChevronLeft size={20} />
         </button>
-        <div>
+        <div style={{ flex: 1 }}>
           <div className={styles.pushTitle}>Histórico</div>
           <div className={styles.pushSub}>
             {crianca.data?.nome ?? "Criança"} · últimas semanas
           </div>
         </div>
+        <ThemeToggle />
       </div>
 
       {historico.loading ? (
@@ -73,6 +77,12 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
               {h.alerta && (
                 <div className={styles.histAlert}>
                   <ShieldAlert size={14} /> {h.alerta}
+                </div>
+              )}
+              {h.observacoes && (
+                <div className={styles.histObs}>
+                  <ObsIcon size={14} />
+                  <span>{h.observacoes}</span>
                 </div>
               )}
             </div>

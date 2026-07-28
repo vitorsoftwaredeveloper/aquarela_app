@@ -35,3 +35,20 @@ export const editProfessorSchema = yup.object({
 });
 
 export type EditProfessorFormData = yup.InferType<typeof editProfessorSchema>;
+
+/** Perfil do próprio professor: sem `email` (backend bloqueia trocar o próprio). */
+export const meuCadastroProfessorSchema = yup.object({
+  nome: yup.string().required("Informe o nome").min(3, "Nome muito curto"),
+  telefone: yup
+    .string()
+    .required("Informe o telefone")
+    .min(8, "Telefone inválido"),
+  formacao: yup
+    .string()
+    .optional()
+    .transform((v) => (v === "" ? undefined : v)),
+});
+
+export type MeuCadastroProfessorFormData = yup.InferType<
+  typeof meuCadastroProfessorSchema
+>;

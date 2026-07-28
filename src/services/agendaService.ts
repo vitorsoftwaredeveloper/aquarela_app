@@ -33,6 +33,7 @@ interface AgendaRaw {
   }[];
   intercorrencias?: { tipo: string; descricao: string; hora: string }[];
   observacoes?: string;
+  professor?: { _id: string; nome: string; fotoUrl?: string };
 }
 
 // Mapas do professor (rótulo pt-BR → código) invertidos, para exibir de volta.
@@ -193,6 +194,7 @@ function toHistoricoDia(raw: AgendaRaw): HistoricoDia {
     humorEmoji: humorInfo?.emoji ?? "—",
     chips,
     alerta,
+    observacoes: raw.observacoes,
   };
 }
 
@@ -223,8 +225,9 @@ export const AgendaService = {
         data: raw?.data?.slice(0, 10) ?? data,
         dataLabel: formatDataLabel(raw?.data ?? data),
         entries: raw ? toEntries(raw) : [],
-        // `registradoPor` na API é o `_id` do professor, sem nome — a rota do
-        // responsável não pode consultar /professores para resolver isso.
+        professor: raw?.professor
+          ? { nome: raw.professor.nome, fotoUrl: raw.professor.fotoUrl }
+          : undefined,
       };
     } catch (err) {
       if (getApiErrorStatus(err) === 404) {

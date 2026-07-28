@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, ChevronRight, RefreshCw, X } from "lucide-react";
-import { Avatar, Skeleton } from "@/components";
+import { Bell, ChevronRight, History, RefreshCw, X } from "lucide-react";
+import { Avatar, Skeleton, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
@@ -109,9 +109,7 @@ export function InicioScreen() {
       <div className={styles.gradHeader}>
         <div className={styles.homeTop}>
           <span className={styles.greeting}>Olá, {firstName}</span>
-          <button className={styles.headerIconBtn} aria-label="Notificações">
-            <Bell size={18} />
-          </button>
+          <ThemeToggle variant="onBrand" />
         </div>
         <button className={styles.childCard} onClick={abrirTrocaFilho}>
           <Avatar
@@ -319,6 +317,7 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
     [criancaId],
   );
   const entries = (data?.entries ?? []).slice(0, 3);
+  const semRegistro = !loading && entries.length === 0;
 
   if (loading) {
     return (
@@ -346,29 +345,43 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
       <div className={styles.blockHead}>
         <span className={styles.blockTitle}>Agenda de hoje</span>
       </div>
-      <div className={styles.todayCard}>
-        {entries.map((e, i) => {
-          const v = AGENDA_VISUAL[e.tipo];
-          const Icon = v.icon;
-          return (
-            <div key={i} className={styles.todayRow}>
-              <span
-                className={styles.miniIcon}
-                style={{ background: v.bg, color: v.fg }}
-              >
-                <Icon size={17} />
-              </span>
-              <div style={{ flex: 1 }}>
-                <div className={styles.todayLabel}>{e.title}</div>
-                <div className={styles.todayBrief}>{e.text}</div>
+      {semRegistro ? (
+        <div className={styles.agendaPendente}>
+          <span className={styles.agendaPendenteText}>
+            A agenda de hoje ainda não foi preenchida pela professora.
+          </span>
+          <Link
+            href={`/historico/${criancaId}`}
+            className={styles.agendaPendenteLink}
+          >
+            <History size={15} /> Ver histórico
+          </Link>
+        </div>
+      ) : (
+        <div className={styles.todayCard}>
+          {entries.map((e, i) => {
+            const v = AGENDA_VISUAL[e.tipo];
+            const Icon = v.icon;
+            return (
+              <div key={i} className={styles.todayRow}>
+                <span
+                  className={styles.miniIcon}
+                  style={{ background: v.bg, color: v.fg }}
+                >
+                  <Icon size={17} />
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div className={styles.todayLabel}>{e.title}</div>
+                  <div className={styles.todayBrief}>{e.text}</div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-        <Link href={`/agenda/${criancaId}`} className={styles.seeAll}>
-          Ver agenda completa <ChevronRight size={16} />
-        </Link>
-      </div>
+            );
+          })}
+          <Link href={`/agenda/${criancaId}`} className={styles.seeAll}>
+            Ver agenda completa <ChevronRight size={16} />
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

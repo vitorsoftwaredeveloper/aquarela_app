@@ -291,30 +291,26 @@ const agendaLorena: AgendaDia = {
   criancaId: "c-lorena",
   data: "2026-07-16",
   dataLabel: "Terça, 16 jul",
-  registradoPor: "Prof. Alice",
+  professor: { nome: "Prof. Alice" },
   entries: [
+    { tipo: "alimentacao", title: "Almoço", text: "Comeu tudo" },
+    { tipo: "alimentacao", title: "Lanche", text: "Recusou" },
+    { tipo: "sono", title: "Soneca", text: "12:30 às 14:00" },
+    { tipo: "atividade", title: "Atividades", text: "Pintura, Música" },
+    { tipo: "humor", title: "Humor", text: "😀 Alegre" },
+    { tipo: "higiene", title: "Higiene", text: "1 troca de fralda" },
     {
-      tipo: "alimentacao",
-      title: "Alimentação",
-      text: "Comeu bem no almoço, recusou o lanche da tarde.",
-    },
-    {
-      tipo: "sono",
-      title: "Soneca",
-      text: "Dormiu das 12:30 às 14:00, tranquila.",
-    },
-    {
-      tipo: "atividade",
-      title: "Atividades",
-      text: "Pintura com guache e roda de música.",
+      tipo: "medicacao",
+      title: "Dipirona",
+      text: "10 gotas · 10:00",
+      destaque: true,
     },
     {
       tipo: "intercorrencia",
-      title: "Leve febre às 10h (37,8°)",
-      text: "Medicada com Dipirona conforme autorização. Melhorou logo depois.",
+      title: "Febre leve (37,8°)",
+      text: "10:00",
       destaque: true,
     },
-    { tipo: "humor", title: "Humor", text: "Dia alegre, participou de tudo." },
     {
       tipo: "observacao",
       title: "Observações",
@@ -327,24 +323,11 @@ const agendaTheo: AgendaDia = {
   criancaId: "c-theo",
   data: "2026-07-16",
   dataLabel: "Terça, 16 jul",
-  registradoPor: "Prof. Bruno",
+  professor: { nome: "Prof. Bruno" },
   entries: [
-    {
-      tipo: "alimentacao",
-      title: "Alimentação",
-      text: "Comeu tudo, repetiu o almoço.",
-    },
-    {
-      tipo: "sono",
-      title: "Soneca",
-      text: "Não dormiu, brincou no cantinho da leitura.",
-    },
-    {
-      tipo: "atividade",
-      title: "Atividades",
-      text: "Circuito motor e contação de história.",
-    },
-    { tipo: "humor", title: "Humor", text: "Animado e comunicativo." },
+    { tipo: "alimentacao", title: "Almoço", text: "Comeu tudo" },
+    { tipo: "atividade", title: "Atividades", text: "Circuito motor, Leitura" },
+    { tipo: "humor", title: "Humor", text: "😀 Alegre" },
   ],
 };
 

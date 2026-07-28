@@ -7,6 +7,8 @@ export interface AppUser {
   email: string;
   name?: string;
   role: Role | null;
+  /** `_id` do cadastro em `professores` vinculado (só role=professor). */
+  professorId?: string;
 }
 
 /** Home padrão por papel — usada nos guards de rota. */

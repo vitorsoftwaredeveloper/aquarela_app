@@ -44,7 +44,7 @@ const diaComEntries: AgendaDia = {
       destaque: true,
     },
   ],
-  registradoPor: "Prof. Bia",
+  professor: { nome: "Prof. Bia" },
 };
 
 beforeEach(() => {
@@ -59,11 +59,13 @@ describe("AgendaScreen", () => {
     render(<AgendaScreen criancaId="c1" />);
 
     expect(await screen.findByText("Ana")).toBeInTheDocument();
-    expect(screen.getByText("Almoço")).toBeInTheDocument();
-    expect(screen.getByText("Comeu bem")).toBeInTheDocument();
+    expect(screen.getByText("Oi, família da(o) Ana!")).toBeInTheDocument();
+    expect(screen.getByText(/comeu bem/)).toBeInTheDocument();
     expect(screen.getByText("Dipirona")).toBeInTheDocument();
-    expect(screen.getByText(/registrado por/)).toBeInTheDocument();
-    expect(screen.getByText("Prof. Bia")).toBeInTheDocument();
+    expect(
+      screen.getByText("Registrado no fim do dia · Aquarela Kids"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Prof. Bia").length).toBeGreaterThan(0);
   });
 
   it("shows cuidados band when crianca has alergias/medicacoes", async () => {
@@ -84,6 +86,20 @@ describe("AgendaScreen", () => {
 
     await screen.findByText("Ana");
     expect(screen.queryByText(/Cuidados de hoje/)).not.toBeInTheDocument();
+  });
+
+  it("still shows header and signature when professor is missing", async () => {
+    vi.mocked(CriancasService.getById).mockResolvedValue(crianca);
+    vi.mocked(AgendaService.getDia).mockResolvedValue({
+      ...diaComEntries,
+      professor: undefined,
+    });
+
+    render(<AgendaScreen criancaId="c1" />);
+
+    expect(await screen.findByText("Oi, família da(o) Ana!")).toBeInTheDocument();
+    expect(screen.getAllByText("Professora").length).toBeGreaterThan(0);
+    expect(screen.getByText("Com carinho,")).toBeInTheDocument();
   });
 
   it("shows empty state when there is no registro for the day", async () => {

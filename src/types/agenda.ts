@@ -17,6 +17,11 @@ export interface AgendaEntry {
   destaque?: boolean;
 }
 
+export interface AgendaProfessor {
+  nome: string;
+  fotoUrl?: string;
+}
+
 /** Registro do dia de uma criança. */
 export interface AgendaDia {
   criancaId: string;
@@ -24,7 +29,7 @@ export interface AgendaDia {
   data: string;
   dataLabel: string;
   entries: AgendaEntry[];
-  registradoPor?: string;
+  professor?: AgendaProfessor;
 }
 
 /** Aviso/recado do mural — visível para todos os responsáveis ou só p/ uma turma. */
@@ -48,4 +53,5 @@ export interface HistoricoDia {
   humorEmoji: string;
   chips: string[];
   alerta?: string;
+  observacoes?: string;
 }

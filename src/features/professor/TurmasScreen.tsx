@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { School } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Skeleton, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
@@ -31,7 +31,7 @@ export function TurmasScreen() {
           <div className={styles.headerWho}>{nome}</div>
           <div className={styles.headerTitle}>Minhas turmas</div>
         </div>
-        <span className={styles.avatar}>{nome.charAt(0).toUpperCase()}</span>
+        <ThemeToggle variant="onBrand" />
       </div>
 
       {loading ? (

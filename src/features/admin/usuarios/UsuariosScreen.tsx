@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AlertCircle,
@@ -18,6 +18,7 @@ import { useFetch } from "@/hooks/useFetch";
 import { UsuariosService } from "@/services/usuarios";
 import { getApiErrorMessage } from "@/services/apiError";
 import { usuarioSchema, type UsuarioFormData } from "@/schemas/usuario";
+import { maskPhone, onlyDigits } from "@/utils/cpf";
 import {
   ROLE_LABEL,
   ROLE_OPTIONS,
@@ -360,6 +361,7 @@ function UsuarioForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<UsuarioFormData>({
@@ -368,7 +370,7 @@ function UsuarioForm({
       ? {
           nome: editing.nome,
           email: editing.email,
-          telefone: editing.telefone ?? "",
+          telefone: maskPhone(editing.telefone ?? ""),
           papel: editing.papel,
           ativo: editing.ativo,
         }
@@ -382,7 +384,7 @@ function UsuarioForm({
         // Update não envia e-mail (readOnly); envia `ativo` (ativar/desativar).
         await UsuariosService.update(editing._id, {
           nome: values.nome,
-          telefone: values.telefone,
+          telefone: values.telefone ? onlyDigits(values.telefone) : undefined,
           papel: values.papel,
           ativo: values.ativo ?? editing.ativo,
         });
@@ -392,7 +394,7 @@ function UsuarioForm({
         const criado = await UsuariosService.create({
           nome: values.nome,
           email: values.email,
-          telefone: values.telefone,
+          telefone: values.telefone ? onlyDigits(values.telefone) : undefined,
           papel: values.papel,
         });
         onSaved(criado);
@@ -432,11 +434,20 @@ function UsuarioForm({
         error={errors.email?.message}
         {...register("email")}
       />
-      <Input
-        label="Telefone (opcional)"
-        placeholder="(11) 90000-0000"
-        error={errors.telefone?.message}
-        {...register("telefone")}
+      <Controller
+        control={control}
+        name="telefone"
+        render={({ field }) => (
+          <Input
+            label="Telefone (opcional)"
+            placeholder="(11) 90000-0000"
+            inputMode="numeric"
+            error={errors.telefone?.message}
+            value={field.value ?? ""}
+            onChange={(e) => field.onChange(maskPhone(e.target.value))}
+            onBlur={field.onBlur}
+          />
+        )}
       />
       <Select
         label="Papel"

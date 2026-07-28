@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   Droplet,
 } from "lucide-react";
-import { Button, Modal, Skeleton } from "@/components";
+import { Button, Modal, Skeleton, ThemeToggle } from "@/components";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
@@ -130,8 +130,18 @@ export function FinanceiroScreen() {
   return (
     <div>
       <div className={`${styles.gradHeader} ${styles.finHeaderPad}`}>
-        <div className={styles.finTitle}>Financeiro</div>
-        <div className={styles.finSub}>{active.sub}</div>
+        <div className={styles.finTop}>
+          <div className={styles.finTitle}>Financeiro</div>
+          <ThemeToggle variant="onBrand" />
+        </div>
+        <div className={styles.finSub}>
+          {active.nome}
+          {active.turmaNome
+            ? ` · Turma ${active.turmaNome}`
+            : active.sub
+              ? ` · ${active.sub}`
+              : ""}
+        </div>
         <div className={styles.finCards}>
           <div className={styles.finCard}>
             <div className={styles.finCardLabel}>Em aberto</div>

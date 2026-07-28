@@ -1,4 +1,4 @@
-import { Inter, Poppins } from "next/font/google";
+import { Caveat, Inter, Poppins } from "next/font/google";
 
 /** Corpo de texto — legível e amigável. */
 export const inter = Inter({
@@ -13,4 +13,12 @@ export const poppins = Poppins({
   weight: ["500", "600", "700", "800"],
   display: "swap",
   variable: "--font-poppins",
+});
+
+/** Assinatura manuscrita — bilhete da professora na agenda do dia. */
+export const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  display: "swap",
+  variable: "--font-caveat",
 });

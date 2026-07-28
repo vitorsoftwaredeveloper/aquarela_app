@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { inter, poppins } from "@/lib/fonts";
+import { caveat, inter, poppins } from "@/lib/fonts";
 import { ThemeScript } from "@/contexts/ThemeContext";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${poppins.variable} ${inter.variable}`}
+      className={`${poppins.variable} ${inter.variable} ${caveat.variable}`}
       suppressHydrationWarning
     >
       <head>

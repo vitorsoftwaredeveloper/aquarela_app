@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Droplet, Minus, Phone, Plus } from "lucide-react";
+import { ChevronLeft, Droplet, List, Minus, Plus } from "lucide-react";
 import { ConfigPrecosService } from "@/services/configPrecosService";
 import { PLANOS_PADRAO, type PlanoConfig } from "@/types/configPrecos";
 import {
@@ -209,7 +209,7 @@ export function SimuladorScreen() {
         </div>
 
         <Link href="/#planos" className={styles.cta}>
-          <Phone size={18} /> Agende uma visita
+          <List size={18} /> Ver planos
         </Link>
         <p className={styles.disclaimer}>
           Valores de referência para simulação.

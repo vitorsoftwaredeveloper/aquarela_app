@@ -37,4 +37,9 @@ export const ProfessoresService = {
   async remove(id: string): Promise<void> {
     await api.delete(`/professores/${id}`);
   },
+
+  /** Apaga só a foto (mesmo padrão de `DELETE /criancas/{id}/foto`), admin-only. */
+  async removerFoto(id: string): Promise<void> {
+    await api.delete(`/professores/${id}/foto`);
+  },
 };
