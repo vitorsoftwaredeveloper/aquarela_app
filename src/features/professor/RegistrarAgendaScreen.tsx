@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -224,6 +225,12 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             {agendaId && " · editando registro já salvo"}
           </div>
         </div>
+        <Link
+          href={`/professor/historico/${criancaId}`}
+          className={styles.pushAction}
+        >
+          Histórico
+        </Link>
       </div>
 
       {carregando ? (
