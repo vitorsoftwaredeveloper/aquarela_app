@@ -60,7 +60,7 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | CAD-07 | Tela admin **cadastro de turmas** (FE) | 🔴 | 3 | FE | CAD-06, INF-10 | Criar/editar turma; selecionar professora |
 | CAD-08 | Modelo **criança** completo (BE): identificação, responsáveis, saúde, financeiro | 🔴 | 8 | BE | INF-06 | Todos os campos da seção 6 do PRD; validação de CPF |
 | CAD-09 | Endpoint editar/atualizar criança + auditoria de alterações | 🔴 | 5 | BE | CAD-08 | Edição registra quem/quando; histórico de mudanças em saúde |
-| CAD-10 | Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) | 🔴 | 8 | FE | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição |
+| CAD-10 | Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) | 🔴 | 8 | FE | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição; etapa financeiro tem seletor de plano fixo **e** campo de valor personalizado (acordo fechado), este último sobrepõe o plano e omite `planoId` no payload |
 | CAD-11 | Vínculo criança ↔ turma e criança ↔ responsável(is) | 🔴 | 3 | FS | CAD-06, CAD-08 | Criança aparece na turma; responsável enxerga o filho |
 | CAD-12 | Upload de foto da criança (S3) | 🟡 | 3 | FS | CAD-08 | Foto salva em S3; exibida no cadastro/agenda |
 | CAD-13 | Busca/filtro de crianças (por nome, turma, status) | 🟡 | 3 | FS | CAD-08 | Lista filtrável e paginada |
@@ -125,8 +125,10 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | FIN-12 | Endpoint **inadimplentes** | 🔴 | 3 | BE | FIN-03 | Lista mensalidades atrasadas + criança/responsável |
 | FIN-13 | Tela **dashboard financeiro** admin (KPIs + gráfico 12 meses) | 🔴 | 8 | FE | FIN-11, FIN-12, INF-10 | Entradas, despesas, inadimplentes, crianças ativas |
 | FIN-14 | **Exportação de relatórios** em Excel (SheetJS) | 🟡 | 3 | FE | FIN-11 | Exporta balanço/inadimplentes em `.xlsx` |
+| FIN-15 | ✅ Endpoint **pagamento manual** (admin, dinheiro físico) | 🔴 | 3 | BE | FIN-01, FIN-04 | `POST /pagamentos/manual` baixa mensalidade; audita admin (`recebidoPor`) |
+| FIN-16 | ✅ Tela admin: registrar pagamento em dinheiro no mês em aberto | 🔴 | 3 | FE | FIN-15, FIN-07 | Clique no mês aberto/atrasado abre modal de valor recebido |
 
-**Subtotal Épico D:** 62 pts (MVP: ~56 pts).
+**Subtotal Épico D:** 68 pts (MVP: ~62 pts).
 
 ---
 

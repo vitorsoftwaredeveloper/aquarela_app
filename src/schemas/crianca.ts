@@ -68,10 +68,13 @@ export const criancaSchema = yup.object({
 
   // ---- 4. Financeiro ----
   financeiro: yup.object({
+    // Presente = veio de um plano fixo selecionado; ausente = valor
+    // personalizado (acordo fechado com os responsáveis) — ver CriancaStepper.
+    planoId: yup.string().optional(),
     valorMensalidade: yup
       .number()
-      .typeError("Selecione um plano")
-      .required("Selecione um plano")
+      .typeError("Informe o valor da mensalidade")
+      .required("Informe o valor da mensalidade")
       .min(0, "Valor inválido"),
     diaVencimento: yup
       .number()

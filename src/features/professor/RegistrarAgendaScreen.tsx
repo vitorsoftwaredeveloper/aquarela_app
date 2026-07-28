@@ -19,9 +19,10 @@ import {
   ShieldAlert,
   Smile,
   Thermometer,
+  Trash2,
   Utensils,
 } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Button, Modal, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
@@ -83,6 +84,10 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const [enviadaEm, setEnviadaEm] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [enviarError, setEnviarError] = useState<string | null>(null);
+
+  const [confirmandoRemocao, setConfirmandoRemocao] = useState(false);
+  const [removendo, setRemovendo] = useState(false);
+  const [removerError, setRemoverError] = useState<string | null>(null);
 
   const alergias = c?.cuidados?.alergias ?? [];
   const medicacoes = c?.cuidados?.medicacoes ?? [];
@@ -197,6 +202,20 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
       setSaveError(getApiErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function removerAgenda() {
+    if (!agendaId) return;
+    setRemovendo(true);
+    setRemoverError(null);
+    try {
+      await ProfessorService.removerAgenda(agendaId, criancaId);
+      router.back();
+    } catch (err) {
+      setRemoverError(getApiErrorMessage(err));
+    } finally {
+      setRemovendo(false);
     }
   }
 
@@ -583,9 +602,67 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                 <AlertCircle size={16} /> <span>{enviarError}</span>
               </div>
             )}
+
+            {agendaId && (
+              <button
+                type="button"
+                className={styles.saveBtn}
+                style={{
+                  background: "none",
+                  color: "var(--color-danger-strong)",
+                  boxShadow: "none",
+                  border: "1px solid var(--border-08)",
+                }}
+                onClick={() => setConfirmandoRemocao(true)}
+              >
+                <Trash2 size={17} /> Remover agenda de hoje
+              </button>
+            )}
           </div>
         </>
       )}
+
+      <Modal
+        open={confirmandoRemocao}
+        onClose={() => setConfirmandoRemocao(false)}
+        title="Remover agenda de hoje"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmandoRemocao(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={removerAgenda}
+              disabled={removendo}
+            >
+              {removendo ? "Removendo…" : "Remover"}
+            </Button>
+          </>
+        }
+      >
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
+          Remover a agenda de hoje de <b>{c?.nome}</b>? Não é possível
+          desfazer.
+        </p>
+        {removerError && (
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+              marginTop: 14,
+              color: "var(--color-danger-strong)",
+              fontSize: 13,
+            }}
+          >
+            <AlertCircle size={17} /> <span>{removerError}</span>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

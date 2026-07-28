@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Share, SquarePlus, X } from "lucide-react";
+import { AlertCircle, Bell, Share, SquarePlus, X } from "lucide-react";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { storage } from "@/storage/localStorage";
-import { isIOS, isInAppWebview, isStandalonePwa } from "@/utils/device";
+import {
+  instrucaoReativarNotificacoes,
+  isIOS,
+  isInAppWebview,
+  isStandalonePwa,
+} from "@/utils/device";
 import styles from "@/features/responsavel/responsavel.module.css";
 
 const DISMISSED_KEY = "notifOnboardingDispensado";
@@ -43,7 +48,40 @@ export function NotificationOnboarding() {
 
   if (!flags || dismissed) return null;
   if (permission === "unsupported" || permission === "granted") return null;
-  if (permission === "denied") return null;
+
+  if (permission === "denied") {
+    return (
+      <div className={styles.block}>
+        <div className={styles.aviso}>
+          <span
+            className={styles.avisoIcon}
+            style={{ background: "#FBEAEA", color: "#C0392B" }}
+          >
+            <AlertCircle size={17} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <div className={styles.avisoHead}>
+              <span className={styles.avisoTitle}>
+                Notificações bloqueadas
+              </span>
+              <button
+                type="button"
+                onClick={dispensar}
+                aria-label="Dispensar"
+                style={{ background: "none", border: "none", cursor: "pointer" }}
+              >
+                <X size={15} color="var(--text-mute)" />
+              </button>
+            </div>
+            <p className={styles.avisoText}>
+              Você não vai receber avisos da agenda. Pra reativar,{" "}
+              {instrucaoReativarNotificacoes()}
+            </p>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   if (flags.webview) {
     return (

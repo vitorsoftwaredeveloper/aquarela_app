@@ -143,6 +143,16 @@ export const ProfessorService = {
     await api.put(`/agenda/${id}`, campos);
   },
 
+  async removerAgenda(id: string, criancaId: string): Promise<void> {
+    if (IS_DEV_DATA) {
+      devAgendasRegistradasHoje.delete(criancaId);
+      devAgendaPorCrianca.delete(criancaId);
+      devEnviadaEmPorAgenda.delete(id);
+      return;
+    }
+    await api.delete(`/agenda/${id}`);
+  },
+
   /**
    * Gatilho "Enviar para os pais" — dispara a notificação push (docs
    * §"Notificações push"). Idempotente: reenviar responde `409

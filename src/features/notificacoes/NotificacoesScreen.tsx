@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, Bell, BellOff, ChevronLeft } from "lucide-react";
 import { Badge } from "@/components";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { isIOS } from "@/utils/device";
+import { instrucaoReativarNotificacoes } from "@/utils/device";
 import styles from "./notificacoes.module.css";
 
 const STATUS: Record<
@@ -72,10 +72,8 @@ export function NotificacoesScreen() {
             <div className={styles.saveError} role="alert" style={{ marginTop: 4 }}>
               <AlertCircle size={16} />
               <span>
-                Você bloqueou as notificações no navegador. Pra reverter,
-                {isIOS()
-                  ? " abra os Ajustes do iPhone > procure este app na tela de início > Notificações > permitir."
-                  : " toque no cadeado ao lado do endereço do site > Permissões > Notificações > Permitir."}
+                Você bloqueou as notificações no navegador. Pra reverter,{" "}
+                {instrucaoReativarNotificacoes()}
               </span>
             </div>
           )}

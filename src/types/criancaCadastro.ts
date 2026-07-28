@@ -31,6 +31,8 @@ export interface SaudeCrianca {
 }
 
 export interface FinanceiroCrianca {
+  /** Presente = valor veio de um plano fixo; ausente = acordo/valor personalizado. */
+  planoId?: string;
   valorMensalidade: number;
   diaVencimento: number;
 }

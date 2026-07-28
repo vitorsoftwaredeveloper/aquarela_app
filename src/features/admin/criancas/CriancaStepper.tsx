@@ -86,6 +86,13 @@ function detectarPlano(
   return { nome: "", dias: 20 };
 }
 
+/**
+ * `configPrecos` é singleton no backend (`_id` sempre "singleton") — não há
+ * um id por plano. `financeiro.planoId` só marca "veio de um plano fixo"
+ * (presente) vs. "valor personalizado" (ausente); ver docs/03-Backend §7.
+ */
+const PLANO_FIXO_ID = "singleton";
+
 const RESP_VAZIO = {
   nome: "",
   cpf: "",
@@ -191,6 +198,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
         observacoes: c.saude?.observacoes ?? "",
       },
       financeiro: {
+        planoId: c.financeiro?.planoId,
         valorMensalidade: c.financeiro?.valorMensalidade,
         diaVencimento: c.financeiro?.diaVencimento ?? 5,
       },
@@ -199,8 +207,10 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
 
   // Derivado (sem efeito): a escolha manual do admin vive em `overridePlano`
   // e tem prioridade sobre o valor detectado a partir do que já foi salvo.
+  const financeiroExistente = (existente.data as CriancaCadastro | null)
+    ?.financeiro;
   const planoDetectado = detectarPlano(
-    (existente.data as CriancaCadastro | null)?.financeiro?.valorMensalidade,
+    financeiroExistente?.valorMensalidade,
     planos.data,
   );
 
@@ -215,9 +225,25 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   );
   const modoPlano = planoNome ? inferirModo(planoNome) : null;
 
+  // Toggle "plano fixo" × "valor personalizado". `null` = ainda não mexido
+  // pelo admin nesta sessão de edição: cai no que já está salvo — `planoId`
+  // presente força "plano" (best-effort de nome/dias por `detectarPlano`);
+  // sem `planoId` e sem valor batendo com nenhum plano vigente é acordo
+  // fechado ("livre"); qualquer outro caso (criança nova, ou legado que
+  // ainda bate com um plano) começa em "plano".
+  const [modoOverride, setModoOverride] = useState<"plano" | "livre" | null>(
+    null,
+  );
+  const modoDetectado: "plano" | "livre" =
+    !financeiroExistente || financeiroExistente.planoId || planoDetectado.nome
+      ? "plano"
+      : "livre";
+  const modoFinanceiro = modoOverride ?? modoDetectado;
+
   function selecionarPlano(nome: string) {
     const plano = (planos.data ?? []).find((p) => p.nome === nome);
     setOverridePlano({ nome, dias: diasContratados });
+    setValue("financeiro.planoId", PLANO_FIXO_ID);
     if (!plano) return;
     if (inferirModo(nome) === "meses") {
       setValue("financeiro.valorMensalidade", plano.valorMensal, {
@@ -243,6 +269,17 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
     setValue("financeiro.valorMensalidade", Math.round(diario * d), {
       shouldValidate: true,
     });
+  }
+
+  /** Troca o modo financeiro — valor livre nunca manda `planoId` no payload. */
+  function trocarModoFinanceiro(modo: "plano" | "livre") {
+    setModoOverride(modo);
+    if (modo === "livre") {
+      setValue("financeiro.planoId", undefined);
+    } else {
+      const nome = planoNome || (planos.data ?? [])[0]?.nome;
+      if (nome) selecionarPlano(nome);
+    }
   }
 
   const responsaveis = useFieldArray({ control, name: "responsaveis" });
@@ -733,7 +770,68 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                     Valor e vencimento usados para gerar as mensalidades.
                   </p>
                   <div className={styles.fields}>
+                    <div role="tablist" style={{ display: "flex", gap: 8 }}>
+                      <Button
+                        type="button"
+                        variant={
+                          modoFinanceiro === "plano" ? "primary" : "secondary"
+                        }
+                        size="sm"
+                        role="tab"
+                        aria-selected={modoFinanceiro === "plano"}
+                        onClick={() => trocarModoFinanceiro("plano")}
+                      >
+                        Plano fixo
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          modoFinanceiro === "livre" ? "primary" : "secondary"
+                        }
+                        size="sm"
+                        role="tab"
+                        aria-selected={modoFinanceiro === "livre"}
+                        onClick={() => trocarModoFinanceiro("livre")}
+                      >
+                        Valor personalizado
+                      </Button>
+                    </div>
                     {(() => {
+                      const inputVencimento = (
+                        <Input
+                          label="Dia do vencimento"
+                          type="number"
+                          min={1}
+                          max={28}
+                          placeholder="5"
+                          error={errors.financeiro?.diaVencimento?.message}
+                          {...register("financeiro.diaVencimento", {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      );
+
+                      if (modoFinanceiro === "livre") {
+                        return (
+                          <div className={styles.grid2}>
+                            <Input
+                              label="Valor mensal (R$)"
+                              type="number"
+                              step="0.01"
+                              min={0}
+                              placeholder="Ex.: 1200"
+                              error={
+                                errors.financeiro?.valorMensalidade?.message
+                              }
+                              {...register("financeiro.valorMensalidade", {
+                                valueAsNumber: true,
+                              })}
+                            />
+                            {inputVencimento}
+                          </div>
+                        );
+                      }
+
                       const selectPlano = (
                         <Select
                           label="Plano"
@@ -747,19 +845,6 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                           error={errors.financeiro?.valorMensalidade?.message}
                           value={planoNome}
                           onChange={(e) => selecionarPlano(e.target.value)}
-                        />
-                      );
-                      const inputVencimento = (
-                        <Input
-                          label="Dia do vencimento"
-                          type="number"
-                          min={1}
-                          max={28}
-                          placeholder="5"
-                          error={errors.financeiro?.diaVencimento?.message}
-                          {...register("financeiro.diaVencimento", {
-                            valueAsNumber: true,
-                          })}
                         />
                       );
                       return modoPlano === "dias" ? (
@@ -791,6 +876,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       turmaOptions={turmaOptions}
                       planoSelecionado={planoSelecionado}
                       diasContratados={diasContratados}
+                      modoFinanceiro={modoFinanceiro}
                     />
                     {!editing && (
                       <div className={styles.consentBox}>
@@ -1009,11 +1095,13 @@ function Resumo({
   turmaOptions,
   planoSelecionado,
   diasContratados,
+  modoFinanceiro,
 }: {
   control: Control<CriancaFormData>;
   turmaOptions: { value: string; label: string }[];
   planoSelecionado?: PlanoConfig;
   diasContratados: number;
+  modoFinanceiro: "plano" | "livre";
 }) {
   const nome = useWatch({ control, name: "nome" });
   const turmaId = useWatch({ control, name: "turmaId" });
@@ -1023,11 +1111,14 @@ function Resumo({
   const dia = useWatch({ control, name: "financeiro.diaVencimento" });
   const turma = turmaOptions.find((t) => t.value === turmaId)?.label ?? "—";
   const temValor = typeof valor === "number" && !Number.isNaN(valor);
-  const plano = planoSelecionado
-    ? inferirModo(planoSelecionado.nome) === "dias"
-      ? `${planoSelecionado.nome} — ${diasContratados} dias/mês`
-      : planoSelecionado.nome
-    : null;
+  const plano =
+    modoFinanceiro === "livre"
+      ? "Valor personalizado (acordo fechado)"
+      : planoSelecionado
+        ? inferirModo(planoSelecionado.nome) === "dias"
+          ? `${planoSelecionado.nome} — ${diasContratados} dias/mês`
+          : planoSelecionado.nome
+        : null;
 
   return (
     <div className={styles.summary}>
