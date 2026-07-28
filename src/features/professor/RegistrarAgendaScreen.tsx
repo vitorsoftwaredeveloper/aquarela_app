@@ -15,17 +15,19 @@ import {
   Palette,
   Pill,
   Plus,
+  Send,
   ShieldAlert,
   Smile,
   Thermometer,
+  Trash2,
   Utensils,
 } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Button, Modal, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
 import { agoraHHMM, hojeISO } from "@/utils/date";
-import { getApiErrorMessage } from "@/services/apiError";
+import { getApiErrorCode, getApiErrorMessage } from "@/services/apiError";
 import {
   ACEITACAO_OPTS,
   ATIVIDADES,
@@ -79,6 +81,14 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const [enviadaEm, setEnviadaEm] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const [enviarError, setEnviarError] = useState<string | null>(null);
+
+  const [confirmandoRemocao, setConfirmandoRemocao] = useState(false);
+  const [removendo, setRemovendo] = useState(false);
+  const [removerError, setRemoverError] = useState<string | null>(null);
+
   const alergias = c?.cuidados?.alergias ?? [];
   const medicacoes = c?.cuidados?.medicacoes ?? [];
   const temCuidado = alergias.length > 0 || medicacoes.length > 0;
@@ -105,6 +115,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     }
 
     setAgendaId(raw._id);
+    setEnviadaEm(raw.enviadaEm ?? null);
     setRefeicoes(refeicoesCarregadas);
     setAceitacaoPorRefeicao(aceitacaoCarregada);
     setSonecas(raw.sono ?? []);
@@ -191,6 +202,39 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
       setSaveError(getApiErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function removerAgenda() {
+    if (!agendaId) return;
+    setRemovendo(true);
+    setRemoverError(null);
+    try {
+      await ProfessorService.removerAgenda(agendaId, criancaId);
+      router.back();
+    } catch (err) {
+      setRemoverError(getApiErrorMessage(err));
+    } finally {
+      setRemovendo(false);
+    }
+  }
+
+  async function enviarParaOsPais() {
+    if (!agendaId) return;
+    setEnviando(true);
+    setEnviarError(null);
+    try {
+      const atualizada = await ProfessorService.enviarAgenda(agendaId);
+      setEnviadaEm(atualizada.enviadaEm ?? new Date().toISOString());
+    } catch (err) {
+      // Reenvio (409 AGENDA_JA_ENVIADA) não é erro de verdade — já está enviada.
+      if (getApiErrorCode(err) === "AGENDA_JA_ENVIADA") {
+        setEnviadaEm(new Date().toISOString());
+      } else {
+        setEnviarError(getApiErrorMessage(err));
+      }
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -517,9 +561,108 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                 <AlertCircle size={16} /> <span>{saveError}</span>
               </div>
             )}
+
+            {agendaId && (
+              <button
+                type="button"
+                className={styles.saveBtn}
+                style={
+                  enviadaEm
+                    ? undefined
+                    : {
+                        background: "none",
+                        color: "var(--color-primary-link)",
+                        boxShadow: "none",
+                        border: "1px solid var(--border-08)",
+                      }
+                }
+                onClick={enviarParaOsPais}
+                disabled={enviando || !!enviadaEm}
+              >
+                {enviadaEm ? (
+                  <>
+                    <Check size={18} /> Enviada às{" "}
+                    {new Date(enviadaEm).toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </>
+                ) : enviando ? (
+                  "Enviando…"
+                ) : (
+                  <>
+                    <Send size={17} /> Enviar para os pais
+                  </>
+                )}
+              </button>
+            )}
+
+            {enviarError && (
+              <div className={styles.saveError} role="alert">
+                <AlertCircle size={16} /> <span>{enviarError}</span>
+              </div>
+            )}
+
+            {agendaId && (
+              <button
+                type="button"
+                className={styles.saveBtn}
+                style={{
+                  background: "none",
+                  color: "var(--color-danger-strong)",
+                  boxShadow: "none",
+                  border: "1px solid var(--border-08)",
+                }}
+                onClick={() => setConfirmandoRemocao(true)}
+              >
+                <Trash2 size={17} /> Remover agenda de hoje
+              </button>
+            )}
           </div>
         </>
       )}
+
+      <Modal
+        open={confirmandoRemocao}
+        onClose={() => setConfirmandoRemocao(false)}
+        title="Remover agenda de hoje"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmandoRemocao(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={removerAgenda}
+              disabled={removendo}
+            >
+              {removendo ? "Removendo…" : "Remover"}
+            </Button>
+          </>
+        }
+      >
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
+          Remover a agenda de hoje de <b>{c?.nome}</b>? Não é possível
+          desfazer.
+        </p>
+        {removerError && (
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+              marginTop: 14,
+              color: "var(--color-danger-strong)",
+              fontSize: 13,
+            }}
+          >
+            <AlertCircle size={17} /> <span>{removerError}</span>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

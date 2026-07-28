@@ -231,6 +231,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/agenda/{id}` | professor | Editar registro do dia |
 | GET | `/agenda?criancaId=&data=` | professor/responsavel* | Registro por dia |
 | GET | `/agenda/historico?criancaId=&de=&ate=` | professor/responsavel* | Histórico |
+| POST | `/agenda/{id}/enviar` | professor | Gatilho **"Enviar para os pais"** — dispara a notificação push (ver §Notificações push abaixo). Só a professora da turma (mesma regra de `PUT /agenda/{id}`); 2ª chamada → `409 AGENDA_JA_ENVIADA`. Resposta é a agenda com `enviadaEm` preenchido |
+| DELETE | `/agenda/{id}` | professor | Remover registro do dia. Mesma guarda de `PUT /agenda/{id}` (só a professora da turma; senão `403 FORBIDDEN`); agenda inexistente → `404 NOT_FOUND`. **Hard delete** — registro diário não tem soft delete |
 
 > **`GET /agenda` e `GET /agenda/historico` devolvem `professor: { _id, nome }`**
 > junto com o `registradoPor` cru (o `_id` do professor, sem nome). O front
@@ -240,6 +242,20 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > `fotoUrl` opcional (`AgendaProfessor` em `src/types/agenda.ts`) para quando o
 > backend passar a projetar a foto do professor nessa rota; até lá o avatar cai
 > no fallback de iniciais (`components/Avatar`).
+
+### Notificações push (Web Push / FCM)
+| Método | Rota | Papel | Descrição |
+|---|---|---|---|
+| POST | `/dispositivos` | admin/professor/responsavel | Upsert do token FCM do dispositivo do usuário logado — `{ token, plataforma: "android"\|"ios"\|"web"\|"desktop" }`. Idempotente por `token`: reenviar não duplica |
+| DELETE | `/dispositivos/{token}` | admin/professor/responsavel | Remove um dispositivo próprio (logout). Token de terceiro é no-op silencioso (204) |
+
+> **Implementado e testado no back (`aquarela_serverless`, NOT-01…NOT-08).** Ainda **não implementado no front** — é o Épico I (`NOT-10`…`NOT-18`) em `docs/06-Backlog.md`. O que falta construir aqui:
+> - `public/firebase-messaging-sw.js` na **raiz** do domínio + `manifest.json` (`display: standalone`) — sem isso não há push, principalmente no iPhone
+> - Fluxo de permissão: pedir `Notification.requestPermission()` só **depois** de explicar o benefício (o browser só pergunta uma vez — negou, só reverte manualmente nas configs do browser)
+> - `getToken()` do Firebase SDK (`firebase/messaging`) → `POST /dispositivos` no login; reenviar em `onTokenRefresh`; `DELETE /dispositivos/{token}` no logout
+> - **iPhone só recebe push com o PWA instalado na tela de início** (iOS 16.4+) — abrir pelo Safari normal não funciona, e abrir pelo **webview do WhatsApp/Instagram também não** (confirmado no spike `NOT-00`: `PushManager` indisponível). Precisa detectar os dois casos e instruir o responsável
+> - Botão **"Enviar para os pais"** na tela de agenda do professor chamando `POST /agenda/{id}/enviar` (ver acima) — é o gatilho, não dispara em `save`
+> - Corpo da notificação vem do back sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio)
 
 ### Planos de aula (PED-01/02)
 | Método | Rota | Papel | Descrição |
@@ -282,6 +298,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | GET | `/mensalidades?criancaId=&ano=` | responsavel*/admin | Meses pagos/em aberto |
 | POST | `/pagamentos` | responsavel | Gerar cobrança PIX (retorna copia-e-cola + txid) |
 | GET | `/pagamentos/{txid}` | responsavel | Status do pagamento |
+| POST | `/pagamentos/manual` | admin | Registrar pagamento recebido em dinheiro físico (baixa manual da mensalidade) — ver seção 7.1 |
 | POST | `/webhooks/mercadopago` | público (assinado) | Confirmação de pagamento |
 | GET | `/financeiro/balanco?periodo=` | admin | Balanço mensal/anual |
 | POST/GET | `/despesas` | admin | Lançar/listar despesas |
@@ -344,6 +361,15 @@ Validar todo payload de entrada antes do service. `ajv-formats` para data/hora/e
 6. **Reconciliação de pendências:** um cron (a cada 30 min) consulta o MercadoPago para cobranças `pendente` sem confirmação. A cada consulta sem resolução incrementa `tentativasReconciliacao`; na 2ª tentativa sem sucesso a cobrança pendente é **removida**, liberando o responsável para gerar uma nova (sem erro). Enquanto a cobrança pendente existir, o responsável recebe `PAGAMENTO_PENDENTE` ao tentar gerar outra para a mesma mensalidade.
 
 Credenciais do MercadoPago e strings de conexão do Mongo ficam em **SSM Parameter Store** por stage, referenciadas em `config/<stage>.json`.
+
+### 7.1 Pagamento manual (dinheiro físico, só admin)
+
+Fluxo separado do PIX: usado quando o responsável paga em espécie (ex.: na secretaria) e o **admin** registra a baixa manualmente — nunca o próprio responsável. Tela: [`FinanceiroCriancaModal.tsx`](../src/features/admin/criancas/FinanceiroCriancaModal.tsx), acessível pelo ícone de carteira na lista de crianças (`CriancasScreen.tsx`).
+
+1. `POST /pagamentos/manual` (papel `admin`) — body `{ mensalidadeId, valor }`. `valor` é o que foi efetivamente recebido em mãos e **não precisa bater com `mensalidade.valor`** (desconto, acerto, etc.) — qualquer `valor > 0` baixa a mensalidade inteira pra `pago`. Não existe baixa parcial, mesma simplificação do fluxo PIX.
+2. Bloqueado (`409`) se a mensalidade já está `pago` (`MENSALIDADE_PAGA`) ou `cancelado` (`MENSALIDADE_CANCELADA`) — mesmos códigos de erro do fluxo PIX. O front trata `MENSALIDADE_PAGA` como confirmação silenciosa (fecha o formulário e recarrega a lista, sem mostrar erro) — mesma lógica do `PixContent`.
+3. Grava um `pagamentos` com `metodo:"dinheiro"`, `provedor:"manual"`, `status:"pago"` já direto, `pagoEm` = timestamp do servidor, e `recebidoPor` = `_id` do admin autenticado — trilha de auditoria da baixa financeira.
+4. Sem webhook, sem reconciliação — a baixa é síncrona no próprio `POST`. `GET /mensalidades?criancaId=&ano=` continua funcionando sem mudança: uma mensalidade paga em dinheiro aparece igual a uma paga por PIX (`status:"pago"`).
 
 ---
 

@@ -14,6 +14,8 @@ import type { EditMeuCadastroProfessor, Professor } from "@/types/professor";
 /** Documento devolvido por `GET /agenda` — mesma forma do POST/PUT + `_id` (docs §"Agenda diária"). */
 export interface AgendaDoDia extends AgendaRegistroPayload {
   _id: string;
+  /** Preenchido por `POST /agenda/{id}/enviar` (docs §"Notificações push"). */
+  enviadaEm?: string;
 }
 
 /**
@@ -24,6 +26,8 @@ export interface AgendaDoDia extends AgendaRegistroPayload {
 const devAgendasRegistradasHoje = new Set<string>();
 /** Guarda o último payload salvo em dev, para a tela de edição pré-preencher. */
 const devAgendaPorCrianca = new Map<string, AgendaRegistroPayload>();
+/** Guarda `enviadaEm` por agenda em dev, pra tela de agenda refletir o estado "Enviada". */
+const devEnviadaEmPorAgenda = new Map<string, string>();
 
 /** Cadastro do professor demo — mutável em dev pra refletir edições da tela Perfil. */
 let devMeuCadastro: Professor = {
@@ -93,7 +97,14 @@ export const ProfessorService = {
   ): Promise<AgendaDoDia | null> {
     if (IS_DEV_DATA) {
       const payload = devAgendaPorCrianca.get(criancaId);
-      return payload ? { ...payload, _id: `dev-${criancaId}` } : null;
+      const agendaId = `dev-${criancaId}`;
+      return payload
+        ? {
+            ...payload,
+            _id: agendaId,
+            enviadaEm: devEnviadaEmPorAgenda.get(agendaId),
+          }
+        : null;
     }
     try {
       const { data: res } = await api.get("/agenda", {
@@ -130,6 +141,35 @@ export const ProfessorService = {
     // backend rejeita `criancaId`/`data` no corpo com 400 additionalProperties.
     const { criancaId: _criancaId, data: _data, ...campos } = payload;
     await api.put(`/agenda/${id}`, campos);
+  },
+
+  async removerAgenda(id: string, criancaId: string): Promise<void> {
+    if (IS_DEV_DATA) {
+      devAgendasRegistradasHoje.delete(criancaId);
+      devAgendaPorCrianca.delete(criancaId);
+      devEnviadaEmPorAgenda.delete(id);
+      return;
+    }
+    await api.delete(`/agenda/${id}`);
+  },
+
+  /**
+   * Gatilho "Enviar para os pais" — dispara a notificação push (docs
+   * §"Notificações push"). Idempotente: reenviar responde `409
+   * AGENDA_JA_ENVIADA`, sem marcar `enviadaEm` de novo.
+   */
+  async enviarAgenda(id: string): Promise<AgendaDoDia> {
+    if (IS_DEV_DATA) {
+      const enviadaEm = new Date().toISOString();
+      devEnviadaEmPorAgenda.set(id, enviadaEm);
+      const criancaId = id.replace(/^dev-/, "");
+      const payload = devAgendaPorCrianca.get(criancaId);
+      return { ...(payload as AgendaRegistroPayload), _id: id, enviadaEm };
+    }
+    const { data } = await api.post(`/agenda/${id}/enviar`);
+    const item = unwrapItem<AgendaDoDia>(data);
+    if (!item) throw new Error("Resposta inesperada de POST /agenda/{id}/enviar");
+    return item;
   },
 
   /** Próprio cadastro (tela Perfil). `GET /professores/{id}` — professor só lê o próprio. */

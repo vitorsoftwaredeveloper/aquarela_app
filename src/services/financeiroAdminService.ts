@@ -11,6 +11,8 @@ import type {
   Inadimplente,
   NovaDespesa,
 } from "@/types/financeiroAdmin";
+import { FinanceiroService } from "./financeiroService";
+import type { Mensalidade } from "@/types/financeiro";
 
 /** Balanço, inadimplentes e despesas (admin). Contrato: docs/03-Backend §5. */
 export const FinanceiroAdminService = {
@@ -56,5 +58,25 @@ export const FinanceiroAdminService = {
   async removeDespesa(id: string): Promise<void> {
     if (IS_DEV_DATA) return;
     await api.delete(`/despesas/${id}`);
+  },
+
+  /** Mensalidades de uma criança (grade de meses) — rota compartilhada com o responsável. */
+  async listMensalidades(
+    criancaId: string,
+    ano?: number,
+  ): Promise<Mensalidade[]> {
+    return FinanceiroService.listMensalidades(criancaId, ano);
+  },
+
+  /**
+   * Baixa manual de mensalidade (dinheiro físico recebido pela secretaria).
+   * Só admin. Contrato: docs/03-Backend §7.1 (`POST /pagamentos/manual`).
+   */
+  async registrarPagamentoManual(
+    mensalidadeId: string,
+    valor: number,
+  ): Promise<void> {
+    if (IS_DEV_DATA) return;
+    await api.post("/pagamentos/manual", { mensalidadeId, valor });
   },
 };

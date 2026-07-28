@@ -14,7 +14,9 @@
 - **Dep.:** tarefas que precisam estar prontas antes.
 - **AC:** critérios de aceite resumidos.
 
-Épicos: **0** Fundação · **A** Cadastros · **B** Agenda diária · **C** Portal dos pais · **D** Financeiro/PIX · **E** Simulador · **F** Pedagógico · **G** Qualidade/Go-live.
+Épicos: **0** Fundação · **A** Cadastros · **B** Agenda diária · **C** Portal dos pais · **D** Financeiro/PIX · **E** Simulador · **F** Pedagógico · **G** Qualidade/Go-live · **I** Notificações push.
+
+> ⚠️ Este arquivo ficou sem o **Épico H — Mural de avisos** (existente no backlog do `aquarela_serverless`) antes desta atualização — os dois repositórios têm cópias independentes de `docs/06-Backlog.md` e vinham divergindo. Não reconciliei o H aqui (fora do escopo de hoje); só trouxe o **Épico I**, que é o que motivou esta sincronização.
 
 Resumo de esforço do MVP no fim do documento.
 
@@ -58,7 +60,7 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | CAD-07 | Tela admin **cadastro de turmas** (FE) | 🔴 | 3 | FE | CAD-06, INF-10 | Criar/editar turma; selecionar professora |
 | CAD-08 | Modelo **criança** completo (BE): identificação, responsáveis, saúde, financeiro | 🔴 | 8 | BE | INF-06 | Todos os campos da seção 6 do PRD; validação de CPF |
 | CAD-09 | Endpoint editar/atualizar criança + auditoria de alterações | 🔴 | 5 | BE | CAD-08 | Edição registra quem/quando; histórico de mudanças em saúde |
-| CAD-10 | Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) | 🔴 | 8 | FE | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição |
+| CAD-10 | Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) | 🔴 | 8 | FE | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição; etapa financeiro tem seletor de plano fixo **e** campo de valor personalizado (acordo fechado), este último sobrepõe o plano e omite `planoId` no payload |
 | CAD-11 | Vínculo criança ↔ turma e criança ↔ responsável(is) | 🔴 | 3 | FS | CAD-06, CAD-08 | Criança aparece na turma; responsável enxerga o filho |
 | CAD-12 | Upload de foto da criança (S3) | 🟡 | 3 | FS | CAD-08 | Foto salva em S3; exibida no cadastro/agenda |
 | CAD-13 | Busca/filtro de crianças (por nome, turma, status) | 🟡 | 3 | FS | CAD-08 | Lista filtrável e paginada |
@@ -123,8 +125,10 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | FIN-12 | Endpoint **inadimplentes** | 🔴 | 3 | BE | FIN-03 | Lista mensalidades atrasadas + criança/responsável |
 | FIN-13 | Tela **dashboard financeiro** admin (KPIs + gráfico 12 meses) | 🔴 | 8 | FE | FIN-11, FIN-12, INF-10 | Entradas, despesas, inadimplentes, crianças ativas |
 | FIN-14 | **Exportação de relatórios** em Excel (SheetJS) | 🟡 | 3 | FE | FIN-11 | Exporta balanço/inadimplentes em `.xlsx` |
+| FIN-15 | ✅ Endpoint **pagamento manual** (admin, dinheiro físico) | 🔴 | 3 | BE | FIN-01, FIN-04 | `POST /pagamentos/manual` baixa mensalidade; audita admin (`recebidoPor`) |
+| FIN-16 | ✅ Tela admin: registrar pagamento em dinheiro no mês em aberto | 🔴 | 3 | FE | FIN-15, FIN-07 | Clique no mês aberto/atrasado abre modal de valor recebido |
 
-**Subtotal Épico D:** 62 pts (MVP: ~56 pts).
+**Subtotal Épico D:** 68 pts (MVP: ~62 pts).
 
 ---
 
@@ -172,6 +176,51 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 
 ---
 
+## Épico I — Notificações push (NOT)
+
+> Web Push (FCM) entregue no celular do responsável quando o professor conclui a agenda do dia. A aplicação é web (Next.js), então o canal é o **padrão Web Push do browser**, não app nativo.
+>
+> **Alcance esperado:** Android/Chrome e desktop funcionam em aba comum. **iPhone só recebe se o responsável instalar o PWA na tela inicial** (iOS 16.4+) — daí o peso do onboarding (NOT-11) e do diagnóstico (NOT-16/NOT-19). Cobertura realista ≈ 75–85% dos responsáveis.
+>
+> **Gatilho:** ação explícita do professor (**"Enviar para os pais"**), não `save` — a agenda é preenchida ao longo do dia, disparar a cada gravação geraria ~8 notificações/dia/filho.
+>
+> **LGPD:** o corpo da notificação aparece na tela de bloqueio. Nunca leva dado de saúde, alimentação ou nome de medicação — só "agenda disponível" + link.
+>
+> **Back-end (`aquarela_serverless`) já pronto e testado:** `POST/DELETE /dispositivos`, motor `enviarNotificacao` (canal FCM plugável), `POST /agenda/{id}/enviar` (idempotente, só professor da turma). Contrato completo em `docs/03-Backend.md` §5 e `docs/04-Banco-de-Dados.md`. Credencial do Firebase já validada em SSM staging. **Tudo que falta é front**, listado abaixo.
+
+| ID | Tarefa | Prio | Pts | Camada | Dep. | AC |
+|---|---|---|---|---|---|---|
+| NOT-00 | ✅ Spike: validar entrega em dispositivo real (Android, iPhone c/ PWA, desktop) | 🔴 | 1 | INFRA | — | Concluído 28/07/2026 — Android e iPhone (PWA) confirmados com app fechado/tela travada |
+| NOT-10 | ✅ PWA no front: `manifest.json` (`display: standalone`) + ícones + `firebase-messaging-sw.js` | 🔴 | 3 | FE | INF-07 | Service worker servido na **raiz** do domínio; app instalável; HTTPS |
+| NOT-11 | ✅ Onboarding de instalação (detecta iOS não-instalado e **webview de app** → sai para o browser) | 🔴 | 5 | UX/FE | NOT-10 | Guia passo a passo no iPhone; detecta webview (WhatsApp/Instagram, confirmado no spike que não suporta push) e instrui "Abrir no Safari/Chrome"; estado "instalado" detectado |
+| NOT-12 | ✅ Fluxo de permissão contextualizado + `getToken` + registro no back (`POST /dispositivos`) | 🔴 | 5 | FE | NOT-10 | Explica o benefício **antes** de `requestPermission()` — o browser só pergunta uma vez; token enviado ao back |
+| NOT-13 | ✅ Ciclo de vida do token: reenvio no login, `onTokenRefresh`, `DELETE /dispositivos/{token}` no logout | 🔴 | 2 | FE | NOT-12 | Token nunca fica órfão nem obsoleto; logout limpa o dispositivo |
+| NOT-14 | ✅ `onMessage` em primeiro plano → toast in-app | 🟡 | 2 | FE | NOT-12, INF-10 | App aberto não perde o aviso (SO não exibe notificação nesse caso) |
+| NOT-15 | ✅ Botão **"Enviar para os pais"** na tela de agenda do professor (`POST /agenda/{id}/enviar`) + estado "enviada" | 🔴 | 3 | FE | AGD-05 | Professor vê se já enviou (`enviadaEm`); botão bloqueia reenvio acidental; back responde 409 se já enviado |
+| NOT-16 | ✅ Tela de preferências: status da notificação, reativar, diagnosticar permissão bloqueada | 🟡 | 3 | FE | NOT-12 | Responsável que negou a permissão recebe instrução de como reverter no browser |
+| NOT-18 | Teste em dispositivos reais (Android, iPhone c/ PWA, desktop) antes do go-live | 🔴 | 3 | QA | NOT-15 | Matriz de plataformas validada com app fechado; casos de falha documentados |
+
+**Subtotal Épico I (frente do front):** 26 pts.
+
+**Riscos:** Responsável em iPhone não instala o PWA → não recebe nada e não sabe disso (mitigado por NOT-11); permissão negada é tiro único, o browser não pergunta de novo (mitigado por NOT-12/NOT-16); link aberto no webview do WhatsApp não tem `PushManager` — confirmado no spike, é o caminho mais provável do responsável (mitigado por NOT-11).
+
+> **NOT-10..16 implementados no front.** `src/contexts/NotificationsContext.tsx`
+> concentra permissão/token/toast (SDK modular do `firebase/messaging` não tem
+> mais `onTokenRefresh` — o substituto é chamar `getToken()` de novo no login,
+> idempotente no back). `src/utils/device.ts` isola a detecção de
+> plataforma/iOS/webview/PWA-instalado (testado em `device.test.ts`, sem DOM).
+> Onboarding (`src/features/notificacoes/NotificationOnboarding.tsx`) só
+> aparece pro responsável, na `InicioScreen`; a tela de preferências
+> (`NotificacoesScreen.tsx`) é reused nas duas rotas
+> (`/perfil/notificacoes` e `/professor/perfil/notificacoes`). Botão "Enviar
+> para os pais" ficou em `RegistrarAgendaScreen.tsx` (não na lista de alunos)
+> — só aparece depois que a agenda do dia já foi salva. Ícones do manifest
+> foram gerados (gota em gradiente, mesma identidade do `Logo.tsx`) já que não
+> havia asset PNG da marca no repo. **NOT-18 (teste em dispositivo real) segue
+> em aberto** — QA manual, fora do que dá pra automatizar aqui.
+
+---
+
 ## Resumo de esforço
 
 | Épico | Total (pts) | MVP (pts) |
@@ -184,7 +233,8 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | E — Simulador | 17 | 11 |
 | F — Pedagógico | 16 | 3 |
 | G — Qualidade/Go-live | 29 | 23 |
-| **Total** | **310** | **254** |
+| I — Notificações push (front) | 26 | — |
+| **Total** | **336** | **254** |
 
 > Ordem de grandeza (não compromisso). Com um time de 2–3 devs a ~20–25 pts/sprint de 2 semanas, o MVP (~254 pts) fica em torno de **5 a 6 sprints (10–12 semanas)**. Refine as estimativas em planning com o time.
 

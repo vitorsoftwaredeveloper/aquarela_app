@@ -70,6 +70,15 @@ Perfil de app espelhando o Cognito.
 ```
 Índices: `cpf` (unique), `turmaId`, texto em `nome`.
 
+> **`financeiro.valorMensalidade` é sempre o valor livre, `planoId` é só
+> etiqueta.** O backend nunca deriva `valorMensalidade` de `planoId`/
+> `configPrecos` — o valor gravado é sempre o número que o front manda em
+> `POST`/`PUT`. `planoId` é opcional: presente quando o admin escolheu um
+> plano fixo em `CriancaStepper.tsx` (etapa Financeiro); ausente quando digitou
+> um **valor personalizado** (acordo fechado com os responsáveis, fora dos
+> planos de `configPrecos`) — o toggle "Plano fixo" × "Valor personalizado"
+> decide qual dos dois é enviado, nunca os dois juntos.
+
 ### `professores`
 ```
 { _id, usuarioId: ObjectId, nome, cpf, telefone, email,

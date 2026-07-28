@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronRight, LogOut, Moon, Sun, User } from "lucide-react";
+import { Bell, ChevronRight, LogOut, Moon, Sun, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import styles from "./professor.module.css";
@@ -51,6 +51,17 @@ export function PerfilProfessorScreen() {
               <User size={17} />
             </span>
             <span style={{ flex: 1 }}>Editar dados pessoais</span>
+            <ChevronRight size={18} color="var(--text-mute)" />
+          </button>
+          <button
+            type="button"
+            className={styles.settingsRow}
+            onClick={() => router.push("/professor/perfil/notificacoes")}
+          >
+            <span className={styles.settingsRowIcon}>
+              <Bell size={17} />
+            </span>
+            <span style={{ flex: 1 }}>Notificações</span>
             <ChevronRight size={18} color="var(--text-mute)" />
           </button>
         </div>

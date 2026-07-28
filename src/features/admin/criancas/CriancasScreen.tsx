@@ -12,6 +12,7 @@ import {
   Search,
   ShieldAlert,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import { Badge, Button, Input, Modal, Select } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
@@ -20,6 +21,7 @@ import { TurmasService } from "@/services/turmas";
 import { getApiErrorMessage } from "@/services/apiError";
 import { idadeEmAnos, type CriancaCadastro } from "@/types/criancaCadastro";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
+import { FinanceiroCriancaModal } from "./FinanceiroCriancaModal";
 import styles from "../admin.module.css";
 
 export function CriancasScreen() {
@@ -39,6 +41,8 @@ export function CriancasScreen() {
   const [moveTurmaId, setMoveTurmaId] = useState("");
   const [moveBusy, setMoveBusy] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
+  const [financeiroCrianca, setFinanceiroCrianca] =
+    useState<CriancaCadastro | null>(null);
 
   const criancas = useMemo(() => {
     const list = data ?? [];
@@ -254,6 +258,14 @@ export function CriancasScreen() {
                           </button>
                           <button
                             className={styles.iconBtn}
+                            onClick={() => setFinanceiroCrianca(c)}
+                            aria-label={`Financeiro de ${c.nome}`}
+                            title="Financeiro"
+                          >
+                            <Wallet size={16} />
+                          </button>
+                          <button
+                            className={styles.iconBtn}
                             onClick={() => onTogglePower(c)}
                             disabled={togglingId === c._id}
                             aria-label={
@@ -412,6 +424,11 @@ export function CriancasScreen() {
           </div>
         )}
       </Modal>
+
+      <FinanceiroCriancaModal
+        crianca={financeiroCrianca}
+        onClose={() => setFinanceiroCrianca(null)}
+      />
     </div>
   );
 }

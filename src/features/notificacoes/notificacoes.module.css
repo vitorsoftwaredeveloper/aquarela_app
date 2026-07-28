@@ -1,0 +1,84 @@
+.pushHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--screen) 94%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  cursor: pointer;
+  flex: none;
+}
+.pushTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15.5px;
+}
+.pushSub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.form {
+  padding: 12px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-bottom: 12px;
+}
+
+.saveBtn {
+  margin-top: 4px;
+  width: 100%;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  background: var(--grad-primary);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(76, 155, 232, 0.6);
+}
+.saveBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.saveError {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--color-danger-strong);
+  font-size: 12.5px;
+  margin-top: 4px;
+}
