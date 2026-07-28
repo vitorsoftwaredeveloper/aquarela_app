@@ -123,13 +123,16 @@ export const ProfessorService = {
   },
 
   /** Cria o registro do dia (ainda não existe). */
-  async salvarAgenda(payload: AgendaRegistroPayload): Promise<void> {
+  async salvarAgenda(payload: AgendaRegistroPayload): Promise<AgendaDoDia> {
     if (IS_DEV_DATA) {
       devAgendasRegistradasHoje.add(payload.criancaId);
       devAgendaPorCrianca.set(payload.criancaId, payload);
-      return;
+      return { ...payload, _id: `dev-${payload.criancaId}` };
     }
-    await api.post("/agenda", payload);
+    const { data } = await api.post("/agenda", payload);
+    const item = unwrapItem<AgendaDoDia>(data);
+    if (!item) throw new Error("Resposta inesperada de POST /agenda");
+    return item;
   },
 
   /** Edita o registro do dia já existente. */

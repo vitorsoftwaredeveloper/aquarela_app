@@ -261,7 +261,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > - Fluxo de permissão: pedir `Notification.requestPermission()` só **depois** de explicar o benefício (o browser só pergunta uma vez — negou, só reverte manualmente nas configs do browser)
 > - `getToken()` do Firebase SDK (`firebase/messaging`) → `POST /dispositivos` no login; reenviar em `onTokenRefresh`; `DELETE /dispositivos/{token}` no logout
 > - **iPhone só recebe push com o PWA instalado na tela de início** (iOS 16.4+) — abrir pelo Safari normal não funciona, e abrir pelo **webview do WhatsApp/Instagram também não** (confirmado no spike `NOT-00`: `PushManager` indisponível). Precisa detectar os dois casos e instruir o responsável
-> - Botão **"Enviar para os pais"** na tela de agenda do professor chamando `POST /agenda/{id}/enviar` (ver acima) — é o gatilho, não dispara em `save`
+> - `RegistrarAgendaScreen` chama `POST /agenda/{id}/enviar` (ver acima) **automaticamente logo após salvar** a agenda (criação ou edição) — sem botão "Enviar para os pais" na tela. Cada criança gera seu próprio envio: um responsável com vários filhos na escola recebe uma notificação por criança. Falha ao notificar não bloqueia o salvamento (chamada best-effort, erro silenciado) e reenvio em edições posteriores é idempotente no back (`409 AGENDA_JA_ENVIADA`)
 > - Corpo da notificação vem do back sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio)
 
 ### Planos de aula (PED-01/02)

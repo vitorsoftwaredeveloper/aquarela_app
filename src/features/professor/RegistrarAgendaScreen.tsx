@@ -15,7 +15,6 @@ import {
   Palette,
   Pill,
   Plus,
-  Send,
   ShieldAlert,
   Smile,
   Thermometer,
@@ -27,7 +26,7 @@ import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
 import { agoraHHMM, hojeISO } from "@/utils/date";
-import { getApiErrorCode, getApiErrorMessage } from "@/services/apiError";
+import { getApiErrorMessage } from "@/services/apiError";
 import {
   ACEITACAO_OPTS,
   ATIVIDADES,
@@ -81,10 +80,6 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const [enviadaEm, setEnviadaEm] = useState<string | null>(null);
-  const [enviando, setEnviando] = useState(false);
-  const [enviarError, setEnviarError] = useState<string | null>(null);
-
   const [confirmandoRemocao, setConfirmandoRemocao] = useState(false);
   const [removendo, setRemovendo] = useState(false);
   const [removerError, setRemoverError] = useState<string | null>(null);
@@ -115,7 +110,6 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     }
 
     setAgendaId(raw._id);
-    setEnviadaEm(raw.enviadaEm ?? null);
     setRefeicoes(refeicoesCarregadas);
     setAceitacaoPorRefeicao(aceitacaoCarregada);
     setSonecas(raw.sono ?? []);
@@ -191,11 +185,15 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     };
 
     try {
-      if (agendaId) {
-        await ProfessorService.atualizarAgenda(agendaId, payload);
+      let id = agendaId;
+      if (id) {
+        await ProfessorService.atualizarAgenda(id, payload);
       } else {
-        await ProfessorService.salvarAgenda(payload);
+        const criada = await ProfessorService.salvarAgenda(payload);
+        id = criada._id;
+        setAgendaId(id);
       }
+      ProfessorService.enviarAgenda(id).catch(() => {});
       setSaved(true);
       setTimeout(() => router.back(), 700);
     } catch (err) {
@@ -216,25 +214,6 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
       setRemoverError(getApiErrorMessage(err));
     } finally {
       setRemovendo(false);
-    }
-  }
-
-  async function enviarParaOsPais() {
-    if (!agendaId) return;
-    setEnviando(true);
-    setEnviarError(null);
-    try {
-      const atualizada = await ProfessorService.enviarAgenda(agendaId);
-      setEnviadaEm(atualizada.enviadaEm ?? new Date().toISOString());
-    } catch (err) {
-      // Reenvio (409 AGENDA_JA_ENVIADA) não é erro de verdade — já está enviada.
-      if (getApiErrorCode(err) === "AGENDA_JA_ENVIADA") {
-        setEnviadaEm(new Date().toISOString());
-      } else {
-        setEnviarError(getApiErrorMessage(err));
-      }
-    } finally {
-      setEnviando(false);
     }
   }
 
@@ -559,47 +538,6 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             {saveError && (
               <div className={styles.saveError} role="alert">
                 <AlertCircle size={16} /> <span>{saveError}</span>
-              </div>
-            )}
-
-            {agendaId && (
-              <button
-                type="button"
-                className={styles.saveBtn}
-                style={
-                  enviadaEm
-                    ? undefined
-                    : {
-                        background: "none",
-                        color: "var(--color-primary-link)",
-                        boxShadow: "none",
-                        border: "1px solid var(--border-08)",
-                      }
-                }
-                onClick={enviarParaOsPais}
-                disabled={enviando || !!enviadaEm}
-              >
-                {enviadaEm ? (
-                  <>
-                    <Check size={18} /> Enviada às{" "}
-                    {new Date(enviadaEm).toLocaleTimeString("pt-BR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </>
-                ) : enviando ? (
-                  "Enviando…"
-                ) : (
-                  <>
-                    <Send size={17} /> Enviar para os pais
-                  </>
-                )}
-              </button>
-            )}
-
-            {enviarError && (
-              <div className={styles.saveError} role="alert">
-                <AlertCircle size={16} /> <span>{enviarError}</span>
               </div>
             )}
 
