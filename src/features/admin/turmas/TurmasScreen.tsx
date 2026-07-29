@@ -85,7 +85,7 @@ export function TurmasScreen() {
                 <tr>
                   <th>Turma</th>
                   <th>Faixa etária</th>
-                  <th>Professora</th>
+                  <th>Professor(a)</th>
                   <th>Crianças</th>
                   <th>Status</th>
                   <th aria-label="Ações" />
