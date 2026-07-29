@@ -1078,6 +1078,31 @@
   display: flex;
   color: var(--text-mute);
 }
+.switchTrack {
+  flex: none;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--border-14);
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+.switchThumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+.switchOn {
+  background: var(--color-secondary-strong);
+}
+.switchOn .switchThumb {
+  transform: translateX(20px);
+}
 .signOut {
   margin: 16px 16px 0;
   width: calc(100% - 32px);

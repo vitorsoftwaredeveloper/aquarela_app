@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
-import { Skeleton, ThemeToggle } from "@/components";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -36,7 +36,6 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
         <Link href={`/historico/${criancaId}`} className={styles.pushAction}>
           Histórico
         </Link>
-        <ThemeToggle />
       </div>
 
       {c && temCuidados(c) && (

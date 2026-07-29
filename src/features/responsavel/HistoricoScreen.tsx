@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShieldAlert } from "lucide-react";
-import { Skeleton, ThemeToggle } from "@/components";
+import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -33,7 +33,6 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
             {crianca.data?.nome ?? "Criança"} · últimas semanas
           </div>
         </div>
-        <ThemeToggle />
       </div>
 
       {historico.loading ? (

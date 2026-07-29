@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, ChevronRight, History, RefreshCw, X } from "lucide-react";
-import { Avatar, Skeleton, ThemeToggle } from "@/components";
+import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
@@ -110,7 +110,6 @@ export function InicioScreen() {
       <div className={styles.gradHeader}>
         <div className={styles.homeTop}>
           <span className={styles.greeting}>Olá, {firstName}</span>
-          <ThemeToggle variant="onBrand" />
         </div>
         <button className={styles.childCard} onClick={abrirTrocaFilho}>
           <Avatar
