@@ -45,7 +45,7 @@ export const REFEICAO_CODIGO: Record<(typeof REFEICOES)[number], string> = {
   Café: "cafe",
   Almoço: "almoco",
   Lanche: "lanche",
-  Jantar: "jantar",
+  Jantar: "janta",
 };
 
 export const ACEITACAO_OPTS: { value: Aceitacao; label: string }[] = [

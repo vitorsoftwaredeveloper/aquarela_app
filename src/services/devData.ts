@@ -308,7 +308,7 @@ const agendaLorena: AgendaDia = {
     {
       tipo: "intercorrencia",
       title: "Febre leve (37,8°)",
-      text: "10:00",
+      text: "Percebido durante o período no berçário",
       destaque: true,
     },
     {

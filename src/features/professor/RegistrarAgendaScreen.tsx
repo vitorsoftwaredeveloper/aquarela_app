@@ -88,6 +88,16 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const medicacoes = c?.cuidados?.medicacoes ?? [];
   const temCuidado = alergias.length > 0 || medicacoes.length > 0;
 
+  const alimentacaoPreenchida = refeicoes.some((r) => aceitacaoPorRefeicao[r]);
+  const temInformacaoMinima =
+    alimentacaoPreenchida ||
+    sonecas.length > 0 ||
+    atividades.length > 0 ||
+    humor !== null ||
+    fraldas > 0 ||
+    intercorrencias.length > 0 ||
+    observacoes.trim().length > 0;
+
   const carregando = crianca.loading || agendaExistente.loading;
   const erroCarregar = crianca.error || agendaExistente.error;
 
@@ -522,7 +532,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
               type="button"
               className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ""}`}
               onClick={salvar}
-              disabled={saving || saved}
+              disabled={saving || saved || !temInformacaoMinima}
             >
               {saved ? (
                 <>
@@ -534,6 +544,13 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                 "Salvar agenda"
               )}
             </button>
+
+            {!temInformacaoMinima && !saved && (
+              <div className={styles.minInfoHint} role="status">
+                <AlertCircle size={16} />{" "}
+                <span>Preencha ao menos uma informação para salvar.</span>
+              </div>
+            )}
 
             {saveError && (
               <div className={styles.saveError} role="alert">

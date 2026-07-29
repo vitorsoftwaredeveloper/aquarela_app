@@ -152,20 +152,21 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | DELETE | `/turmas/{id}/criancas/{criancaId}` | admin | **Desvincular** criança da turma |
 | PATCH | `/criancas/{id}/turma` | admin | **Mover** criança para outra turma (body: `turmaId`) |
 
-> **`GET /turmas/{id}/criancas` (visão professor) precisa devolver `agendaRegistrada: boolean`
-> por criança**, calculado a partir de `AgendaDiaria` da data de hoje (servidor). O front
-> (`AlunoTurma extends Crianca`, `services/professorService.ts`) já assume esse campo pra
-> pintar "Pendente"/"Registrada" na tela **Alunos da turma** — sem ele, o card fica preso em
-> "Pendente" mesmo depois do professor salvar a agenda do dia (confirmado em produção:
-> `POST /agenda` retorna sucesso, mas o `GET` seguinte não reflete o registro). Verificado que
-> não é bug de cache do front — o mesmo fluxo com dado mutável local atualiza corretamente.
+> **`GET /turmas/{id}/criancas` (visão professor) devolve `agendaRegistradaHoje: boolean`
+> e `agendaEnviadaHoje: boolean`** por criança (`listCriancasDaTurmaService`), calculados a
+> partir de `AgendaDiaria` da data de hoje (servidor). O front (`AlunoTurma extends Crianca`,
+> `services/professorService.ts`) remapeia pra `agendaRegistrada`/`agendaEnviada` e pinta três
+> estados na tela **Alunos da turma**: "Pendente" (sem registro), "Registrada" (salva mas ainda
+> não enviada aos pais) e "Registrada e enviada" (`enviadaEm` preenchido).
 >
-> **Também precisa devolver `agendaEnviada: boolean`** (agenda de hoje já passou por
-> `POST /agenda/{id}/enviar`, ou seja, `enviadaEm` preenchido). O front já remapeia esse campo
-> (`agendaEnviadaHoje` → `agendaEnviada`, mesmo padrão do remapeamento acima) pra distinguir, na
-> tela **Alunos da turma**, três estados: "Pendente" (sem registro), "Registrada" (salva mas
-> ainda não enviada aos pais) e "Registrada e enviada". Sem o campo, o card nunca sai de
-> "Registrada" mesmo depois do professor enviar.
+> **"Hoje" é calculado no fuso de Brasília (UTC-3 fixo, sem DST), não UTC do servidor**
+> (`utils/date.ts` → `hojeMeiaNoiteBrasil`, usado em `listCriancasDaTurma` e `listTurmas`).
+> Bug corrigido: antes o corte de "dia" usava `setUTCHours(0,0,0,0)` sobre o instante atual do
+> servidor — entre ~21h e meia-noite (horário de Brasília) o dia UTC já tinha virado o dia
+> seguinte, então uma agenda salva à noite (gravada com a data local do front) não aparecia
+> como "Registrada" até o professor atualizar a tela depois da meia-noite. `POST /agenda`
+> retornava sucesso, mas o `GET` seguinte não refletia o registro — não era bug de cache do
+> front.
 
 ### Crianças (CRUD completo)
 | Método | Rota | Papel | Descrição |
@@ -241,6 +242,19 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | POST | `/agenda/{id}/enviar` | professor | Gatilho **"Enviar para os pais"** — dispara a notificação push (ver §Notificações push abaixo). Só a professora da turma (mesma regra de `PUT /agenda/{id}`); 2ª chamada → `409 AGENDA_JA_ENVIADA`. Resposta é a agenda com `enviadaEm` preenchido |
 | DELETE | `/agenda/{id}` | professor | Remover registro do dia. Mesma guarda de `PUT /agenda/{id}` (só a professora da turma; senão `403 FORBIDDEN`); agenda inexistente → `404 NOT_FOUND`. **Hard delete** — registro diário não tem soft delete |
 
+> **`PUT /agenda/{id}` substitui por completo os campos opcionais — não é patch parcial.**
+> `updateAgendaService` monta o `$set` sempre com todos os campos (`alimentacao`, `sono`,
+> `atividades`, `humor`, `higiene`, `medicacoesAdministradas`, `intercorrencias`,
+> `observacoes`), usando `[]`/`null` como default pra qualquer campo ausente no payload — nunca
+> faz spread cru do `payload` no `$set`. Antes, campo omitido no corpo simplesmente não era
+> tocado no Mongo (`$set` parcial de verdade): a tela do professor já reconstrói o payload
+> inteiro a cada "Salvar" e omite (`undefined`) qualquer campo que o professor deixou vazio, daí
+> apagar uma intercorrência/observação/soneca durante uma edição no mesmo dia não tinha efeito
+> — o valor antigo continuava no banco e aparecia pro responsável, mesmo com a tela mostrando
+> "Agenda salva". O front deve continuar mandando o **estado completo do formulário** a cada
+> `PUT` (nunca um patch parcial de verdade) — campo omitido agora é lido como "esvaziado", não
+> "sem alteração".
+>
 > **`GET /agenda` e `GET /agenda/historico` devolvem `professor: { _id, nome }`**
 > junto com o `registradoPor` cru (o `_id` do professor, sem nome). O front
 > (`AgendaService.getDia`, `src/services/agendaService.ts`) usa `professor.nome`

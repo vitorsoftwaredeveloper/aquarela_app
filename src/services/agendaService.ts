@@ -150,7 +150,7 @@ function toEntries(raw: AgendaRaw): AgendaEntry[] {
       tipo: "intercorrencia",
       title:
         inc.descricao || INTERCORRENCIA_LABEL[inc.tipo] || "Intercorrência",
-      text: inc.hora,
+      text: "Percebido durante o período no berçário",
       destaque: true,
     });
   }
