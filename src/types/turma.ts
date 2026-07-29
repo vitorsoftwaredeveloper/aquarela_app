@@ -6,7 +6,7 @@ export interface Turma {
   faixaEtaria: { min: number; max: number };
   professorId: string;
   /** Resumo da professora vinculada (quando o backend popula). */
-  professora?: { _id: string; nome: string };
+  professor?: { _id: string; nome: string; email: string } | null;
   /** Nº de crianças ativas — usado no aviso de remoção. */
   totalCriancas?: number;
   ativo: boolean;

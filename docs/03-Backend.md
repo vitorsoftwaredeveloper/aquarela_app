@@ -127,6 +127,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > **Professor edita o próprio cadastro (tela Perfil), nunca `email`.** `GET`/`PUT /professores/{id}` aceitam papel `professor` além de `admin` — ownership checado no backend (`professor.usuarioId === requester._id`); pedir o cadastro de outro professor, ou mandar o campo `email` (mesmo com o valor igual ao atual), responde **`403 FORBIDDEN`**. O front (`ProfessorService.getMeuCadastro`/`atualizarMeuCadastro` em `services/professorService.ts`) por isso **nunca inclui `email`** no payload do PUT — o formulário mostra o campo só como leitura. O `_id` do próprio cadastro vem de `GET /me` → `IUsuario.professorId` (`AppUser.professorId` em `types/user.ts`, populado no `AuthContext`).
 >
 > **Foto do professor — mesmo mecanismo da foto de criança**, implementado (base64 no corpo, teto de 2MB decodificados, checagem de magic bytes contra o `contentType`, key no bucket `FotosBucket` sob `professores/{professorId}/{uuid}.{ext}`, leitura por `fotoUrl` pré-assinada de 1h) — ver `src/services/shared/fotoUpload.ts` (núcleo genérico reusado por `fotoCrianca.ts` e `fotoProfessor.ts`) e a seção "Crianças" abaixo pro detalhe de validação. `POST` e `PUT /professores/{id}` aceitam o campo opcional `foto: { contentType, base64 }`; toda resposta traz `fotoUrl`. **Tanto admin quanto o próprio professor podem mandar `foto` no `PUT`** — é o mesmo payload que já aceita `nome`/`telefone`/`formacao`. **Não existe endpoint dedicado pra apagar só a foto** (ao contrário de `DELETE /criancas/{id}/foto`) — pra trocar, manda outra `foto` no `PUT`; pra remover sem substituir, hoje não há rota. Como soft delete preserva o cadastro, `DELETE /professores/{id}` **não** apaga a foto do bucket.
+>
+> **`GET /professores` (listagem) traz `turmas: [{ _id, nome }]` por professor** — só turmas ativas em que ele é a professora vinculada. O front já esperava esse formato (`types/professor.ts` → `Professor.turmas`) e renderiza a coluna "Turmas" da tela admin com `turmas.map(t => t.nome).join(", ")`, caindo em "—" quando o array vem vazio.
 
 ### Turmas (CRUD completo + vínculo de crianças)
 | Método | Rota | Papel | Descrição |
@@ -137,6 +139,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/turmas/{id}` | admin | Atualizar dados / trocar professora |
 | DELETE | `/turmas/{id}` | admin | Remover turma (só se vazia, ou realocando as crianças — ver regra) |
 | GET | `/turmas/{id}/criancas` | admin/professor | Listar alunos da turma |
+
+> **`GET /turmas` traz `professor: { _id, nome, email }` por turma** (join a partir de `professorId`, sem populate — repo base não suporta). `professor: null` se o professor tiver sido removido. `types/turma.ts` → `Turma.professor`; a tela admin de Turmas pinta a coluna "Professora" com `professor?.nome ?? "—"`.
 | POST | `/turmas/{id}/criancas` | admin | **Vincular** criança à turma (body: `criancaId`) |
 | DELETE | `/turmas/{id}/criancas/{criancaId}` | admin | **Desvincular** criança da turma |
 | PATCH | `/criancas/{id}/turma` | admin | **Mover** criança para outra turma (body: `turmaId`) |

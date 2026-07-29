@@ -101,7 +101,7 @@ export function TurmasScreen() {
                       )}
                     </td>
                     <td>{formatFaixa(t.faixaEtaria)}</td>
-                    <td>{t.professora?.nome ?? "—"}</td>
+                    <td>{t.professor?.nome ?? "—"}</td>
                     <td>{t.totalCriancas ?? 0}</td>
                     <td>
                       <Badge tone={t.ativo ? "success" : "neutral"}>
