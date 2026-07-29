@@ -24,6 +24,7 @@ messaging.onBackgroundMessage((payload) => {
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     data: payload.data ?? {},
+    tag: payload.data?.url ?? `${title}|${body}`,
   });
 });
 
