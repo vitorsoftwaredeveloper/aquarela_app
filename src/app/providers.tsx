@@ -4,6 +4,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { configureAmplify } from "@/config/amplify";
+import { InstallPrompt } from "@/components";
 
 // Configura o Amplify no load do módulo (client), ANTES de qualquer efeito de
 // componente. Se ficasse em useEffect, o efeito do AuthProvider (filho) rodaria
@@ -18,6 +19,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <NotificationsProvider>{children}</NotificationsProvider>
       </AuthProvider>
+      <InstallPrompt />
     </ThemeProvider>
   );
 }

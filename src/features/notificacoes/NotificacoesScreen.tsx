@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Bell, BellOff, ChevronLeft } from "lucide-react";
+import { AlertCircle, Bell, BellOff, ChevronLeft, Share } from "lucide-react";
 import { Badge } from "@/components";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { instrucaoReativarNotificacoes } from "@/utils/device";
+import {
+  instrucaoReativarNotificacoes,
+  isIOS,
+  isStandalonePwa,
+} from "@/utils/device";
 import styles from "./notificacoes.module.css";
 
 const STATUS: Record<
@@ -22,6 +27,12 @@ export function NotificacoesScreen() {
   const router = useRouter();
   const { permission, active, enabling, error, requestPermission, disable } =
     useNotifications();
+  const [bloqueadoNestaAba, setBloqueadoNestaAba] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBloqueadoNestaAba(isIOS() && !isStandalonePwa());
+  }, []);
 
   const situacao =
     permission === "unsupported"
@@ -78,7 +89,20 @@ export function NotificacoesScreen() {
             </div>
           )}
 
-          {permission !== "unsupported" && permission !== "denied" && (
+          {permission !== "denied" && bloqueadoNestaAba && (
+            <div className={styles.saveError} role="alert" style={{ marginTop: 4 }}>
+              <Share size={16} />
+              <span>
+                No iPhone as notificações só funcionam pelo app instalado.
+                Toque em Compartilhar e depois em &ldquo;Adicionar à Tela de
+                Início&rdquo;.
+              </span>
+            </div>
+          )}
+
+          {permission !== "unsupported" &&
+            permission !== "denied" &&
+            !bloqueadoNestaAba && (
             <button
               type="button"
               className={styles.saveBtn}

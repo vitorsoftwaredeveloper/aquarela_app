@@ -13,7 +13,7 @@ import { IS_PUSH_CONFIGURED } from "@/config/env";
 import { getFcmToken, onForegroundMessage } from "@/lib/firebaseMessaging";
 import { DispositivosService } from "@/services/dispositivos";
 import { storage } from "@/storage/localStorage";
-import { detectPlataforma } from "@/utils/device";
+import { detectPlataforma, isIOS, isStandalonePwa } from "@/utils/device";
 import { ToastStack, type ToastItem } from "@/components";
 import { useAuth } from "./AuthContext";
 
@@ -36,6 +36,11 @@ const NotificationsContext = createContext<NotificationsContextData>(
 );
 
 const TOKEN_KEY = "fcmToken";
+const DISABLED_KEY = "fcmDesativadoManualmente";
+
+function pushBloqueadoNestaAba(): boolean {
+  return isIOS() && !isStandalonePwa();
+}
 
 export function NotificationsProvider({
   children,
@@ -66,9 +71,19 @@ export function NotificationsProvider({
       Notification.permission === "granted" && !!storage.get<string>(TOKEN_KEY),
     );
     /* eslint-enable react-hooks/set-state-in-effect */
+
+    if (pushBloqueadoNestaAba()) {
+      const token = storage.get<string>(TOKEN_KEY);
+      if (token) {
+        DispositivosService.remover(token).catch(() => {});
+        storage.remove(TOKEN_KEY);
+        setActive(false);
+      }
+    }
   }, []);
 
   const syncToken = useCallback(async () => {
+    if (pushBloqueadoNestaAba() || storage.get<boolean>(DISABLED_KEY)) return;
     try {
       const token = await getFcmToken();
       if (!token) return;
@@ -139,8 +154,15 @@ export function NotificationsProvider({
 
   const requestPermission = useCallback(async () => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (pushBloqueadoNestaAba()) {
+      setError(
+        "No iPhone as notificações só funcionam pelo app instalado. Toque em Compartilhar > Adicionar à Tela de Início.",
+      );
+      return;
+    }
     setEnabling(true);
     setError(null);
+    storage.remove(DISABLED_KEY);
     try {
       const result = await Notification.requestPermission();
       setPermission(result as PushPermission);
@@ -160,6 +182,7 @@ export function NotificationsProvider({
       await DispositivosService.remover(token).catch(() => {});
       storage.remove(TOKEN_KEY);
     }
+    storage.set(DISABLED_KEY, true);
     setActive(false);
   }, []);
 

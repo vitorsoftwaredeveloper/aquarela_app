@@ -89,7 +89,7 @@ config/<stage>.json          # referências a SSM
 
 Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 
-> **Convenção de CRUD.** Todas as entidades de cadastro (`usuarios`, `professores`, `turmas`, `criancas`) expõem o ciclo completo **create / read / update / delete**. `DELETE` é **soft delete** (`ativo: false`) por padrão. **Exceções deliberadas:** `usuarios` e `criancas` — nesses dois, `DELETE` é **hard delete definitivo**; usar `PUT .../{id}` com `ativo:false` para só bloquear o acesso preservando o cadastro/histórico. Ver seção 9 (LGPD) e a doc de banco.
+> **Convenção de CRUD.** Todas as entidades de cadastro (`usuarios`, `professores`, `turmas`, `criancas`) expõem o ciclo completo **create / read / update / delete**. `DELETE` é **soft delete** (`ativo: false`) por padrão (`professores`, `turmas`). **Exceções deliberadas:** `usuarios` e `criancas` — nesses dois, `DELETE` é **hard delete definitivo**; usar `PUT .../{id}` com `ativo:false` para só bloquear o acesso preservando o cadastro/histórico. `avisos` também é hard delete (mural não guarda histórico). Ver seção 9 (LGPD) e a doc de banco.
 
 ### Auth/usuários (CRUD completo)
 | Método | Rota | Papel | Descrição |
@@ -101,7 +101,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | DELETE | `/usuarios/{id}` | admin | Remover usuário **em definitivo** (hard delete: apaga do banco + `AdminDeleteUser` no Cognito) |
 | GET | `/me` | todos | Dados do usuário logado + papel |
 
-> **`GET /me` (papel `professor`) inclui `professorId`, resolvido sob demanda.** O schema `usuarios.professorId` nunca é gravado na criação — o backend resolve `professores._id` a partir de `usuarioId` a cada chamada (`getMeService`) e injeta como `professorId` na resposta. Sem essa resolução (versão antiga do backend) o campo vem `undefined` e a tela Perfil do professor não mostra o card "Meus dados".
+> **`GET /me` (papel `professor`) inclui `professorId`, resolvido sob demanda.** O schema `usuarios.professorId` nunca é gravado na criação — o backend resolve `professores._id` a partir de `usuarioId` a cada chamada (`getMeService`) e injeta como `professorId` na resposta. Sem essa resolução o campo vem `undefined` e a tela Perfil do professor não mostra o card "Meus dados".
 
 > **`POST /usuarios` — sem senha no body, senha temporária no retorno.** Body: `{ nome, email, papel, telefone? }` (`nome`≥3, `papel`∈`admin|professor|responsavel`). O backend cria o usuário no **Cognito com senha temporária gerada** (`AdminCreateUser` com `MessageAction: "SUPPRESS"` — **não** manda e-mail de convite), marca `email_verified`, adiciona ao grupo do papel e guarda o `cognitoSub`.
 >
@@ -114,30 +114,19 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 ### Professores (CRUD completo)
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| POST | `/professores` | admin | Cadastrar professor |
+| POST | `/professores` | admin | Cadastrar professor (+ **foto** opcional) |
 | GET | `/professores` | admin | Listar professores |
 | GET | `/professores/{id}` | admin/professor* | Detalhe (*só o próprio cadastro) |
-| PUT | `/professores/{id}` | admin/professor* | Atualizar dados (*só o próprio cadastro, e sem `email`) |
+| PUT | `/professores/{id}` | admin/professor* | Atualizar dados/**foto** (*só o próprio cadastro, e sem `email`) |
 | DELETE | `/professores/{id}` | admin | Remover (bloqueado/aviso se houver turma vinculada) |
-| DELETE | `/professores/{id}/foto` | admin | Apagar só a foto (cadastro permanece) — **contrato assumido**, mesmo padrão de `DELETE /criancas/{id}/foto` |
 
-> **`POST /professores` — cria o usuário (papel=professor) junto, sem `usuarioId`.** Body: `{ nome, cpf, telefone, email, formacao?, foto? }` — todos obrigatórios exceto `formacao` e `foto`. **Contrato assumido** (mesmo padrão de `POST /usuarios`): o backend cria o usuário no Cognito com senha temporária gerada (`AdminCreateUser`, `MessageAction: "SUPPRESS"`), grupo `professor`, guarda `cognitoSub`, cria o registro em `professores` vinculado (`usuarioId` interno) e retorna **`senhaTemporaria`** no payload (uma única vez, não persistida) — o front mostra num modal para o admin copiar e repassar. Valida CPF por dígitos verificadores (`400`) e e-mail único (`409`). Falha em qualquer etapa faz rollback (usuário no Cognito + registro). Elimina o fluxo antigo de "criar Usuário primeiro, depois vincular no Professor" — reduz erro de vínculo errado e usuário órfão papel=professor sem professor associado.
+> **`POST /professores` — cria o usuário (papel=professor) junto, sem `usuarioId`.** Body: `{ nome, cpf, telefone, email, formacao?, foto? }` — todos obrigatórios exceto `formacao` e `foto`. Mesmo padrão de `POST /usuarios`: o backend cria o usuário no Cognito com senha temporária gerada (`AdminCreateUser`, `MessageAction: "SUPPRESS"`), grupo `professor`, guarda `cognitoSub`, cria o registro em `professores` vinculado (`usuarioId` interno) e retorna **`senhaTemporaria`** no payload (uma única vez, não persistida) — o front mostra num modal para o admin copiar e repassar. Valida CPF por dígitos verificadores (`400`) e e-mail único (`409`). Falha em qualquer etapa faz rollback (usuário no Cognito + registro).
 >
 > **`PUT /professores/{id}` — só `{ nome?, telefone?, email?, formacao?, foto? }`** (`additionalProperties:false`). **Não aceita** trocar `usuarioId` nem `cpf` — enviar esses campos causa `400`.
 >
-> **Professor edita o próprio cadastro (tela Perfil), nunca `email`.** `GET`/`PUT /professores/{id}` agora aceitam papel `professor` além de `admin` — ownership checado no backend (`professor.usuarioId === requester._id`); pedir o cadastro de outro professor, ou mandar o campo `email` (mesmo com o valor igual ao atual), responde **`403 FORBIDDEN`**. O front (`ProfessorService.getMeuCadastro`/`atualizarMeuCadastro` em `services/professorService.ts`) por isso **nunca inclui `email`** no payload do PUT — o formulário mostra o campo só como leitura. O `_id` do próprio cadastro vem de `GET /me` → `IUsuario.professorId` (`AppUser.professorId` em `types/user.ts`, populado no `AuthContext`).
+> **Professor edita o próprio cadastro (tela Perfil), nunca `email`.** `GET`/`PUT /professores/{id}` aceitam papel `professor` além de `admin` — ownership checado no backend (`professor.usuarioId === requester._id`); pedir o cadastro de outro professor, ou mandar o campo `email` (mesmo com o valor igual ao atual), responde **`403 FORBIDDEN`**. O front (`ProfessorService.getMeuCadastro`/`atualizarMeuCadastro` em `services/professorService.ts`) por isso **nunca inclui `email`** no payload do PUT — o formulário mostra o campo só como leitura. O `_id` do próprio cadastro vem de `GET /me` → `IUsuario.professorId` (`AppUser.professorId` em `types/user.ts`, populado no `AuthContext`).
 >
-> **Foto do professor — contrato assumido, mesmo padrão da foto de criança**
-> (base64 no corpo, teto de 2MB decodificados, `utils/imagem.ts` redimensiona
-> pra 800px/JPEG antes de enviar — ver §"Crianças" abaixo pros detalhes). `POST`
-> e `PUT /professores/{id}` aceitam o campo opcional `foto: { contentType,
-> base64 }`; toda resposta deve trazer `fotoUrl`. **Tanto admin quanto o
-> próprio professor podem mandar `foto` no `PUT`** — é o mesmo payload que já
-> aceita `nome`/`telefone`/`formacao` (professor continua sem poder tocar em
-> `email`). `DELETE /professores/{id}/foto` é **admin-only** (professor não
-> tem botão de remover a própria foto, só trocar). Ainda não confirmado se o
-> backend já implementa — enquanto isso, `IS_DEV_DATA` simula localmente
-> (`services/professores.ts`, `services/professorService.ts`).
+> **Foto do professor — mesmo mecanismo da foto de criança**, implementado (base64 no corpo, teto de 2MB decodificados, checagem de magic bytes contra o `contentType`, key no bucket `FotosBucket` sob `professores/{professorId}/{uuid}.{ext}`, leitura por `fotoUrl` pré-assinada de 1h) — ver `src/services/shared/fotoUpload.ts` (núcleo genérico reusado por `fotoCrianca.ts` e `fotoProfessor.ts`) e a seção "Crianças" abaixo pro detalhe de validação. `POST` e `PUT /professores/{id}` aceitam o campo opcional `foto: { contentType, base64 }`; toda resposta traz `fotoUrl`. **Tanto admin quanto o próprio professor podem mandar `foto` no `PUT`** — é o mesmo payload que já aceita `nome`/`telefone`/`formacao`. **Não existe endpoint dedicado pra apagar só a foto** (ao contrário de `DELETE /criancas/{id}/foto`) — pra trocar, manda outra `foto` no `PUT`; pra remover sem substituir, hoje não há rota. Como soft delete preserva o cadastro, `DELETE /professores/{id}` **não** apaga a foto do bucket.
 
 ### Turmas (CRUD completo + vínculo de crianças)
 | Método | Rota | Papel | Descrição |
@@ -171,8 +160,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 ### Crianças (CRUD completo)
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| POST | `/criancas` | admin | Cadastrar criança (+ vínculo de turma e responsáveis) |
-| GET | `/criancas` | admin/professor/responsavel* | Listar (filtro por turma, nome, ativo). *`responsavel` só recebe os próprios filhos (via `usuarios.criancasVinculadas` ou `responsaveis[].usuarioId`) — usado pela tela "Início" do responsável |
+| POST | `/criancas` | admin | Cadastrar criança (+ vínculo de turma, responsáveis e **consentimento LGPD**) |
+| GET | `/criancas` | admin/professor/responsavel* | Listar (filtro por turma, nome, ativo). Cada criança inclui `turmaNome` (resolvido a partir de `turmaId`; `null` se sem turma). *`responsavel` só recebe os próprios filhos (via `usuarios.criancasVinculadas` ou `responsaveis[].usuarioId`) — usado pela tela "Início" do responsável |
 | GET | `/criancas/{id}` | admin/professor/responsavel* | Detalhe (*só o próprio filho) |
 | PUT | `/criancas/{id}` | admin/responsavel* | Editar dados/saúde/responsáveis/foto (*só o próprio filho e sem `financeiro`/`ativo`) |
 | DELETE | `/criancas/{id}/foto` | admin | Apagar só a foto (o cadastro permanece) |
@@ -192,6 +181,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >   gravaria imagem corrompida. O front manda `dataUrl.split(",")[1]`.
 > - Magic bytes conferidos contra o `contentType` declarado
 >   (`422 TIPO_IMAGEM_INVALIDO`) — o cliente é quem declara o tipo.
+>
+> No `PUT`, a nova imagem é gravada antes do update (se o S3 falhar, o cadastro fica intacto) e a foto anterior é apagada só depois. No `POST`, a imagem é validada antes de provisionar os acessos dos responsáveis no Cognito, e o objeto é removido se o insert falhar.
 >
 > **Responsável editando o próprio filho.** `PUT /criancas/{id}` aceita
 > `admin` e `responsavel`; como o payload é todo opcional, mandar só `{ foto }`
@@ -215,6 +206,8 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > Como `createCrianca` chama o mesmo fluxo de criação de usuário (Cognito), a function precisa das mesmas `environment.USER_POOL_ID` + permissões IAM (`AdminCreateUser`/`AdminAddUserToGroup`/`AdminGetUser`/`AdminDeleteUser`) que `createUsuario` — configurado em `src/handlers/criancas/functions.yml`.
 >
+> **Valor personalizado (acordo fechado) vs. plano fixo:** `financeiro.valorMensalidade` é sempre obrigatório e é sempre o valor que o admin digitou — o backend não recalcula a partir de `planoId`/`configPrecos` em nenhum momento (`createCriancaService`/`updateCriancaService` gravam `payload.financeiro` como veio). `planoId` é **opcional** e só guarda a referência de qual plano fixo (`GET /config/precos/planos`) foi usado de base, quando foi usado. Omitir `planoId` representa um valor negociado direto com os responsáveis, sem vínculo com nenhum plano — os dois nunca são mandados como se fossem consistentes entre si.
+>
 > **Ativar/desativar × remover.** `PUT /criancas/{id}` aceita `ativo:boolean` — desativar bloqueia o acesso mantendo o cadastro e o histórico. `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são só desvinculados (`$pull` em `criancasVinculadas`), suas contas não são apagadas.
 >
 > **Consentimento LGPD (QA-03).** `POST /criancas` exige `consentimentoLgpd:
@@ -232,7 +225,6 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 - Uma criança pertence a **uma turma por vez**. Vincular a uma nova turma (ou `PATCH .../turma`) substitui o vínculo anterior.
 - **Remover turma** com crianças ativas é bloqueado (`409`): o admin deve antes realocar/desvincular as crianças (o front pode oferecer "mover todos para a turma X").
 - **Remover professor** vinculado a uma turma retorna aviso/`409`; trocar a professora da turma é feito via `PUT /turmas/{id}`.
-- Todo `DELETE` é **soft delete** (`ativo:false`) e idempotente; itens inativos não aparecem nas listas por padrão (filtro `ativo=false` para recuperá-los).
 
 ### Agenda diária
 | POST | `/agenda` | professor | Criar registro (criança+data) |
@@ -270,15 +262,16 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | POST | `/dispositivos` | admin/professor/responsavel | Upsert do token FCM do dispositivo do usuário logado — `{ token, plataforma: "android"\|"ios"\|"web"\|"desktop" }`. Idempotente por `token`: reenviar não duplica |
 | DELETE | `/dispositivos/{token}` | admin/professor/responsavel | Remove um dispositivo próprio (logout). Token de terceiro é no-op silencioso (204) |
 
-> **Implementado e testado no back (`aquarela_serverless`, NOT-01…NOT-08).** Ainda **não implementado no front** — é o Épico I (`NOT-10`…`NOT-18`) em `docs/06-Backlog.md`. O que falta construir aqui:
+> Motor de envio (`services/notificacoes/enviarNotificacao.ts`) resolve os dispositivos do(s) `usuarioId` alvo e envia via Firebase Cloud Messaging (`libs/firebase.ts`, credencial do service account em SSM `SecureString`, lida em runtime). Token que o FCM reporta como `registration-token-not-registered` é removido automaticamente. Corpo da notificação é sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio).
+>
+> **Implementado e testado no back (NOT-01…NOT-08).** Ainda **não implementado no front** — é o Épico I (`NOT-10`…`NOT-18`) em `docs/06-Backlog.md`. O que falta construir no front:
 > - `public/firebase-messaging-sw.js` na **raiz** do domínio + `manifest.json` (`display: standalone`) — sem isso não há push, principalmente no iPhone
 > - Fluxo de permissão: pedir `Notification.requestPermission()` só **depois** de explicar o benefício (o browser só pergunta uma vez — negou, só reverte manualmente nas configs do browser)
 > - `getToken()` do Firebase SDK (`firebase/messaging`) → `POST /dispositivos` no login; reenviar em `onTokenRefresh`; `DELETE /dispositivos/{token}` no logout
 > - **iPhone só recebe push com o PWA instalado na tela de início** (iOS 16.4+) — abrir pelo Safari normal não funciona, e abrir pelo **webview do WhatsApp/Instagram também não** (confirmado no spike `NOT-00`: `PushManager` indisponível). Precisa detectar os dois casos e instruir o responsável
 > - `RegistrarAgendaScreen` chama `POST /agenda/{id}/enviar` (ver acima) **automaticamente logo após salvar** a agenda (criação ou edição) — sem botão "Enviar para os pais" na tela. Cada criança gera seu próprio envio: um responsável com vários filhos na escola recebe uma notificação por criança. Falha ao notificar não bloqueia o salvamento (chamada best-effort, erro silenciado) e reenvio em edições posteriores é idempotente no back (`409 AGENDA_JA_ENVIADA`)
-> - Corpo da notificação vem do back sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio)
 
-### Planos de aula (PED-01/02)
+### Planos de aula
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
 | GET | `/planosAula?turmaId=` | admin/professor | Listar (sem `turmaId`: professor vê os próprios, filtrado por `professorId` do JWT) |
@@ -286,12 +279,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/planosAula/{id}` | admin/professor | Atualizar (trocar `turmaId` reatribui `professorId` à nova turma) |
 | DELETE | `/planosAula/{id}` | admin/professor | Remover (hard delete — sem campo `ativo` no schema) |
 
-> **Implementado no back (`aquarela_serverless`, PED-01).** Sem GET por id —
-> o front (`PlanosAulaService.getById`) resolve via `list` + filtro em memória.
-> Ownership: professor só cria/edita planos das próprias turmas (reusa
-> `getTurmaByIdService`); admin sem restrição. `src/services/planosAula.ts`
-> já está no contrato real; `NEXT_PUBLIC_USE_MOCKS=true` ainda funciona para
-> preview sem depender do backend.
+> Sem GET por id — o front (`PlanosAulaService.getById`) resolve via `list` + filtro em memória. Ownership: professor só cria/edita planos das próprias turmas (reusa `getTurmaByIdService`); admin sem restrição.
 
 ### Avisos (mural)
 | Método | Rota | Papel | Descrição |
@@ -299,7 +287,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | GET | `/avisos?ativo=` | admin/professor/responsavel | Listar avisos (escopo por papel, ver abaixo) |
 | POST | `/avisos` | admin | Publicar aviso (`titulo`, `corpo`, `turmaId?`) |
 | PUT | `/avisos/{id}` | admin | Editar |
-| DELETE | `/avisos/{id}` | admin | Remover (soft delete — `ativo:false`) |
+| DELETE | `/avisos/{id}` | admin | Remover **em definitivo** (hard delete — apaga o documento, não é `ativo:false`) |
 
 > Documento: `{ _id, titulo, corpo, autorId, turmaId?, ativo, createdAt,
 > updatedAt }`. **Sem campo `tipo`** (recado/cuidado/evento) — não existe no
@@ -308,15 +296,26 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > por turma, ver docs/05-Sugestoes-Produto.md).
 >
 > **Escopo do `GET /avisos` varia por papel** (não é um filtro de query):
-> `admin` vê tudo (inclusive inativos, via `?ativo=false`); `professor` vê os
-> avisos globais + das turmas que leciona; `responsavel` vê os globais + das
-> turmas das crianças vinculadas a ele. O front não filtra nada — consome a
-> resposta como vier. `AvisosAdminService` (`src/services/avisosAdminService.ts`,
-> tela `/admin/avisos`) cobre o CRUD; `AgendaService.getAvisos()` é a leitura
-> do lado responsável, mesma rota.
+> `admin` vê só `ativo:true` por padrão (mesmo default das outras listagens);
+> `?ativo=false` explícito devolve os inativos, se algum sobrar (na prática
+> nenhum, já que `DELETE` apaga o documento em vez de desativar). `professor`
+> vê os avisos globais + das turmas que leciona; `responsavel` vê os globais +
+> das turmas das crianças vinculadas a ele. O front não filtra nada — consome
+> a resposta como vier.
+>
+> `ativo` continua no schema (default `true`) mas hoje nenhum fluxo do backend
+> o seta como `false` — `DELETE /avisos/{id}` remove o documento de verdade.
+> Antes o `DELETE` era soft delete e a listagem do admin não filtrava por
+> `ativo` por padrão: um aviso "removido" continuava aparecendo pro admin (a
+> 2ª tentativa de remover virava no-op silencioso, porque já estava
+> `ativo:false`), e criar um novo aviso com o mesmo título parecia duplicar o
+> antigo na tela. Corrigido em `src/services/avisos/removeAviso.ts` (hard
+> delete) e `src/services/avisos/listAvisos.ts` (default `ativo:true` pro
+> admin).
 
 ### Financeiro / Pagamentos
 | GET | `/mensalidades?criancaId=&ano=` | responsavel*/admin | Meses pagos/em aberto |
+> Geração de mensalidade: `POST /criancas` já cria, na hora do cadastro, a mensalidade de cada mês do mês corrente até dezembro do ano corrente (`gerarMensalidadesIniciaisService`) — sem isso a criança ficaria sem cobrança até o cron mensal (`gerarMensalidadesDoMes`, dia 1 de cada mês) gerar a competência seguinte. Ambos idempotentes via índice único `{criancaId, ano, mes}`. Mensalidade não é proporcional a cadastro no meio do mês — sempre o valor cheio de `crianca.financeiro.valorMensalidade`.
 | POST | `/pagamentos` | responsavel | Gerar cobrança PIX (retorna copia-e-cola + txid) |
 | GET | `/pagamentos/{txid}` | responsavel | Status do pagamento |
 | POST | `/pagamentos/manual` | admin | Registrar pagamento recebido em dinheiro físico (baixa manual da mensalidade) — ver seção 7.1 |
@@ -331,12 +330,10 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > vencimento, status, ... }, crianca: { nome, responsaveis: [{ nome, telefone,
 > ... }] } }[]`. Não existe `valorTotal` nem `mesesEmAtraso` na resposta — o
 > front (`services/financeiroNormalize.ts#normalizarInadimplentes`) agrupa por
-> `crianca._id` e soma `mensalidade.valor`. Consumir `data.data` cru aqui
-> quebrava a tela (`Cannot read properties of undefined (reading
-> 'toLocaleString')`). Além disso, a rota só considera mensalidades com
-> `status: "atrasado"` (vencimento já passado) — mensalidades do mês corrente
-> ainda `"aberto"` (não vencidas, só não pagas) **não aparecem** nessa lista;
-> hoje não há rota/filtro para elas.
+> `crianca._id` e soma `mensalidade.valor`. Além disso, a rota só considera
+> mensalidades com `status: "atrasado"` (vencimento já passado) — mensalidades
+> do mês corrente ainda `"aberto"` (não vencidas, só não pagas) **não
+> aparecem** nessa lista; hoje não há rota/filtro para elas.
 
 ### Simulador
 | GET | `/simulador?meses=&plano=` | público | Cálculo de estimativa (ou 100% no cliente) |
@@ -360,14 +357,18 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 import { JSONSchemaType } from "ajv";
 interface CriarAgendaBody {
   criancaId: string; data: string;
-  alimentacao?: { refeicao: string; aceitacao: "tudo"|"parte"|"recusou" }[];
+  alimentacao?: { refeicao: "cafe"|"almoco"|"lanche"|"janta"; aceitacao: "tudo"|"parte"|"recusou"; obs?: string }[];
   sono?: { inicio: string; fim: string }[];
-  medicacoes?: { nome: string; dose: string; hora: string }[];
-  intercorrencia?: { tipo: string; descricao: string };
+  atividades?: string[];
+  humor?: "feliz"|"tranquilo"|"neutro"|"choroso";
+  higiene?: { fraldas?: number; obs?: string };
+  medicacoesAdministradas?: { nome: string; dose: string; hora: string; aplicadaPor: string }[];
+  intercorrencias?: { tipo: "febre"|"queda"|"doenca"|"outro"; descricao: string; hora: string; notificado?: boolean }[];
   observacoes?: string;
 }
-const schema: JSONSchemaType<CriarAgendaBody> = { /* ... */ };
+const schema: JSONSchemaType<CriarAgendaBody> = { /* ver src/schemas/agendas/createAgenda.schema.ts */ };
 ```
+`PUT /agenda/{id}` aceita o mesmo corpo sem `criancaId`/`data` (imutáveis após criação — ver `src/schemas/agendas/updateAgenda.schema.ts`).
 Validar todo payload de entrada antes do service. `ajv-formats` para data/hora/e-mail.
 
 ---
@@ -378,19 +379,21 @@ Validar todo payload de entrada antes do service. `ajv-formats` para data/hora/e
 2. Cliente exibe QR e faz polling em `GET /pagamentos/{txid}`.
 3. `POST /webhooks/mercadopago` recebe a confirmação → valida assinatura → marca a mensalidade como **paga** → gera recibo (PDF/HTML) e salva no **S3** → (fase 2) dispara push.
 4. Idempotência: usar `txid`/`payment_id` para evitar dupla baixa.
-5. **Pagamento pendente já existente:** `POST /pagamentos` para uma mensalidade que já tem cobrança `pendente` responde `409 PAGAMENTO_PENDENTE` (em vez de devolver a cobrança antiga). O front trata isso como qualquer erro genérico de `criarPagamento` — mostra a mensagem da API no modal PIX com o botão "Tentar de novo" (ver [`FinanceiroScreen.tsx`](../src/features/responsavel/FinanceiroScreen.tsx), bloco `erro`). **Não confundir com `409 MENSALIDADE_PAGA`**, que é tratado como confirmação (mensalidade já quitada), não como erro.
-6. **Reconciliação de pendências:** um cron (a cada 30 min) consulta o MercadoPago para cobranças `pendente` sem confirmação. A cada consulta sem resolução incrementa `tentativasReconciliacao`; na 2ª tentativa sem sucesso a cobrança pendente é **removida**, liberando o responsável para gerar uma nova (sem erro). Enquanto a cobrança pendente existir, o responsável recebe `PAGAMENTO_PENDENTE` ao tentar gerar outra para a mesma mensalidade.
+5. **Estorno (`status: refunded`):** o mesmo webhook, ao rebuscar o pagamento na API do MercadoPago e encontrar `refunded`, **remove o `pagamento` do banco** e reverte a `mensalidade` vinculada para `aberto` (limpando `mensalidadeId.pagamentoId`) — a competência volta a ser cobrável, um novo PIX pode ser gerado. Ver `src/services/webhooks/processarWebhookMercadoPago.ts`.
+6. **Pagamento pendente já existente:** `POST /pagamentos` para uma mensalidade que já tem cobrança `pendente` responde `409 PAGAMENTO_PENDENTE` (em vez de devolver a cobrança antiga). O front trata isso como qualquer erro genérico de `criarPagamento` — mostra a mensagem da API no modal PIX com o botão "Tentar de novo". **Não confundir com `409 MENSALIDADE_PAGA`**, que é tratado como confirmação (mensalidade já quitada), não como erro.
+7. **Reconciliação de pendências:** um cron (a cada 30 min) consulta o MercadoPago para cobranças `pendente` sem confirmação. A cada consulta sem resolução incrementa `tentativasReconciliacao`; na 2ª tentativa sem sucesso a cobrança pendente é **removida**, liberando o responsável para gerar uma nova (sem erro). Enquanto a cobrança pendente existir, o responsável recebe `PAGAMENTO_PENDENTE` ao tentar gerar outra para a mesma mensalidade.
 
 Credenciais do MercadoPago e strings de conexão do Mongo ficam em **SSM Parameter Store** por stage, referenciadas em `config/<stage>.json`.
 
 ### 7.1 Pagamento manual (dinheiro físico, só admin)
 
-Fluxo separado do PIX: usado quando o responsável paga em espécie (ex.: na secretaria) e o **admin** registra a baixa manualmente — nunca o próprio responsável. Tela: [`FinanceiroCriancaModal.tsx`](../src/features/admin/criancas/FinanceiroCriancaModal.tsx), acessível pelo ícone de carteira na lista de crianças (`CriancasScreen.tsx`).
+Fluxo separado do PIX: usado quando o responsável paga em espécie (ex.: na secretaria) e o **admin** registra a baixa manualmente — nunca o próprio responsável. Tela: [`FinanceiroCriancaModal.tsx`](../src/features/admin/criancas/FinanceiroCriancaModal.tsx) no front, acessível pelo ícone de carteira na lista de crianças (`CriancasScreen.tsx`).
 
-1. `POST /pagamentos/manual` (papel `admin`) — body `{ mensalidadeId, valor }`. `valor` é o que foi efetivamente recebido em mãos e **não precisa bater com `mensalidade.valor`** (desconto, acerto, etc.) — qualquer `valor > 0` baixa a mensalidade inteira pra `pago`. Não existe baixa parcial, mesma simplificação do fluxo PIX.
-2. Bloqueado (`409`) se a mensalidade já está `pago` (`MENSALIDADE_PAGA`) ou `cancelado` (`MENSALIDADE_CANCELADA`) — mesmos códigos de erro do fluxo PIX. O front trata `MENSALIDADE_PAGA` como confirmação silenciosa (fecha o formulário e recarrega a lista, sem mostrar erro) — mesma lógica do `PixContent`.
-3. Grava um `pagamentos` com `metodo:"dinheiro"`, `provedor:"manual"`, `status:"pago"` já direto, `pagoEm` = timestamp do servidor, e `recebidoPor` = `_id` do admin autenticado — trilha de auditoria da baixa financeira.
-4. Sem webhook, sem reconciliação — a baixa é síncrona no próprio `POST`. `GET /mensalidades?criancaId=&ano=` continua funcionando sem mudança: uma mensalidade paga em dinheiro aparece igual a uma paga por PIX (`status:"pago"`).
+1. `POST /pagamentos/manual` (papel `admin`) — body `{ mensalidadeId, valor }`. `valor` é o que foi efetivamente recebido em mãos e **não precisa bater com `mensalidade.valor`** (desconto, acerto, etc.) — qualquer `valor > 0` baixa a mensalidade inteira pra `pago`. Não existe baixa parcial (a mensalidade não fica "parcialmente paga"), mesma simplificação do fluxo PIX.
+2. Bloqueado (`409`) se a mensalidade já está `pago` (`MENSALIDADE_PAGA`) ou `cancelado` (`MENSALIDADE_CANCELADA`) — mesmos códigos de erro do fluxo PIX (`createPagamentoService`). O front trata `MENSALIDADE_PAGA` como confirmação silenciosa (fecha o formulário e recarrega a lista, sem mostrar erro).
+3. Grava um `pagamentos` com `metodo:"dinheiro"`, `provedor:"manual"`, `status:"pago"` já direto (nunca passa por `pendente`), `pagoEm` = timestamp do servidor (nunca do payload), e `recebidoPor` = `_id` do admin autenticado — trilha de auditoria da baixa financeira exigida na seção 9. `txid` continua existindo no schema (gerado via `randomUUID()`, mesmo mecanismo do PIX) mas não representa uma transação PIX real — é só o identificador interno único do pagamento.
+4. Em transação (replicaSet): atualiza a `mensalidade` pra `pago` + `pagamentoId`, e expira (`status:"expirado"`) qualquer `pagamento` PIX `pendente` da mesma mensalidade — mesma limpeza que o webhook do MercadoPago já faz ao confirmar, evitando um QR PIX pendente "vivo" pra uma mensalidade já paga em dinheiro.
+5. Sem webhook, sem reconciliação — a baixa é síncrona no próprio `POST`. `GET /pagamentos/{txid}` e `GET /mensalidades?criancaId=&ano=` continuam funcionando sem mudança: pro responsável, uma mensalidade paga em dinheiro aparece igual a uma paga por PIX (`status:"pago"`), só sem `pixCopiaECola`/`qrBase64`.
 
 ---
 
@@ -409,6 +412,7 @@ Fluxo separado do PIX: usado quando o responsável paga em espécie (ex.: na sec
 - Segredos apenas em SSM (nunca no código/repo).
 - Logs sem PII sensível; trilha de auditoria para edições de cadastro de criança e baixas financeiras.
 - Webhook com verificação de assinatura.
+- **Consentimento LGPD (QA-03):** `POST /criancas` exige `consentimentoLgpd: boolean` no corpo; `false`/ausente é `422 CONSENTIMENTO_LGPD_OBRIGATORIO`. O backend grava `{ aceito: true, aceitoEm: <timestamp do servidor> }` — o client nunca controla `aceitoEm`. Campo imutável após o cadastro (fora do payload de `PUT /criancas/{id}`).
 
 ---
 
