@@ -25,10 +25,26 @@ interface DeviceFlags {
  * cenários do NOT-11: webview de app (sem PushManager, confirmado no spike
  * NOT-00), iPhone sem o PWA instalado, e o caso normal (Android/desktop).
  */
-export function NotificationOnboarding() {
+export function NotificationOnboarding({
+  spacious = false,
+}: {
+  spacious?: boolean;
+}) {
   const { permission, enabling, requestPermission } = useNotifications();
   const [flags, setFlags] = useState<DeviceFlags | null>(null);
   const [dismissed, setDismissed] = useState(true);
+  const blockCls = spacious
+    ? `${styles.block} ${styles.blockSpacious}`
+    : styles.block;
+  const avisoCls = spacious
+    ? `${styles.aviso} ${styles.avisoSpacious}`
+    : styles.aviso;
+  const avisoIconCls = spacious
+    ? `${styles.avisoIcon} ${styles.avisoIconSpacious}`
+    : styles.avisoIcon;
+  const avisoTitleCls = spacious
+    ? `${styles.avisoTitle} ${styles.avisoTitleSpacious}`
+    : styles.avisoTitle;
 
   useEffect(() => {
     // Lê `navigator`/`window` (indisponíveis no SSR) só depois de montar.
@@ -51,17 +67,17 @@ export function NotificationOnboarding() {
 
   if (permission === "denied") {
     return (
-      <div className={styles.block}>
-        <div className={styles.aviso}>
+      <div className={blockCls}>
+        <div className={avisoCls}>
           <span
-            className={styles.avisoIcon}
+            className={avisoIconCls}
             style={{ background: "#FBEAEA", color: "#C0392B" }}
           >
             <AlertCircle size={17} />
           </span>
           <span style={{ flex: 1 }}>
             <div className={styles.avisoHead}>
-              <span className={styles.avisoTitle}>
+              <span className={avisoTitleCls}>
                 Notificações bloqueadas
               </span>
               <button
@@ -85,17 +101,17 @@ export function NotificationOnboarding() {
 
   if (flags.webview) {
     return (
-      <div className={styles.block}>
-        <div className={styles.aviso}>
+      <div className={blockCls}>
+        <div className={avisoCls}>
           <span
-            className={styles.avisoIcon}
+            className={avisoIconCls}
             style={{ background: "#F1ECFB", color: "#6D45C4" }}
           >
             <Bell size={17} />
           </span>
           <span style={{ flex: 1 }}>
             <div className={styles.avisoHead}>
-              <span className={styles.avisoTitle}>Abra no navegador</span>
+              <span className={avisoTitleCls}>Abra no navegador</span>
               <button
                 type="button"
                 onClick={dispensar}
@@ -118,17 +134,17 @@ export function NotificationOnboarding() {
 
   if (flags.ios && !flags.standalone) {
     return (
-      <div className={styles.block}>
-        <div className={styles.aviso}>
+      <div className={blockCls}>
+        <div className={avisoCls}>
           <span
-            className={styles.avisoIcon}
+            className={avisoIconCls}
             style={{ background: "#F1ECFB", color: "#6D45C4" }}
           >
             <SquarePlus size={17} />
           </span>
           <span style={{ flex: 1 }}>
             <div className={styles.avisoHead}>
-              <span className={styles.avisoTitle}>
+              <span className={avisoTitleCls}>
                 Instale pra receber avisos
               </span>
               <button
@@ -153,17 +169,17 @@ export function NotificationOnboarding() {
   }
 
   return (
-    <div className={styles.block}>
-      <div className={styles.aviso}>
+    <div className={blockCls}>
+      <div className={avisoCls}>
         <span
-          className={styles.avisoIcon}
+          className={avisoIconCls}
           style={{ background: "#F1ECFB", color: "#6D45C4" }}
         >
           <Bell size={17} />
         </span>
         <span style={{ flex: 1 }}>
           <div className={styles.avisoHead}>
-            <span className={styles.avisoTitle}>Ativar notificações</span>
+            <span className={avisoTitleCls}>Ativar notificações</span>
             <button
               type="button"
               onClick={dispensar}

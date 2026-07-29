@@ -45,7 +45,7 @@ export function DashboardScreen() {
         </div>
       </div>
 
-      <NotificationOnboarding />
+      <NotificationOnboarding spacious />
 
       {loading ? (
         <DashboardSkeleton />

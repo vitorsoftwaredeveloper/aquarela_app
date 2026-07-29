@@ -184,6 +184,27 @@
   margin-top: 2px;
 }
 
+/* Variante "spacious" — telas desktop (ex.: dashboard admin), onde os
+   cartões vizinhos usam --radius-xl/18px de padding em vez da escala
+   compacta mobile-first do restante deste arquivo. */
+.blockSpacious {
+  padding: 0 0 20px;
+}
+.avisoSpacious {
+  gap: 14px;
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.avisoIconSpacious {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+}
+.avisoTitleSpacious {
+  font-size: 14px;
+}
+
 /* Agenda de hoje (preview) */
 .todayCard {
   background: var(--surface);
