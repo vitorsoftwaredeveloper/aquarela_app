@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
@@ -12,7 +13,7 @@ import {
 import { Avatar, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
-import { temCuidados } from "@/types/crianca";
+import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
 import styles from "./professor.module.css";
 
 export function AlunosScreen({ turmaId }: { turmaId: string }) {
@@ -23,6 +24,10 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
   );
   const alunos = data ?? [];
   const registradas = alunos.filter((a) => a.agendaRegistrada).length;
+  const avatarColors = useMemo(
+    () => sortearCoresAvatar(alunos.map((a) => a._id)),
+    [alunos],
+  );
 
   return (
     <div>
@@ -95,7 +100,7 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                   <Avatar
                     nome={a.nome}
                     fotoUrl={a.fotoUrl}
-                    bg={a.avatarBg}
+                    bg={avatarColors[a._id]}
                     className={styles.alunoAvatar}
                   />
                   {alerta && (

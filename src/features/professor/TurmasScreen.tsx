@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { School } from "lucide-react";
-import { Skeleton, ThemeToggle } from "@/components";
+import { Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
 import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
@@ -32,7 +32,6 @@ export function TurmasScreen() {
           <div className={styles.headerWho}>{nome}</div>
           <div className={styles.headerTitle}>Minhas turmas</div>
         </div>
-        <ThemeToggle variant="onBrand" />
       </div>
 
       <NotificationOnboarding />
