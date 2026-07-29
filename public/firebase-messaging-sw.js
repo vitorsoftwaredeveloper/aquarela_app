@@ -17,8 +17,12 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title ?? "Aquarela Kids";
-  const body = payload.notification?.body ?? "Você tem uma nova atualização.";
+  const title =
+    payload.data?.title ?? payload.notification?.title ?? "Aquarela Kids";
+  const body =
+    payload.data?.body ??
+    payload.notification?.body ??
+    "Você tem uma nova atualização.";
   self.registration.showNotification(title, {
     body,
     icon: "/icons/icon-192.png",

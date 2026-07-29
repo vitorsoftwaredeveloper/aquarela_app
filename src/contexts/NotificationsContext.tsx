@@ -88,7 +88,11 @@ export function NotificationsProvider({
       const token = await getFcmToken();
       if (!token) return;
       storage.set(TOKEN_KEY, token);
-      await DispositivosService.registrar(token, detectPlataforma());
+      await DispositivosService.registrar(
+        token,
+        detectPlataforma(),
+        isStandalonePwa(),
+      );
       setActive(true);
     } catch {
       // Falha silenciosa no sync automático — o usuário pode tentar de novo
@@ -124,8 +128,9 @@ export function NotificationsProvider({
         ...prev,
         {
           id,
-          title: payload.notification?.title ?? "Aquarela Kids",
-          message: payload.notification?.body ?? "",
+          title:
+            payload.data?.title ?? payload.notification?.title ?? "Aquarela Kids",
+          message: payload.data?.body ?? payload.notification?.body ?? "",
           url: payload.data?.url,
         },
       ]);

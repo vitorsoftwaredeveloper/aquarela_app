@@ -259,10 +259,14 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 ### Notificações push (Web Push / FCM)
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
-| POST | `/dispositivos` | admin/professor/responsavel | Upsert do token FCM do dispositivo do usuário logado — `{ token, plataforma: "android"\|"ios"\|"web"\|"desktop" }`. Idempotente por `token`: reenviar não duplica |
+| POST | `/dispositivos` | admin/professor/responsavel | Upsert do token FCM do dispositivo do usuário logado — `{ token, plataforma: "android"\|"ios"\|"web"\|"desktop", instalado?: boolean }`. Idempotente por `token`: reenviar não duplica |
 | DELETE | `/dispositivos/{token}` | admin/professor/responsavel | Remove um dispositivo próprio (logout). Token de terceiro é no-op silencioso (204) |
 
 > Motor de envio (`services/notificacoes/enviarNotificacao.ts`) resolve os dispositivos do(s) `usuarioId` alvo e envia via Firebase Cloud Messaging (`libs/firebase.ts`, credencial do service account em SSM `SecureString`, lida em runtime). Token que o FCM reporta como `registration-token-not-registered` é removido automaticamente. Corpo da notificação é sempre genérico (ex.: "A agenda de hoje da Sofia já está disponível") — nunca leva saúde/alimentação/medicação (LGPD, aparece na tela de bloqueio).
+>
+> **1 dispositivo ativo por usuário.** `registrarDispositivoService` apaga qualquer outro token do mesmo `usuarioId` ao registrar um novo — sem isso, abrir o site em mais de um contexto (aba do navegador, PWA instalado) faria o backend mandar a mesma notificação pra todos. Exceção: se já existe um dispositivo com `instalado: true` (app/atalho instalado, `isStandalonePwa()` no front), um registro novo com `instalado` ausente/`false` (aba comum) é ignorado — o app instalado continua sendo o único destino até ele mesmo reenviar seu token.
+>
+> **Payload FCM é só `data` (sem campo `notification`).** Enviar `notification: {title, body}` faz o Chrome exibir a notificação sozinho, com ícone genérico, **além** do `onBackgroundMessage` do service worker do front mostrar a mesma de novo com o ícone certo — duas notificações idênticas na tela bloqueada (só some com a tela ligada porque nesse caso o SDK usa o listener em foreground, não o auto-display). `canalFcm.ts` manda `title`/`body` dentro de `data`; `firebase-messaging-sw.js` e `NotificationsContext.tsx` (toast em foreground) leem de lá.
 >
 > **Implementado e testado no back (NOT-01…NOT-08).** Ainda **não implementado no front** — é o Épico I (`NOT-10`…`NOT-18`) em `docs/06-Backlog.md`. O que falta construir no front:
 > - `public/firebase-messaging-sw.js` na **raiz** do domínio + `manifest.json` (`display: standalone`) — sem isso não há push, principalmente no iPhone
