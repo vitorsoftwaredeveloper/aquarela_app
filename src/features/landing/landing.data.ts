@@ -198,18 +198,37 @@ export const testimonials: Testimonial[] = [
 ];
 
 export const footerCols = [
-  { title: "Produto", links: ["Recursos", "Planos", "Simulador", "Entrar"] },
+  {
+    title: "Produto",
+    links: [
+      { label: "Recursos", href: "#recursos" },
+      { label: "Planos", href: "#planos" },
+      { label: "Simulador", href: "/simulador" },
+      { label: "Entrar", href: "/login" },
+    ],
+  },
   {
     title: "Escola",
-    links: ["Nossa proposta", "Estrutura", "Turmas", "Agende uma visita"],
+    links: [
+      { label: "Nossa proposta", href: "#" },
+      { label: "Estrutura", href: "#" },
+      { label: "Turmas", href: "#" },
+      { label: "Agende uma visita", href: "#" },
+    ],
   },
   {
     title: "Contato",
     links: [
-      "WhatsApp",
-      "Instagram",
-      "contato@aquarelakids.com",
-      "(11) 4000-0000",
+      { label: "WhatsApp", href: "https://wa.me/5583987498532" },
+      {
+        label: "Instagram",
+        href: "https://www.instagram.com/bercarioquarelakids/",
+      },
+      {
+        label: "aquarela.kidshappy@gmail.com",
+        href: "mailto:aquarela.kidshappy@gmail.com",
+      },
+      { label: "(83) 9 8749-8532", href: "tel:+5583987498532" },
     ],
   },
 ];

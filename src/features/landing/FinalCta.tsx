@@ -18,7 +18,13 @@ export function FinalCta() {
             <Button href="/simulador" variant="onBrand" size="lg">
               Simular valores <ArrowRight size={18} />
             </Button>
-            <Button href="#" variant="onBrandGhost" size="lg">
+            <Button
+              href="https://wa.me/5583987498532"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="onBrandGhost"
+              size="lg"
+            >
               Falar no WhatsApp
             </Button>
           </div>

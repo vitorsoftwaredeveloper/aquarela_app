@@ -17,8 +17,18 @@ export function SiteFooter() {
             <div className={styles.footerColTitle}>{c.title}</div>
             <div className={styles.footerLinks}>
               {c.links.map((l) => (
-                <a key={l} href="#" className={styles.footerLink}>
-                  {l}
+                <a
+                  key={l.label}
+                  href={l.href}
+                  className={styles.footerLink}
+                  target={l.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    l.href.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
+                >
+                  {l.label}
                 </a>
               ))}
             </div>
