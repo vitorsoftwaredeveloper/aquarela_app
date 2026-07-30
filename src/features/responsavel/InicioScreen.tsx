@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, ChevronRight, History, RefreshCw, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  ChevronRight,
+  History,
+  RefreshCw,
+  X,
+} from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
@@ -317,8 +324,12 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
     () => AgendaService.getDia(criancaId),
     [criancaId],
   );
-  const entries = (data?.entries ?? []).slice(0, 3);
-  const semRegistro = !loading && entries.length === 0;
+  const allEntries = data?.entries ?? [];
+  const entries = allEntries.slice(0, 3);
+  const intercorrencias = allEntries.filter(
+    (e) => e.tipo === "intercorrencia",
+  );
+  const semRegistro = !loading && allEntries.length === 0;
 
   if (loading) {
     return (
@@ -346,6 +357,23 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
       <div className={styles.blockHead}>
         <span className={styles.blockTitle}>Agenda de hoje</span>
       </div>
+      {intercorrencias.length > 0 && (
+        <div className={styles.intercorrenciaAlert} role="alert">
+          <span className={styles.intercorrenciaIcon}>
+            <AlertTriangle size={18} />
+          </span>
+          <div style={{ flex: 1 }}>
+            <div className={styles.intercorrenciaTitle}>
+              {intercorrencias.length === 1
+                ? "Intercorrência registrada hoje"
+                : `${intercorrencias.length} intercorrências registradas hoje`}
+            </div>
+            <div className={styles.intercorrenciaText}>
+              {intercorrencias.map((i) => i.title).join(" · ")}
+            </div>
+          </div>
+        </div>
+      )}
       {semRegistro ? (
         <div className={styles.agendaPendente}>
           <span className={styles.agendaPendenteText}>
