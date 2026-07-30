@@ -9,7 +9,6 @@ export interface Professor {
   cpf?: string;
   formacao?: string;
   usuarioId?: string;
-  ativo: boolean;
   turmas?: { _id: string; nome: string }[];
   criadoEm?: string;
   fotoUrl?: string | null;

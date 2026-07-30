@@ -37,8 +37,8 @@ export const CriancasService = {
   },
 
   /**
-   * Edição pelo responsável. `financeiro`/`ativo` são bloqueados pelo backend
-   * (403) e `cpf`/`turmaId` derrubam o PUT inteiro — nenhum vai no corpo.
+   * Edição pelo responsável. `financeiro` é bloqueado pelo backend (403) e
+   * `cpf`/`turmaId` derrubam o PUT inteiro — nenhum vai no corpo.
    */
   async update(
     id: string,

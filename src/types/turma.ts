@@ -9,7 +9,6 @@ export interface Turma {
   professor?: { _id: string; nome: string; email: string } | null;
   /** Nº de crianças ativas — usado no aviso de remoção. */
   totalCriancas?: number;
-  ativo: boolean;
   criadoEm?: string;
 }
 

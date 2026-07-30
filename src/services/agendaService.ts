@@ -68,7 +68,6 @@ export interface AvisoRaw {
   titulo: string;
   corpo: string;
   turmaId?: string;
-  ativo?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -125,7 +125,6 @@ export const devTurmas: Turma[] = [
     professorId: "p-alice",
     professor: { _id: "p-alice", nome: "Alice Martins", email: "alice@aquarela.com" },
     totalCriancas: 2,
-    ativo: true,
   },
   {
     _id: "t-sol",
@@ -135,7 +134,6 @@ export const devTurmas: Turma[] = [
     professorId: "p-bruno",
     professor: { _id: "p-bruno", nome: "Bruno Aguiar", email: "bruno@aquarela.com" },
     totalCriancas: 1,
-    ativo: true,
   },
 ];
 
@@ -181,7 +179,6 @@ export const devCriancasCadastro: CriancaCadastro[] = [
     cpf: "39053344705",
     turmaId: "t-girassol",
     turmaNome: "Girassol",
-    ativo: true,
     responsaveis: [
       {
         nome: "Marina Souza",
@@ -216,7 +213,6 @@ export const devCriancasCadastro: CriancaCadastro[] = [
     cpf: "52998224725",
     turmaId: "t-sol",
     turmaNome: "Sol",
-    ativo: true,
     responsaveis: [
       {
         nome: "Marina Souza",

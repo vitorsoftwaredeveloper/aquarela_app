@@ -13,7 +13,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Badge, Button, FotoField, Input, Modal } from "@/components";
+import { Button, FotoField, Input, Modal, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessoresService } from "@/services/professores";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -108,7 +108,6 @@ export function ProfessoresScreen() {
                   <th>Nome</th>
                   <th>Telefone</th>
                   <th>Turmas</th>
-                  <th>Status</th>
                   <th aria-label="Ações" />
                 </tr>
               </thead>
@@ -126,29 +125,28 @@ export function ProfessoresScreen() {
                         : "—"}
                     </td>
                     <td>
-                      <Badge tone={p.ativo ? "success" : "neutral"}>
-                        {p.ativo ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </td>
-                    <td>
                       <div className={styles.rowActions}>
-                        <button
-                          className={styles.iconBtn}
-                          onClick={() => openEdit(p)}
-                          aria-label={`Editar ${p.nome}`}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => {
-                            setDeleteError(null);
-                            setDeleting(p);
-                          }}
-                          aria-label={`Remover ${p.nome}`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <Tooltip label="Editar">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => openEdit(p)}
+                            aria-label={`Editar ${p.nome}`}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label="Remover">
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => {
+                              setDeleteError(null);
+                              setDeleting(p);
+                            }}
+                            aria-label={`Remover ${p.nome}`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -197,9 +195,9 @@ export function ProfessoresScreen() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b>? Se houver turma vinculada, troque a
-          professora da turma antes. A remoção é soft delete e preserva o
-          histórico.
+          Remover <b>{deleting?.nome}</b> em definitivo? Se houver turma
+          vinculada, troque a professora da turma antes — o backend bloqueia
+          a remoção.
         </p>
         {deleteError && (
           <div

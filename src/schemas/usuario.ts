@@ -11,8 +11,6 @@ export const usuarioSchema = yup.object({
     .mixed<"admin" | "professor" | "responsavel">()
     .oneOf(["admin", "professor", "responsavel"], "Selecione um papel")
     .required("Selecione um papel"),
-  // Só usado na edição (ativar/desativar acesso). Na criação fica undefined.
-  ativo: yup.boolean().optional(),
 });
 
 export type UsuarioFormData = yup.InferType<typeof usuarioSchema>;

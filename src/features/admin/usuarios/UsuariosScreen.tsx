@@ -13,7 +13,7 @@ import {
   Trash2,
   UserCog,
 } from "lucide-react";
-import { Badge, Button, Input, Modal, Select } from "@/components";
+import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { UsuariosService } from "@/services/usuarios";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -110,7 +110,6 @@ export function UsuariosScreen() {
                   <th>Nome</th>
                   <th>Papel</th>
                   <th>Telefone</th>
-                  <th>Status</th>
                   <th aria-label="Ações" />
                 </tr>
               </thead>
@@ -128,29 +127,28 @@ export function UsuariosScreen() {
                     </td>
                     <td>{u.telefone ?? "—"}</td>
                     <td>
-                      <Badge tone={u.ativo ? "success" : "neutral"}>
-                        {u.ativo ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </td>
-                    <td>
                       <div className={styles.rowActions}>
-                        <button
-                          className={styles.iconBtn}
-                          onClick={() => openEdit(u)}
-                          aria-label={`Editar ${u.nome}`}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => {
-                            setDeleteError(null);
-                            setDeleting(u);
-                          }}
-                          aria-label={`Remover ${u.nome}`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <Tooltip label="Editar">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => openEdit(u)}
+                            aria-label={`Editar ${u.nome}`}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label="Remover">
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => {
+                              setDeleteError(null);
+                              setDeleting(u);
+                            }}
+                            aria-label={`Remover ${u.nome}`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -182,7 +180,7 @@ export function UsuariosScreen() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover usuário definitivamente"
+        title="Remover usuário"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>
@@ -193,16 +191,14 @@ export function UsuariosScreen() {
               onClick={confirmDelete}
               disabled={deleteBusy}
             >
-              {deleteBusy ? "Removendo…" : "Remover definitivamente"}
+              {deleteBusy ? "Removendo…" : "Remover"}
             </Button>
           </>
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b> em definitivo? Isto{" "}
-          <b>apaga o usuário do banco e do Cognito</b> —{" "}
-          <b>não dá para desfazer</b>. Para apenas bloquear o acesso mantendo o
-          cadastro, edite o usuário e defina o status como <b>Inativo</b>.
+          Remover <b>{deleting?.nome}</b>? Isto apaga o usuário e o acesso no
+          Cognito — não dá para desfazer.
         </p>
         {deleteError && (
           <div
@@ -372,7 +368,6 @@ function UsuarioForm({
           email: editing.email,
           telefone: maskPhone(editing.telefone ?? ""),
           papel: editing.papel,
-          ativo: editing.ativo,
         }
       : { nome: "", email: "", telefone: "", papel: undefined },
   });
@@ -381,16 +376,14 @@ function UsuarioForm({
     setSubmitError(null);
     try {
       if (editing) {
-        // Update não envia e-mail (readOnly); envia `ativo` (ativar/desativar).
+        // Update não envia e-mail (readOnly, é o username no Cognito).
         await UsuariosService.update(editing._id, {
           nome: values.nome,
           telefone: values.telefone ? onlyDigits(values.telefone) : undefined,
           papel: values.papel,
-          ativo: values.ativo ?? editing.ativo,
         });
         onSaved();
       } else {
-        // Create não envia `ativo` (backend rejeita: additionalProperties:false).
         const criado = await UsuariosService.create({
           nome: values.nome,
           email: values.email,
@@ -456,19 +449,6 @@ function UsuarioForm({
         error={errors.papel?.message}
         {...register("papel")}
       />
-      {editing && (
-        <Select
-          label="Status do acesso"
-          options={[
-            { value: "true", label: "Ativo" },
-            { value: "false", label: "Inativo (não consegue entrar)" },
-          ]}
-          error={errors.ativo?.message}
-          {...register("ativo", {
-            setValueAs: (v) => v === true || v === "true",
-          })}
-        />
-      )}
       <div
         style={{
           display: "flex",

@@ -39,7 +39,6 @@ let devMeuCadastro: Professor = {
   email: "professor@aquarela.dev",
   telefone: "11999999999",
   formacao: "Pedagogia",
-  ativo: true,
 };
 
 /** Turmas/alunos do professor logado + registro da agenda diária. */

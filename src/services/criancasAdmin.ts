@@ -46,7 +46,6 @@ export const CriancasAdminService = {
         crianca: {
           ...resto,
           _id: `dev-${Date.now()}`,
-          ativo: true,
           fotoUrl: dataUrlDaFoto(foto),
         },
         acessosResponsaveis: [],
@@ -72,7 +71,6 @@ export const CriancasAdminService = {
         _id: id,
         cpf: "",
         turmaId: "",
-        ativo: true,
         fotoUrl: dataUrlDaFoto(foto),
       };
     }
@@ -87,16 +85,6 @@ export const CriancasAdminService = {
       return { ...(found as CriancaCadastro), turmaId };
     }
     const { data } = await api.patch(`/criancas/${id}/turma`, { turmaId });
-    return data.data;
-  },
-
-  /** Ativa/desativa sem apagar (mantém agenda/financeiro). Ver `remove`, que é definitivo. */
-  async setAtivo(id: string, ativo: boolean): Promise<CriancaCadastro> {
-    if (IS_DEV_DATA) {
-      const found = devCriancasCadastro.find((c) => c._id === id);
-      return { ...(found as CriancaCadastro), ativo };
-    }
-    const { data } = await api.put(`/criancas/${id}`, { ativo });
     return data.data;
   },
 

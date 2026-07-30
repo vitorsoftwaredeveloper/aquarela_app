@@ -13,7 +13,7 @@ import {
   Trash2,
   TriangleAlert,
 } from "lucide-react";
-import { Badge, Button, Input, Modal, Select } from "@/components";
+import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -234,23 +234,27 @@ function Despesas() {
                     <td>{formatBRL(d.valor)}</td>
                     <td>
                       <div className={styles.rowActions}>
-                        <button
-                          className={styles.iconBtn}
-                          onClick={() => setEditing(d)}
-                          aria-label={`Editar ${d.descricao}`}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => {
-                            setActionError(null);
-                            setDeleting(d);
-                          }}
-                          aria-label={`Remover ${d.descricao}`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <Tooltip label="Editar">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => setEditing(d)}
+                            aria-label={`Editar ${d.descricao}`}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label="Remover">
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => {
+                              setActionError(null);
+                              setDeleting(d);
+                            }}
+                            aria-label={`Remover ${d.descricao}`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>

@@ -28,7 +28,7 @@ export function DashboardScreen() {
       resumo: {
         ...balanco.resumo,
         inadimplentes: inadimplentes.length,
-        criancasAtivas: criancas.filter((c) => c.ativo).length,
+        criancasAtivas: criancas.length,
         turmas: turmas.length,
       },
     };

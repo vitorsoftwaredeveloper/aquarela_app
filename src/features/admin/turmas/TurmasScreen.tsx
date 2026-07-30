@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Pencil, Plus, School, Trash2 } from "lucide-react";
-import { Badge, Button, Input, Modal, Select } from "@/components";
+import { Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { ProfessoresService } from "@/services/professores";
@@ -87,7 +87,6 @@ export function TurmasScreen() {
                   <th>Faixa etária</th>
                   <th>Professor(a)</th>
                   <th>Crianças</th>
-                  <th>Status</th>
                   <th aria-label="Ações" />
                 </tr>
               </thead>
@@ -104,29 +103,28 @@ export function TurmasScreen() {
                     <td>{t.professor?.nome ?? "—"}</td>
                     <td>{t.totalCriancas ?? 0}</td>
                     <td>
-                      <Badge tone={t.ativo ? "success" : "neutral"}>
-                        {t.ativo ? "Ativa" : "Inativa"}
-                      </Badge>
-                    </td>
-                    <td>
                       <div className={styles.rowActions}>
-                        <button
-                          className={styles.iconBtn}
-                          onClick={() => openEdit(t)}
-                          aria-label={`Editar ${t.nome}`}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => {
-                            setDeleteError(null);
-                            setDeleting(t);
-                          }}
-                          aria-label={`Remover ${t.nome}`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <Tooltip label="Editar">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => openEdit(t)}
+                            aria-label={`Editar ${t.nome}`}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label="Remover">
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => {
+                              setDeleteError(null);
+                              setDeleting(t);
+                            }}
+                            aria-label={`Remover ${t.nome}`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -173,9 +171,9 @@ export function TurmasScreen() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b>? Se houver crianças ativas,
-          realoque-as antes (o backend bloqueia a remoção). Soft delete preserva
-          o histórico.
+          Remover <b>{deleting?.nome}</b>? Se houver crianças vinculadas,
+          realoque-as antes (o backend bloqueia a remoção). Os avisos da
+          turma são apagados junto.
         </p>
         {deleteError && (
           <div

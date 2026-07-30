@@ -7,7 +7,6 @@ export interface Usuario {
   email: string;
   telefone?: string;
   papel: Role;
-  ativo: boolean;
   cognitoSub?: string;
   criadoEm?: string;
 }
@@ -24,12 +23,11 @@ export interface UsuarioCriado extends Usuario {
   senhaTemporaria: string;
 }
 
-/** Campos editáveis (update). Inclui `ativo` para ativar/desativar o acesso. */
+/** Campos editáveis (update). */
 export interface EditUsuario {
   nome: string;
   telefone?: string;
   papel: Role;
-  ativo: boolean;
 }
 
 export const ROLE_OPTIONS: { value: Role; label: string }[] = [

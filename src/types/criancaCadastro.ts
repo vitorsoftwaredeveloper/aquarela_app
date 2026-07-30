@@ -50,12 +50,11 @@ export interface CriancaCadastro {
   responsaveis: ResponsavelVinculo[];
   saude: SaudeCrianca;
   financeiro: FinanceiroCrianca;
-  ativo: boolean;
 }
 
 export type NovaCrianca = Omit<
   CriancaCadastro,
-  "_id" | "ativo" | "turmaNome" | "foto" | "fotoUrl"
+  "_id" | "turmaNome" | "foto" | "fotoUrl"
 > & { foto?: FotoUpload };
 export type NovaCriancaPayload = NovaCrianca & { consentimentoLgpd: boolean };
 

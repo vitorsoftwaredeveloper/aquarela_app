@@ -4,7 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Megaphone, Pencil, Plus, Trash2 } from "lucide-react";
-import { Badge, Button, Input, Modal, Select, Textarea } from "@/components";
+import {
+  Badge,
+  Button,
+  Input,
+  Modal,
+  Select,
+  Textarea,
+  Tooltip,
+} from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AvisosAdminService } from "@/services/avisosAdminService";
 import { TurmasService } from "@/services/turmas";
@@ -114,23 +122,27 @@ export function AvisosScreen() {
                     <td>{a.dataLabel}</td>
                     <td>
                       <div className={styles.rowActions}>
-                        <button
-                          className={styles.iconBtn}
-                          onClick={() => openEdit(a)}
-                          aria-label={`Editar ${a.titulo}`}
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                          onClick={() => {
-                            setActionError(null);
-                            setDeleting(a);
-                          }}
-                          aria-label={`Remover ${a.titulo}`}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <Tooltip label="Editar">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => openEdit(a)}
+                            aria-label={`Editar ${a.titulo}`}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip label="Remover">
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => {
+                              setActionError(null);
+                              setDeleting(a);
+                            }}
+                            aria-label={`Remover ${a.titulo}`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>

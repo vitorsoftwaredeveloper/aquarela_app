@@ -131,7 +131,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const usuariosResp = useFetch(() => UsuariosService.list());
   const emailsComAcesso = new Set(
     (usuariosResp.data ?? [])
-      .filter((u) => u.papel === "responsavel" && u.ativo)
+      .filter((u) => u.papel === "responsavel")
       .map((u) => u.email.toLowerCase()),
   );
   const existente = useFetch(
@@ -1160,7 +1160,7 @@ function Resumo({
 
 /**
  * Avisa se o e-mail do responsável já corresponde a um usuário responsável
- * ativo (acesso ao app existente). É informativo: o cadastro da criança não
+ * existente (acesso ao app). É informativo: o cadastro da criança não
  * cria o acesso — um usuário papel=responsavel precisa existir para o pai logar.
  */
 function EmailAcessoStatus({

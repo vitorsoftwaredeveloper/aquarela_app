@@ -26,7 +26,6 @@ const crianca: CriancaCadastro = {
   cpf: "39053344705",
   turmaId: "t-girassol",
   turmaNome: "Girassol",
-  ativo: true,
   fotoUrl: "https://exemplo/foto.jpg",
   responsaveis: [
     {
