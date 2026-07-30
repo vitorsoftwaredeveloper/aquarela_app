@@ -1,4 +1,4 @@
-import { Container, Logo } from "@/components";
+import { Container, LogoFull } from "@/components";
 import styles from "./landing.module.css";
 import { footerCols } from "./landing.data";
 
@@ -7,7 +7,7 @@ export function SiteFooter() {
     <footer className={styles.footer}>
       <Container className={styles.footerTop}>
         <div>
-          <Logo size={34} />
+          <LogoFull maxWidth={150} className={styles.footerLogo} />
           <p className={styles.footerTag}>
             A agenda diária do seu filho, do jeitinho que ele merece.
           </p>

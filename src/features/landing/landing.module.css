@@ -8,6 +8,20 @@
   background: var(--screen);
 }
 
+.themeFloat {
+  position: fixed;
+  top: 22px;
+  right: 26px;
+  z-index: 50;
+}
+
+@media (max-width: 640px) {
+  .themeFloat {
+    top: 16px;
+    right: 18px;
+  }
+}
+
 @keyframes floatY {
   0%,
   100% {
@@ -25,51 +39,6 @@
   50% {
     transform: translate(20px, -16px) scale(1.06);
   }
-}
-
-/* ---------------- NAV ---------------- */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: color-mix(in srgb, var(--screen) 82%, transparent);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-07);
-}
-.navInner {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding-block: 14px;
-}
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  margin-right: auto;
-  margin-left: 8px;
-  font-size: 14.5px;
-  font-weight: 500;
-}
-.navLink {
-  color: var(--text-soft);
-}
-.navLink:hover {
-  color: var(--color-primary-link);
-}
-.navActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.enter {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--color-primary-link);
-  padding: 9px 4px;
-}
-.navSpacer {
-  margin-right: auto;
 }
 
 /* ---------------- HERO ---------------- */
@@ -746,6 +715,9 @@
   gap: 32px;
   padding-block: 44px 30px;
 }
+.footerLogo {
+  margin: 0;
+}
 .footerTag {
   font-size: 13.5px;
   line-height: 1.6;
@@ -799,9 +771,6 @@
     grid-template-columns: 1fr;
     gap: 36px;
     padding-block: 60px;
-  }
-  .navLinks {
-    display: none;
   }
   .planFeatured {
     transform: none;

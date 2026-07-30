@@ -165,6 +165,9 @@ export function LoginScreen() {
     <div className={styles.wrap}>
       <div className={styles.card}>
         <div className={styles.header}>
+          <Link href="/" className={styles.backHome} aria-label="Voltar ao site">
+            <ArrowLeft size={18} />
+          </Link>
           <div className={styles.headerMark}>
             <LogoFull maxWidth={290} className={styles.headerLogo} />
           </div>

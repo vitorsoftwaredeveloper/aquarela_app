@@ -1,4 +1,4 @@
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button, Container } from "@/components";
 import styles from "./landing.module.css";
 import { heroAvatars, mockAgenda } from "./landing.data";
@@ -24,11 +24,11 @@ export function Hero() {
           Aquarela Kids aproxima famílias e escola com carinho e transparência.
         </p>
         <div className={styles.heroCtas}>
-          <Button href="/simulador" size="lg">
-            Simular valores <ArrowRight size={18} />
+          <Button href="/login" size="lg">
+            Entrar <ArrowRight size={18} />
           </Button>
-          <Button href="#como" variant="secondary" size="lg">
-            <Play size={16} /> Ver como funciona
+          <Button href="/simulador" variant="secondary" size="lg">
+            Simular valores
           </Button>
         </div>
         <div className={styles.social}>

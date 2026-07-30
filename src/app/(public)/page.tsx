@@ -1,10 +1,10 @@
+import { ThemeToggle } from "@/components";
 import {
   AuthRedirect,
   Features,
   FinalCta,
   Hero,
   HowItWorks,
-  Navbar,
   Pricing,
   SiteFooter,
   Stats,
@@ -21,7 +21,9 @@ export default function LandingPage() {
   return (
     <div className={styles.page}>
       <AuthRedirect />
-      <Navbar />
+      <div className={styles.themeFloat}>
+        <ThemeToggle />
+      </div>
       <main>
         <Hero />
         <Stats />

@@ -18,6 +18,36 @@
     var(--screen);
 }
 
+.backHome {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  color: #6b5a8c;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.backHome:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: #4a3a70;
+}
+:root[data-theme="dark"] .backHome {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-soft-2);
+}
+:root[data-theme="dark"] .backHome:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+}
+
 .card {
   width: 100%;
   max-width: 440px;
