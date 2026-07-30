@@ -58,7 +58,7 @@ export function FinanceiroAdminScreen() {
           aria-selected={aba === "despesas"}
           onClick={() => setAba("despesas")}
         >
-          <Receipt size={16} /> Despesas
+          Despesas
         </Button>
         <Button
           variant={aba === "inadimplentes" ? "primary" : "secondary"}
@@ -67,7 +67,7 @@ export function FinanceiroAdminScreen() {
           aria-selected={aba === "inadimplentes"}
           onClick={() => setAba("inadimplentes")}
         >
-          <TriangleAlert size={16} /> Inadimplentes
+          Inadimplentes
         </Button>
       </div>
 
