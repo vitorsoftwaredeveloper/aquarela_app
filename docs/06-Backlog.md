@@ -99,7 +99,7 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | PAI-03 | ✅ Tela **histórico** do filho (navegação por data) — `HistoricoScreen.tsx` | 🔴   | 3   | FE     | AGD-03, PAI-01 | Paginação por dia; acesso só ao próprio filho                                  |
 | PAI-04 | ✅ Destaque visual de **intercorrências/medicação** na leitura — `agendaVisual.tsx` | 🔴   | 2   | FE     | PAI-02         | Ícone + cor + texto (não só cor)                                               |
 | PAI-05 | ✅ Suporte a **múltiplos filhos** (troca de criança)         | 🟡   | 3   | FE     | PAI-01         | Alterna entre filhos; contexto correto                                         |
-| PAI-06 | Alerta/aviso ao pai quando há intercorrência (in-app) — **pendente**, não achei badge/aviso na `InicioScreen.tsx`; hoje o pai só vê destacado dentro da própria tela de agenda (PAI-04) | 🟡   | 3   | FS     | AGD-08, PAI-02 | Badge/aviso ao abrir; base para push da Fase 2                                 |
+| PAI-06 | ✅ Alerta/aviso ao pai quando há intercorrência (in-app) — banner vermelho no topo de "Agenda de hoje" (`InicioScreen.tsx`), some quando não há intercorrência no dia | 🟡   | 3   | FS     | AGD-08, PAI-02 | Badge/aviso ao abrir; base para push da Fase 2                                 |
 
 **Subtotal Épico C:** 19 pts (MVP: ~13 pts).
 
