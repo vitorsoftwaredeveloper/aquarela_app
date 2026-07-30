@@ -10,7 +10,6 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
-  Droplet,
   GraduationCap,
   KeyRound,
   Lock,
@@ -19,7 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import type { Role } from "@/types/user";
-import { Button, Input } from "@/components";
+import { Button, Input, LogoFull } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { HOME_BY_ROLE } from "@/types/user";
 import {
@@ -167,9 +166,8 @@ export function LoginScreen() {
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.headerMark}>
-            <Droplet size={30} fill="#fff" strokeWidth={0} />
+            <LogoFull maxWidth={290} className={styles.headerLogo} />
           </div>
-          <div className={styles.headerTitle}>Aquarela Kids</div>
           <div className={styles.headerSub}>
             A agenda diária do seu filho,
             <br />
