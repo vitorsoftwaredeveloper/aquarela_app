@@ -112,7 +112,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > **`PUT /usuarios/{id}/senha` — admin redefine a senha de qualquer usuário.** Body: `{ novaSenha }` (mín. 8 caracteres; o Cognito aplica a política de senha real do User Pool e responde `422 SENHA_INVALIDA` se não atender). Chama `AdminSetUserPassword` com `Permanent: false` — mesmo modelo do `POST /usuarios`: o admin comunica a nova senha ao usuário, que é obrigado a trocá-la no próximo login (challenge `NEW_PASSWORD`). **`204` sem corpo**; a senha não é persistida nem retornada. `404` se o usuário não existir no banco.
 >
-> `DELETE /usuarios/{id}` é **hard delete** (apaga banco + Cognito, irreversível). Bloqueado com `409 USUARIO_COM_VINCULOS` se o usuário for responsável por alguma criança, ou professor com turma vinculada.
+> `DELETE /usuarios/{id}` é **hard delete** (apaga banco + Cognito, irreversível). Bloqueado com `409 USUARIO_COM_VINCULOS` se o usuário for responsável por alguma criança, ou professor com turma vinculada. Em cadeia também apaga os `dispositivos` (tokens FCM) vinculados ao `usuarioId` — senão o registro fica órfão e o motor de notificação (`enviarNotificacao.ts`) tentaria enviar push pra um usuário que não existe mais.
 
 ### Professores (CRUD completo)
 | Método | Rota | Papel | Descrição |

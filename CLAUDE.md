@@ -184,6 +184,14 @@ professores,turmas}.ts` (contrato em docs/03-Backend §5).
 > de `IUpdateCriancaPayload`, não faz parte do `PUT /criancas/{id}`. Só
 > aparece na criação (`!editing`) — edição não pede de novo.
 
+> **`DELETE /criancas/{id}` também apaga o usuário responsável que fica sem
+> nenhuma criança vinculada** — efeito colateral automático do backend
+> (Cognito + banco), não algo que o front dispara. Sem tratamento especial na
+> tela de admin: a lista de usuários (`/admin/usuarios`) só reflete que a
+> conta sumiu na próxima listagem. Só acontece para `papel: "responsavel"` —
+> conta `admin`/`professor` reaproveitada por e-mail igual nunca é apagada.
+> Ver `docs/03-Backend.md` §`DELETE /criancas/{id}`.
+
 **Épico C — Portal do responsável (front):** PAI-01..PAI-04 ✅ — Início (lista de
 filhos + avisos + agenda de hoje), Agenda do dia (com faixa de cuidados
 alergias/medicações em destaque), Histórico, Financeiro (grade de meses) e
