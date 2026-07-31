@@ -14,3 +14,16 @@ export const usuarioSchema = yup.object({
 });
 
 export type UsuarioFormData = yup.InferType<typeof usuarioSchema>;
+
+export const redefinirSenhaSchema = yup.object({
+  novaSenha: yup
+    .string()
+    .required("Informe a nova senha")
+    .min(8, "Mínimo de 8 caracteres"),
+  confirmarSenha: yup
+    .string()
+    .required("Confirme a nova senha")
+    .oneOf([yup.ref("novaSenha")], "As senhas não coincidem"),
+});
+
+export type RedefinirSenhaFormData = yup.InferType<typeof redefinirSenhaSchema>;

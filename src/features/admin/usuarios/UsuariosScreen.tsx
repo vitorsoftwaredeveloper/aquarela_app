@@ -17,7 +17,12 @@ import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { UsuariosService } from "@/services/usuarios";
 import { getApiErrorMessage } from "@/services/apiError";
-import { usuarioSchema, type UsuarioFormData } from "@/schemas/usuario";
+import {
+  usuarioSchema,
+  redefinirSenhaSchema,
+  type UsuarioFormData,
+  type RedefinirSenhaFormData,
+} from "@/schemas/usuario";
 import { maskPhone, onlyDigits } from "@/utils/cpf";
 import {
   ROLE_LABEL,
@@ -45,6 +50,9 @@ export function UsuariosScreen() {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [credencial, setCredencial] = useState<UsuarioCriado | null>(null);
+  const [redefinindo, setRedefinindo] = useState<Usuario | null>(null);
+  const [senhaRedefinida, setSenhaRedefinida] =
+    useState<SenhaRedefinida | null>(null);
 
   function openCreate() {
     setEditing(null);
@@ -137,6 +145,15 @@ export function UsuariosScreen() {
                             <Pencil size={16} />
                           </button>
                         </Tooltip>
+                        <Tooltip label="Redefinir senha">
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => setRedefinindo(u)}
+                            aria-label={`Redefinir senha de ${u.nome}`}
+                          >
+                            <KeyRound size={16} />
+                          </button>
+                        </Tooltip>
                         <Tooltip label="Remover">
                           <button
                             className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
@@ -216,12 +233,44 @@ export function UsuariosScreen() {
         )}
       </Modal>
 
+      <Modal
+        open={!!redefinindo}
+        onClose={() => setRedefinindo(null)}
+        title={`Redefinir senha${redefinindo ? ` — ${redefinindo.nome}` : ""}`}
+      >
+        {redefinindo && (
+          <RedefinirSenhaForm
+            usuario={redefinindo}
+            onCancel={() => setRedefinindo(null)}
+            onSaved={(novaSenha) => {
+              setRedefinindo(null);
+              setSenhaRedefinida({
+                nome: redefinindo.nome,
+                email: redefinindo.email,
+                senha: novaSenha,
+              });
+            }}
+          />
+        )}
+      </Modal>
+
       <CredencialModal
         credencial={credencial}
         onClose={() => setCredencial(null)}
       />
+
+      <SenhaRedefinidaModal
+        senhaRedefinida={senhaRedefinida}
+        onClose={() => setSenhaRedefinida(null)}
+      />
     </div>
   );
+}
+
+interface SenhaRedefinida {
+  nome: string;
+  email: string;
+  senha: string;
 }
 
 function CredencialModal({
@@ -340,6 +389,205 @@ function CredencialModal({
           &quot;Esqueci minha senha&quot; após o primeiro acesso ou gere uma
           nova.
         </span>
+      </div>
+    </Modal>
+  );
+}
+
+function RedefinirSenhaForm({
+  usuario,
+  onCancel,
+  onSaved,
+}: {
+  usuario: Usuario;
+  onCancel: () => void;
+  onSaved: (novaSenha: string) => void;
+}) {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RedefinirSenhaFormData>({
+    resolver: yupResolver(redefinirSenhaSchema),
+    defaultValues: { novaSenha: "", confirmarSenha: "" },
+  });
+
+  async function onSubmit(values: RedefinirSenhaFormData) {
+    setSubmitError(null);
+    try {
+      await UsuariosService.redefinirSenha(usuario._id, values.novaSenha);
+      onSaved(values.novaSenha);
+    } catch (err) {
+      setSubmitError(getApiErrorMessage(err));
+    }
+  }
+
+  return (
+    <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+      <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
+        Defina uma nova senha e repasse a <b>{usuario.nome}</b>. No próximo
+        login o sistema pede a troca por uma senha própria.
+      </p>
+      {submitError && (
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "flex-start",
+            color: "var(--color-danger-strong)",
+            fontSize: 13,
+          }}
+          role="alert"
+        >
+          <AlertCircle size={17} /> <span>{submitError}</span>
+        </div>
+      )}
+      <Input
+        label="Nova senha"
+        type="password"
+        placeholder="Mínimo de 8 caracteres"
+        error={errors.novaSenha?.message}
+        {...register("novaSenha")}
+      />
+      <Input
+        label="Confirmar senha"
+        type="password"
+        placeholder="Repita a nova senha"
+        error={errors.confirmarSenha?.message}
+        {...register("confirmarSenha")}
+      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 10,
+          marginTop: 6,
+        }}
+      >
+        <Button type="button" variant="secondary" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Salvando…" : "Redefinir senha"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function SenhaRedefinidaModal({
+  senhaRedefinida,
+  onClose,
+}: {
+  senhaRedefinida: SenhaRedefinida | null;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function copiar() {
+    if (!senhaRedefinida) return;
+    const texto = [
+      "Aquarela Kids — dados de acesso",
+      `E-mail: ${senhaRedefinida.email}`,
+      `Nova senha: ${senhaRedefinida.senha}`,
+      "Troque a senha no próximo login.",
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(texto);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <Modal
+      open={!!senhaRedefinida}
+      onClose={onClose}
+      title="Senha redefinida"
+      footer={
+        <Button variant="primary" onClick={onClose}>
+          Entendi, já anotei
+        </Button>
+      }
+    >
+      <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
+        Repasse estes dados para <b>{senhaRedefinida?.nome}</b>. No próximo
+        login o sistema pede a troca por uma senha própria.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 6,
+          margin: "14px 0",
+          padding: 14,
+          borderRadius: "var(--radius-md)",
+          background: "var(--color-primary-soft)",
+          border: "1px solid var(--color-primary-soft-border)",
+        }}
+      >
+        <div style={{ fontSize: 12, color: "var(--text-mute)" }}>E-mail</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+          {senhaRedefinida?.email}
+        </div>
+        <div style={{ fontSize: 12, color: "var(--text-mute)", marginTop: 8 }}>
+          Nova senha
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+          }}
+        >
+          <code
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: 0.5,
+              color: "var(--text)",
+            }}
+          >
+            {senhaRedefinida?.senha}
+          </code>
+          <button
+            type="button"
+            onClick={copiar}
+            aria-label="Copiar e-mail e nova senha"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              cursor: "pointer",
+              background: "none",
+              border: "1px solid var(--color-primary-soft-border)",
+              borderRadius: "var(--radius-sm)",
+              color: "var(--color-primary-link)",
+              fontSize: 13,
+              padding: "6px 10px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? "Copiado" : "Copiar tudo"}
+          </button>
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          alignItems: "flex-start",
+          color: "var(--color-danger-strong)",
+          fontSize: 13,
+        }}
+      >
+        <KeyRound size={17} />
+        <span>Esta senha aparece só agora e não fica salva.</span>
       </div>
     </Modal>
   );

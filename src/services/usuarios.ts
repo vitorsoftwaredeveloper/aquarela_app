@@ -30,6 +30,10 @@ export const UsuariosService = {
     return data.data;
   },
 
+  async redefinirSenha(id: string, novaSenha: string): Promise<void> {
+    await api.put(`/usuarios/${id}/senha`, { novaSenha });
+  },
+
   /** Remoção DEFINITIVA: apaga do banco e do Cognito (hard delete). */
   async remove(id: string): Promise<void> {
     await api.delete(`/usuarios/${id}`);
