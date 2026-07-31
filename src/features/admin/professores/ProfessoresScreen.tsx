@@ -76,7 +76,7 @@ export function ProfessoresScreen() {
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
-            Novo professor
+            Adicionar
           </Button>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function ProfessoresScreen() {
             action={
               <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
-                Novo professor
+                Adicionar
               </Button>
             }
           />
@@ -253,7 +253,7 @@ function CredencialModal({
       title="Professor criado — senha temporária"
       footer={
         <Button variant="primary" onClick={onClose}>
-          Entendi, já anotei
+          Entendi
         </Button>
       }
     >
@@ -483,7 +483,7 @@ function CreateProfessorForm({
       <FormActions
         onCancel={onCancel}
         isSubmitting={isSubmitting}
-        submitLabel="Criar professor"
+        submitLabel="Criar"
       />
     </form>
   );

@@ -613,7 +613,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       className={styles.addBlock}
                       onClick={() => responsaveis.append(RESP_VAZIO)}
                     >
-                      <Plus size={16} /> Adicionar responsável
+                      <Plus size={16} /> Adicionar
                     </button>
                   </div>
                 </>
@@ -735,7 +735,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                             })
                           }
                         >
-                          <Plus size={16} /> Adicionar medicação
+                          <Plus size={16} /> Adicionar
                         </button>
                       </div>
                     </div>
@@ -941,8 +941,8 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       {isSubmitting
                         ? "Salvando…"
                         : editing
-                          ? "Salvar alterações"
-                          : "Cadastrar criança"}
+                          ? "Salvar"
+                          : "Cadastrar"}
                     </Button>
                   )}
                 </div>
@@ -998,7 +998,7 @@ function AcessosResponsavelModal({
       title="Acesso dos responsáveis criado"
       footer={
         <Button variant="primary" onClick={onClose}>
-          Entendi, já anotei
+          Entendi
         </Button>
       }
     >

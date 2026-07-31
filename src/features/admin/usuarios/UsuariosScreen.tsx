@@ -90,7 +90,7 @@ export function UsuariosScreen() {
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
-            Novo usuário
+            Adicionar
           </Button>
         </div>
       </div>
@@ -108,7 +108,7 @@ export function UsuariosScreen() {
             action={
               <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
-                Novo usuário
+                Adicionar
               </Button>
             }
           />
@@ -307,7 +307,7 @@ function CredencialModal({
       title="Usuário criado — senha temporária"
       footer={
         <Button variant="primary" onClick={onClose}>
-          Entendi, já anotei
+          Entendi
         </Button>
       }
     >
@@ -471,7 +471,7 @@ function RedefinirSenhaForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : "Redefinir senha"}
+          {isSubmitting ? "Salvando…" : "Redefinir"}
         </Button>
       </div>
     </form>
@@ -510,7 +510,7 @@ function SenhaRedefinidaModal({
       title="Senha redefinida"
       footer={
         <Button variant="primary" onClick={onClose}>
-          Entendi, já anotei
+          Entendi
         </Button>
       }
     >
@@ -711,7 +711,7 @@ function UsuarioForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Criar usuário"}
+          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Criar"}
         </Button>
       </div>
     </form>

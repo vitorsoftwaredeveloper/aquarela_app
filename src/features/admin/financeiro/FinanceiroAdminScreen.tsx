@@ -192,7 +192,7 @@ function Despesas() {
           />
           <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus size={16} />
-            Nova despesa
+            Adicionar
           </Button>
         </div>
       </div>
@@ -210,7 +210,7 @@ function Despesas() {
             action={
               <Button size="sm" onClick={() => setFormOpen(true)}>
                 <Plus size={16} />
-                Nova despesa
+                Adicionar
               </Button>
             }
           />
@@ -440,8 +440,8 @@ function DespesaForm({
           {isSubmitting
             ? "Salvando…"
             : despesa
-              ? "Salvar despesa"
-              : "Lançar despesa"}
+              ? "Salvar"
+              : "Lançar"}
         </Button>
       </div>
     </form>

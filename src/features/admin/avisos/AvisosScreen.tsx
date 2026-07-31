@@ -76,7 +76,7 @@ export function AvisosScreen() {
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
-            Novo aviso
+            Adicionar
           </Button>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function AvisosScreen() {
             action={
               <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
-                Novo aviso
+                Adicionar
               </Button>
             }
           />
@@ -294,7 +294,7 @@ function AvisoForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Publicar aviso"}
+          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Publicar"}
         </Button>
       </div>
     </form>

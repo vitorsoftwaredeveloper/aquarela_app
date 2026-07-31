@@ -58,7 +58,7 @@ export function TurmasScreen() {
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
-            Nova turma
+            Adicionar
           </Button>
         </div>
       </div>
@@ -76,7 +76,7 @@ export function TurmasScreen() {
             action={
               <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
-                Nova turma
+                Adicionar
               </Button>
             }
           />
@@ -330,7 +330,7 @@ function TurmaForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting || noProfessores}>
-          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Criar turma"}
+          {isSubmitting ? "Salvando…" : editing ? "Salvar" : "Criar"}
         </Button>
       </div>
     </form>

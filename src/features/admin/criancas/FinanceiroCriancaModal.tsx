@@ -99,7 +99,7 @@ export function FinanceiroCriancaModal({
                   variant="secondary"
                   onClick={() => setPagando(m)}
                 >
-                  <Banknote size={14} /> Registrar pagamento
+                  <Banknote size={14} /> Registrar
                 </Button>
               )}
             </div>
@@ -189,7 +189,7 @@ function RegistrarPagamento({
           Cancelar
         </Button>
         <Button type="button" onClick={confirmar} disabled={busy}>
-          {busy ? "Registrando…" : "Confirmar recebimento"}
+          {busy ? "Registrando…" : "Confirmar"}
         </Button>
       </div>
     </div>

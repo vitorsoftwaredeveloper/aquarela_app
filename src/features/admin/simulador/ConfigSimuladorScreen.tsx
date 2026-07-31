@@ -185,7 +185,7 @@ function ConfigForm({
         className={styles.addPlano}
         onClick={() => planos.append(PLANO_VAZIO)}
       >
-        <Plus size={16} /> Adicionar plano
+        <Plus size={16} /> Adicionar
       </button>
 
       <div className={styles.footer}>
@@ -195,7 +195,7 @@ function ConfigForm({
           </span>
         )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : "Salvar valores"}
+          {isSubmitting ? "Salvando…" : "Salvar"}
         </Button>
       </div>
     </form>
@@ -341,7 +341,7 @@ function PlanoCard({
           className={styles.addDesconto}
           onClick={() => descontos.append({ meses: 1, percentual: 0 })}
         >
-          <Plus size={15} /> Adicionar desconto
+          <Plus size={15} /> Adicionar
         </button>
       </div>
     </div>

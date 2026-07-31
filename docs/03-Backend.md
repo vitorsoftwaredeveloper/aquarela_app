@@ -168,7 +168,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | GET | `/criancas/{id}` | admin/professor/responsavel* | Detalhe (*só o próprio filho) |
 | PUT | `/criancas/{id}` | admin/responsavel* | Editar dados/saúde/responsáveis/foto (*só o próprio filho e sem `financeiro`) |
 | DELETE | `/criancas/{id}/foto` | admin | Apagar só a foto (o cadastro permanece) |
-| DELETE | `/criancas/{id}` | admin | Remover **em definitivo, em cadeia** (apaga agenda diária, mensalidades e pagamentos da criança; desvincula — sem apagar — os usuários responsáveis) |
+| DELETE | `/criancas/{id}` | admin | Remover **em definitivo, em cadeia** (apaga agenda diária, mensalidades e pagamentos da criança; desvincula os usuários responsáveis e apaga a conta de quem ficar sem nenhuma criança vinculada) |
 
 > **Foto da criança — base64 no corpo.** `POST /criancas` e `PUT /criancas/{id}`
 > aceitam o campo opcional `foto: { contentType, base64 }`. A Lambda decodifica,
@@ -211,7 +211,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > **Valor personalizado (acordo fechado) vs. plano fixo:** `financeiro.valorMensalidade` é sempre obrigatório e é sempre o valor que o admin digitou — o backend não recalcula a partir de `planoId`/`configPrecos` em nenhum momento (`createCriancaService`/`updateCriancaService` gravam `payload.financeiro` como veio). `planoId` é **opcional** e só guarda a referência de qual plano fixo (`GET /config/precos/planos`) foi usado de base, quando foi usado. Omitir `planoId` representa um valor negociado direto com os responsáveis, sem vínculo com nenhum plano — os dois nunca são mandados como se fossem consistentes entre si.
 >
-> `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são só desvinculados (`$pull` em `criancasVinculadas`), suas contas não são apagadas.
+> `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são desvinculados (`$pull` em `criancasVinculadas`) e, **para cada um que fica sem nenhuma criança vinculada**, a conta também é apagada em cadeia (Cognito + registro em `usuarios`) — mesmo hard delete de `DELETE /usuarios/{id}`, só que automático. Só entra nessa remoção automática **usuário com papel `responsavel`**: conta `admin`/`professor` reaproveitada por e-mail igual nunca é apagada por aqui. Front não precisa de tratamento especial — é efeito colateral do mesmo `DELETE /criancas/{id}` que já dispara.
 >
 > **Consentimento LGPD (QA-03).** `POST /criancas` exige `consentimentoLgpd:
 > boolean` no corpo (`additionalProperties:false` + `required` — sem o campo,

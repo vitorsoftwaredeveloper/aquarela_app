@@ -61,7 +61,7 @@ export function ErrorState({
       <div className={styles.stateTitle}>Não foi possível carregar</div>
       <p className={styles.stateText}>{message}</p>
       <Button variant="secondary" size="sm" onClick={onRetry}>
-        Tentar de novo
+        Repetir
       </Button>
     </div>
   );

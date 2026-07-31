@@ -94,7 +94,7 @@ export function CriancasScreen() {
         <div className={styles.pageHeadActions}>
           <Button onClick={() => router.push("/admin/criancas/nova")}>
             <Plus size={18} />
-            Nova criança
+            Adicionar
           </Button>
         </div>
       </div>
@@ -132,7 +132,7 @@ export function CriancasScreen() {
                   onClick={() => router.push("/admin/criancas/nova")}
                 >
                   <Plus size={16} />
-                  Nova criança
+                  Adicionar
                 </Button>
               )
             }
