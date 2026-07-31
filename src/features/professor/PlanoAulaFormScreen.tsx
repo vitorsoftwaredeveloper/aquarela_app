@@ -10,6 +10,7 @@ import { TagInput } from "@/features/admin/criancas/TagInput";
 import { PlanosAulaService } from "@/services/planosAula";
 import { getApiErrorMessage } from "@/services/apiError";
 import { planoAulaSchema, type PlanoAulaFormData } from "@/schemas/planoAula";
+import { dataBrParaIso, isoParaDataBr, maskDataBr } from "@/utils/dataBr";
 import styles from "./professor.module.css";
 
 const VAZIO: PlanoAulaFormData = {
@@ -43,6 +44,7 @@ export function PlanoAulaFormScreen({
     resolver: yupResolver(planoAulaSchema),
     defaultValues: VAZIO,
   });
+  const dataReg = register("data");
 
   useEffect(() => {
     if (!planoId) return;
@@ -53,7 +55,7 @@ export function PlanoAulaFormScreen({
         reset({
           titulo: p.titulo,
           descricao: p.descricao,
-          data: p.data.slice(0, 10),
+          data: isoParaDataBr(p.data),
           objetivos: p.objetivos ?? [],
           materiais: p.materiais ?? [],
         });
@@ -75,11 +77,12 @@ export function PlanoAulaFormScreen({
 
   async function onSubmit(values: PlanoAulaFormData) {
     setSubmitError(null);
+    const payload = { ...values, data: dataBrParaIso(values.data) };
     try {
       if (isEdit && planoId) {
-        await PlanosAulaService.update(turmaId, planoId, values);
+        await PlanosAulaService.update(turmaId, planoId, payload);
       } else {
-        await PlanosAulaService.create(turmaId, values);
+        await PlanosAulaService.create(turmaId, payload);
       }
       voltar();
     } catch (err) {
@@ -179,10 +182,16 @@ export function PlanoAulaFormScreen({
             </label>
             <input
               id="data"
-              type="date"
+              inputMode="numeric"
+              placeholder="dd/mm/aaaa"
+              maxLength={10}
               className={styles.textarea}
               style={{ minHeight: "auto" }}
-              {...register("data")}
+              {...dataReg}
+              onChange={(e) => {
+                e.target.value = maskDataBr(e.target.value);
+                dataReg.onChange(e);
+              }}
             />
             {errors.data && (
               <span

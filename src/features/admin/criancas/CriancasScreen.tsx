@@ -92,11 +92,9 @@ export function CriancasScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button
-            onClick={() => router.push("/admin/criancas/nova")}
-            aria-label="Nova criança"
-          >
+          <Button onClick={() => router.push("/admin/criancas/nova")}>
             <Plus size={18} />
+            Nova criança
           </Button>
         </div>
       </div>
@@ -132,9 +130,9 @@ export function CriancasScreen() {
                 <Button
                   size="sm"
                   onClick={() => router.push("/admin/criancas/nova")}
-                  aria-label="Nova criança"
                 >
                   <Plus size={16} />
+                  Nova criança
                 </Button>
               )
             }
@@ -297,7 +295,7 @@ export function CriancasScreen() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover criança"
+        title="Remover"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>

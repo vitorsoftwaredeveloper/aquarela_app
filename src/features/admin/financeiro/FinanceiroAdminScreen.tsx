@@ -13,7 +13,15 @@ import {
   Trash2,
   TriangleAlert,
 } from "lucide-react";
-import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
+import {
+  Badge,
+  Button,
+  DateBRInput,
+  Input,
+  Modal,
+  Select,
+  Tooltip,
+} from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -21,6 +29,7 @@ import { despesaSchema, type DespesaFormData } from "@/schemas/despesa";
 import { CATEGORIAS_DESPESA, type Despesa } from "@/types/financeiroAdmin";
 import { formatBRL } from "@/types/financeiro";
 import { exportToXlsx, hojeSufixo } from "@/utils/exportXlsx";
+import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
 import { exportToPdfTable } from "@/utils/exportPdfTable";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
@@ -181,12 +190,9 @@ function Despesas() {
             onExcel={exportarExcel}
             disabled={despesas.length === 0}
           />
-          <Button
-            size="sm"
-            onClick={() => setFormOpen(true)}
-            aria-label="Nova despesa"
-          >
+          <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus size={16} />
+            Nova despesa
           </Button>
         </div>
       </div>
@@ -202,12 +208,9 @@ function Despesas() {
             title="Nenhuma despesa lançada"
             text="Registre as despesas para acompanhar o balanço do mês."
             action={
-              <Button
-                size="sm"
-                onClick={() => setFormOpen(true)}
-                aria-label="Nova despesa"
-              >
+              <Button size="sm" onClick={() => setFormOpen(true)}>
                 <Plus size={16} />
+                Nova despesa
               </Button>
             }
           />
@@ -299,7 +302,7 @@ function Despesas() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover despesa"
+        title="Remover"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>
@@ -354,18 +357,19 @@ function DespesaForm({
           descricao: despesa.descricao,
           categoria: despesa.categoria,
           valor: despesa.valor,
-          data: despesa.data.split("T")[0],
+          data: isoParaDataBr(despesa.data),
         }
       : { descricao: "", categoria: "", data: "" },
   });
 
   async function onSubmit(values: DespesaFormData) {
     setSubmitError(null);
+    const payload = { ...values, data: dataBrParaIso(values.data) };
     try {
       if (despesa) {
-        await FinanceiroAdminService.updateDespesa(despesa._id, values);
+        await FinanceiroAdminService.updateDespesa(despesa._id, payload);
       } else {
-        await FinanceiroAdminService.createDespesa(values);
+        await FinanceiroAdminService.createDespesa(payload);
       }
       onSaved();
     } catch (err) {
@@ -401,22 +405,25 @@ function DespesaForm({
         error={errors.categoria?.message}
         {...register("categoria")}
       />
-      <div style={{ display: "flex", gap: 12 }}>
-        <Input
-          label="Valor (R$)"
-          type="number"
-          step="0.01"
-          min={0}
-          placeholder="0,00"
-          error={errors.valor?.message}
-          {...register("valor", { valueAsNumber: true })}
-        />
-        <Input
-          label="Data"
-          type="date"
-          error={errors.data?.message}
-          {...register("data")}
-        />
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+          <Input
+            label="Valor (R$)"
+            type="number"
+            step="0.01"
+            min={0}
+            placeholder="0,00"
+            error={errors.valor?.message}
+            {...register("valor", { valueAsNumber: true })}
+          />
+        </div>
+        <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+          <DateBRInput
+            label="Data"
+            error={errors.data?.message}
+            {...register("data")}
+          />
+        </div>
       </div>
       <div
         style={{

@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { dataBrParaIso } from "@/utils/dataBr";
 
 export const despesaSchema = yup.object({
   descricao: yup
@@ -11,7 +12,10 @@ export const despesaSchema = yup.object({
     .typeError("Informe o valor")
     .required("Informe o valor")
     .moreThan(0, "Valor deve ser maior que zero"),
-  data: yup.string().required("Informe a data"),
+  data: yup
+    .string()
+    .required("Informe a data")
+    .test("formato", "Data inválida (dd/mm/aaaa)", (v) => !!dataBrParaIso(v ?? "")),
 });
 
 export type DespesaFormData = yup.InferType<typeof despesaSchema>;

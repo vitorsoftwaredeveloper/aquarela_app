@@ -1,5 +1,6 @@
 .planos {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 
@@ -75,7 +76,7 @@
 
 .descontoRow {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 12px;
   align-items: end;
   margin-bottom: 10px;
@@ -152,6 +153,6 @@
     grid-template-columns: 1fr;
   }
   .descontoRow {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
 }

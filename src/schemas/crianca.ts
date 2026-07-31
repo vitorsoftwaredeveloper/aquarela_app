@@ -1,6 +1,7 @@
 import * as yup from "yup";
 import { isValidCPF } from "@/utils/cpf";
 import { idadeEmAnos } from "@/types/criancaCadastro";
+import { dataBrParaIso } from "@/utils/dataBr";
 
 const cpfField = (label: string) =>
   yup
@@ -17,8 +18,9 @@ export const criancaSchema = yup.object({
   dataNascimento: yup
     .string()
     .required("Informe a data de nascimento")
+    .test("formato", "Data inválida (dd/mm/aaaa)", (v) => !!dataBrParaIso(v ?? ""))
     .test("faixa", "Idade fora da faixa atendida (0 a 8 anos)", (v) => {
-      const anos = idadeEmAnos(v ?? "");
+      const anos = idadeEmAnos(dataBrParaIso(v ?? ""));
       return anos !== null && anos >= 0 && anos <= 8;
     }),
   cpf: cpfField("da criança"),

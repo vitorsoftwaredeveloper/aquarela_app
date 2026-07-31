@@ -56,8 +56,9 @@ export function TurmasScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button onClick={openCreate} aria-label="Nova turma">
+          <Button onClick={openCreate}>
             <Plus size={18} />
+            Nova turma
           </Button>
         </div>
       </div>
@@ -73,8 +74,9 @@ export function TurmasScreen() {
             title="Nenhuma turma ainda"
             text="Crie a primeira turma e vincule uma professora responsável."
             action={
-              <Button size="sm" onClick={openCreate} aria-label="Nova turma">
+              <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
+                Nova turma
               </Button>
             }
           />
@@ -154,7 +156,7 @@ export function TurmasScreen() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover turma"
+        title="Remover"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>
@@ -277,25 +279,29 @@ function TurmaForm({
         error={errors.descricao?.message}
         {...register("descricao")}
       />
-      <div style={{ display: "flex", gap: 12 }}>
-        <Input
-          label="Idade mínima (anos)"
-          type="number"
-          min={0}
-          max={12}
-          placeholder="1"
-          error={errors.idadeMin?.message}
-          {...register("idadeMin", { valueAsNumber: true })}
-        />
-        <Input
-          label="Idade máxima (anos)"
-          type="number"
-          min={0}
-          max={12}
-          placeholder="3"
-          error={errors.idadeMax?.message}
-          {...register("idadeMax", { valueAsNumber: true })}
-        />
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+          <Input
+            label="Idade mínima (anos)"
+            type="number"
+            min={0}
+            max={12}
+            placeholder="1"
+            error={errors.idadeMin?.message}
+            {...register("idadeMin", { valueAsNumber: true })}
+          />
+        </div>
+        <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+          <Input
+            label="Idade máxima (anos)"
+            type="number"
+            min={0}
+            max={12}
+            placeholder="3"
+            error={errors.idadeMax?.message}
+            {...register("idadeMax", { valueAsNumber: true })}
+          />
+        </div>
       </div>
       <Select
         label="Professora responsável"

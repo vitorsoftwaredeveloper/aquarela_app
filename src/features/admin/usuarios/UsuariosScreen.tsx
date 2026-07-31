@@ -88,8 +88,9 @@ export function UsuariosScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button onClick={openCreate} aria-label="Novo usuário">
+          <Button onClick={openCreate}>
             <Plus size={18} />
+            Novo usuário
           </Button>
         </div>
       </div>
@@ -105,8 +106,9 @@ export function UsuariosScreen() {
             title="Nenhum usuário ainda"
             text="Cadastre o primeiro acesso — admin, professor ou responsável."
             action={
-              <Button size="sm" onClick={openCreate} aria-label="Novo usuário">
+              <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
+                Novo usuário
               </Button>
             }
           />
@@ -197,7 +199,7 @@ export function UsuariosScreen() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover usuário"
+        title="Remover"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>

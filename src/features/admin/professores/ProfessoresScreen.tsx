@@ -74,8 +74,9 @@ export function ProfessoresScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
-          <Button onClick={openCreate} aria-label="Novo professor">
+          <Button onClick={openCreate}>
             <Plus size={18} />
+            Novo professor
           </Button>
         </div>
       </div>
@@ -91,12 +92,9 @@ export function ProfessoresScreen() {
             title="Nenhum professor cadastrado"
             text="Cadastre educadoras para vinculá-las às turmas."
             action={
-              <Button
-                size="sm"
-                onClick={openCreate}
-                aria-label="Novo professor"
-              >
+              <Button size="sm" onClick={openCreate}>
                 <Plus size={16} />
+                Novo professor
               </Button>
             }
           />
@@ -178,7 +176,7 @@ export function ProfessoresScreen() {
       <Modal
         open={!!deleting}
         onClose={() => setDeleting(null)}
-        title="Remover professor"
+        title="Remover"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleting(null)}>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   Button,
+  DateBRInput,
   FotoField,
   Input,
   Select,
@@ -36,6 +37,7 @@ import {
   type CriancaEditavelResponsavel,
 } from "@/types/criancaCadastro";
 import { maskCPF, maskPhone } from "@/utils/cpf";
+import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
 import type { FotoUpload } from "@/utils/imagem";
 import shell from "./responsavel.module.css";
 import styles from "./editarCrianca.module.css";
@@ -90,7 +92,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
     if (!c) return;
     reset({
       nome: c.nome,
-      dataNascimento: c.dataNascimento?.slice(0, 10) ?? "",
+      dataNascimento: isoParaDataBr(c.dataNascimento ?? ""),
       responsaveis: c.responsaveis?.length
         ? c.responsaveis.map((r) => ({
             ...r,
@@ -120,13 +122,14 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
 
   const nomeAtual = useWatch({ control, name: "nome" });
   const nascimento = useWatch({ control, name: "dataNascimento" });
-  const idade = idadeEmAnos(nascimento ?? "");
+  const idade = idadeEmAnos(dataBrParaIso(nascimento ?? ""));
 
   async function onSubmit(values: CriancaResponsavelFormData) {
     setErro(null);
     setSalvo(false);
     const payload: CriancaEditavelResponsavel = {
       ...values,
+      dataNascimento: dataBrParaIso(values.dataNascimento),
       responsaveis: values.responsaveis.map((r) => ({
         ...r,
         cpf: r.cpf.replace(/\D/g, ""),
@@ -247,9 +250,8 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
             error={errors.nome?.message}
             {...register("nome")}
           />
-          <Input
+          <DateBRInput
             label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
-            type="date"
             error={errors.dataNascimento?.message}
             {...register("dataNascimento")}
           />

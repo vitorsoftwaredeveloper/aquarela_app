@@ -59,7 +59,7 @@ describe("EditarCriancaScreen", () => {
     render(<EditarCriancaScreen criancaId="c1" />);
 
     expect(await screen.findByDisplayValue("Lorena Souza")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("2023-04-12")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("12/04/2023")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Marina Souza")).toBeInTheDocument();
     expect(screen.getByText("amendoim")).toBeInTheDocument();
     expect(screen.getByAltText("Foto de Lorena Souza")).toBeInTheDocument();

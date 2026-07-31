@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import {
   Button,
+  DateBRInput,
   FotoField,
   Input,
   Modal,
@@ -53,6 +54,7 @@ import {
   type NovaCriancaPayload,
 } from "@/types/criancaCadastro";
 import { maskCPF, maskPhone } from "@/utils/cpf";
+import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
 import type { FotoUpload } from "@/utils/imagem";
 import { formatBRL } from "@/types/financeiro";
 import { TagInput } from "./TagInput";
@@ -176,7 +178,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
     if (!c) return;
     reset({
       nome: c.nome,
-      dataNascimento: c.dataNascimento?.slice(0, 10) ?? "",
+      dataNascimento: isoParaDataBr(c.dataNascimento ?? ""),
       cpf: maskCPF(c.cpf ?? ""),
       turmaId: c.turmaId ?? "",
       responsaveis: c.responsaveis?.length
@@ -309,6 +311,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
       cpf: r.cpf.replace(/\D/g, ""),
       telefone: r.telefone.replace(/\D/g, ""),
     }));
+    const dataNascimento = dataBrParaIso(values.dataNascimento);
 
     try {
       if (editing && criancaId) {
@@ -318,6 +321,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
         void _cpf;
         await CriancasAdminService.update(criancaId, {
           ...resto,
+          dataNascimento,
           responsaveis,
           ...(foto ? { foto } : {}),
         } as unknown as Omit<NovaCrianca, "cpf" | "turmaId">);
@@ -328,6 +332,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
       } else {
         const payload = {
           ...values,
+          dataNascimento,
           cpf: values.cpf.replace(/\D/g, ""),
           responsaveis,
           consentimentoLgpd: consentimento,
@@ -364,7 +369,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   }
 
   const nascimento = useWatch({ control, name: "dataNascimento" });
-  const idade = idadeEmAnos(nascimento ?? "");
+  const idade = idadeEmAnos(dataBrParaIso(nascimento ?? ""));
   const nomeAtual = useWatch({ control, name: "nome" });
   const fotoAtual = (existente.data as CriancaCadastro | null)?.fotoUrl;
 
@@ -452,9 +457,8 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                       {...register("nome")}
                     />
                     <div className={styles.grid2}>
-                      <Input
+                      <DateBRInput
                         label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
-                        type="date"
                         error={errors.dataNascimento?.message}
                         {...register("dataNascimento")}
                       />

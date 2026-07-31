@@ -3,6 +3,7 @@ export { Button } from "./Button/Button";
 export { FotoField } from "./FotoField/FotoField";
 export { Container } from "./Container/Container";
 export { Input } from "./Input/Input";
+export { DateBRInput } from "./DateBRInput/DateBRInput";
 export { Textarea } from "./Textarea/Textarea";
 export { Select } from "./Select/Select";
 export { Badge } from "./Badge/Badge";
