@@ -37,6 +37,11 @@
   --surface: #ffffff;
   --surface-2: #f6f8fa;
 
+  /* Wash lilás das áreas de conteúdo (admin e responsável) */
+  --wash-1: #e9dff8;
+  --wash-2: #f3ecfb;
+  --wash-3: #faf7fd;
+
   --text: #1f2933;
   --text-soft: #4b5563;
   --text-soft-2: #3f4a57;
@@ -98,6 +103,10 @@
   --screen: #141b23;
   --surface: #1a222c;
   --surface-2: #202a35;
+
+  --wash-1: #241a3d;
+  --wash-2: #1e1a2e;
+  --wash-3: #1a1926;
 
   --text: #edf1f5;
   --text-soft: #c4ccd6;
