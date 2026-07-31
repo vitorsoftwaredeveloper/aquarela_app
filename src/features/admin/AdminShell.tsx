@@ -143,7 +143,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ""}`}
       >
         <div className={styles.brand}>
-          <Logo size={collapsed ? 30 : 34} markOnly={collapsed} />
+          <Logo size={collapsed ? 30 : 100} />
           <button
             type="button"
             className={styles.collapseBtn}

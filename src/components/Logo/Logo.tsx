@@ -1,25 +1,21 @@
-import { Droplet } from "lucide-react";
+import Image from "next/image";
+import logoArt from "./aquarela-logo.png";
 import styles from "./Logo.module.css";
 
 interface LogoProps {
-  /** Tamanho do ícone da gota em px. */
+  /** Altura da arte em px. */
   size?: number;
-  /** Oculta o nome (só a marca). */
-  markOnly?: boolean;
 }
 
-/** Marca Aquarela Kids: gota em gradiente + wordmark. */
-export function Logo({ size = 38, markOnly = false }: LogoProps) {
+/** Marca Aquarela Kids: arte oficial (splash + wordmark), sem fundo. */
+export function Logo({ size = 38 }: LogoProps) {
   return (
-    <span className={styles.logo}>
-      <span
-        className={styles.mark}
-        style={{ width: size, height: size }}
-        aria-hidden
-      >
-        <Droplet size={size * 0.55} fill="#fff" strokeWidth={0} />
-      </span>
-      {!markOnly && <span className={styles.word}>Aquarela Kids</span>}
-    </span>
+    <Image
+      src={logoArt}
+      alt="Aquarela Kids"
+      className={styles.mark}
+      style={{ height: size, width: "auto" }}
+      priority
+    />
   );
 }
