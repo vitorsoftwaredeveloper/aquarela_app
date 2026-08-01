@@ -121,6 +121,32 @@ describe("normalizarInadimplentes", () => {
     expect(lista[0].responsavelContato).toBe("(11) 99000-0000");
   });
 
+  it("extrai inadimplenteDesde como a menor data entre as competências do mesmo filho", () => {
+    const lista = normalizarInadimplentes({
+      data: [
+        {
+          mensalidade: {
+            _id: "m1",
+            criancaId: "c1",
+            valor: 890,
+            inadimplenteDesde: "2026-10-10T03:00:00.000Z",
+          },
+          crianca: { _id: "c1", nome: "Lorena Souza", responsaveis: [] },
+        },
+        {
+          mensalidade: {
+            _id: "m2",
+            criancaId: "c1",
+            valor: 890,
+            inadimplenteDesde: "2026-09-10T03:00:00.000Z",
+          },
+          crianca: { _id: "c1", nome: "Lorena Souza", responsaveis: [] },
+        },
+      ],
+    });
+    expect(lista[0].inadimplenteDesde).toBe("2026-09-10T03:00:00.000Z");
+  });
+
   it("NÃO quebra quando a resposta já vem no formato antigo (flat, sem mensalidade/crianca)", () => {
     const lista = normalizarInadimplentes({
       data: [{ criancaId: "c9" }],

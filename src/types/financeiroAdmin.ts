@@ -29,6 +29,16 @@ export interface Inadimplente {
   responsavelContato?: string;
   mesesEmAtraso: number;
   valorTotal: number;
+  /** ISO date — desde quando a criança está inadimplente (menor data entre as competências). */
+  inadimplenteDesde?: string;
+}
+
+/** Resultado de `POST /financeiro/cobrancas/disparar` (dryRun ou real). */
+export interface ResultadoDisparoCobrancas {
+  dryRun: boolean;
+  responsaveisNotificados: number;
+  responsaveisSemToken: number;
+  mensalidadesAtualizadas: number;
 }
 
 export const CATEGORIAS_DESPESA = [

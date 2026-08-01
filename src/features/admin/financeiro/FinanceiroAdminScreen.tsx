@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AlertCircle,
+  CheckCircle2,
   FileSpreadsheet,
   FileText,
   Pencil,
   Plus,
   Receipt,
+  Send,
   Trash2,
   TriangleAlert,
 } from "lucide-react";
@@ -26,7 +28,11 @@ import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
 import { despesaSchema, type DespesaFormData } from "@/schemas/despesa";
-import { CATEGORIAS_DESPESA, type Despesa } from "@/types/financeiroAdmin";
+import {
+  CATEGORIAS_DESPESA,
+  type Despesa,
+  type ResultadoDisparoCobrancas,
+} from "@/types/financeiroAdmin";
 import { formatBRL } from "@/types/financeiro";
 import { exportToXlsx, hojeSufixo } from "@/utils/exportXlsx";
 import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
@@ -457,6 +463,43 @@ function Inadimplentes() {
   const lista = data ?? [];
   const total = lista.reduce((s, i) => s + i.valorTotal, 0);
 
+  const [disparoOpen, setDisparoOpen] = useState(false);
+  const [disparoBusy, setDisparoBusy] = useState(false);
+  const [disparoError, setDisparoError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<ResultadoDisparoCobrancas | null>(
+    null,
+  );
+  const [resultado, setResultado] = useState<ResultadoDisparoCobrancas | null>(
+    null,
+  );
+
+  async function abrirDisparo() {
+    setDisparoOpen(true);
+    setDisparoBusy(true);
+    setDisparoError(null);
+    setPreview(null);
+    setResultado(null);
+    try {
+      setPreview(await FinanceiroAdminService.dispararCobrancas(true));
+    } catch (err) {
+      setDisparoError(getApiErrorMessage(err));
+    } finally {
+      setDisparoBusy(false);
+    }
+  }
+
+  async function confirmarDisparo() {
+    setDisparoBusy(true);
+    setDisparoError(null);
+    try {
+      setResultado(await FinanceiroAdminService.dispararCobrancas(false));
+    } catch (err) {
+      setDisparoError(getApiErrorMessage(err));
+    } finally {
+      setDisparoBusy(false);
+    }
+  }
+
   function exportarExcel() {
     exportToXlsx(
       lista.map((i) => ({
@@ -504,12 +547,16 @@ function Inadimplentes() {
           </b>{" "}
           · {lista.length} famílias
         </span>
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
           <ExportButtons
             onPdf={exportarPdf}
             onExcel={exportarExcel}
             disabled={lista.length === 0}
           />
+          <Button size="sm" onClick={abrirDisparo}>
+            <Send size={16} />
+            Disparar cobranças agora
+          </Button>
         </div>
       </div>
 
@@ -566,6 +613,124 @@ function Inadimplentes() {
           </div>
         )}
       </div>
+
+      <Modal
+        open={disparoOpen}
+        onClose={() => setDisparoOpen(false)}
+        title="Disparar cobranças"
+        footer={
+          resultado ? (
+            <Button onClick={() => setDisparoOpen(false)}>Fechar</Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setDisparoOpen(false)}
+                disabled={disparoBusy}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmarDisparo}
+                disabled={disparoBusy || !preview}
+              >
+                {disparoBusy ? "Disparando…" : "Confirmar disparo"}
+              </Button>
+            </>
+          )
+        }
+      >
+        {disparoBusy && !preview && !resultado && (
+          <p style={{ fontSize: 14, color: "var(--text-soft)" }}>
+            Calculando quem seria notificado…
+          </p>
+        )}
+
+        {preview && !resultado && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
+              Mensalidades em aberto até o fim do mês, agrupadas por
+              responsável (1 push por pessoa).
+            </p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "var(--color-primary-link)",
+                fontSize: 14,
+                fontWeight: 600,
+              }}
+            >
+              <Send size={16} />
+              {preview.responsaveisNotificados}{" "}
+              {preview.responsaveisNotificados === 1
+                ? "responsável seria notificado"
+                : "responsáveis seriam notificados"}
+            </div>
+            {preview.responsaveisSemToken > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  color: "var(--color-danger-strong)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                <AlertCircle size={16} />
+                {preview.responsaveisSemToken}{" "}
+                {preview.responsaveisSemToken === 1
+                  ? "responsável sem token válido"
+                  : "responsáveis sem token válido"}{" "}
+                (não recebem push)
+              </div>
+            )}
+          </div>
+        )}
+
+        {resultado && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              color: "var(--color-secondary-strong)",
+              fontSize: 14,
+            }}
+          >
+            <CheckCircle2 size={18} />
+            <span>
+              {resultado.responsaveisNotificados}{" "}
+              {resultado.responsaveisNotificados === 1
+                ? "responsável notificado"
+                : "responsáveis notificados"}
+              {resultado.responsaveisSemToken > 0 &&
+                ` · ${resultado.responsaveisSemToken} sem token válido`}
+              . {resultado.mensalidadesAtualizadas}{" "}
+              {resultado.mensalidadesAtualizadas === 1
+                ? "mensalidade marcada"
+                : "mensalidades marcadas"}
+              .
+            </span>
+          </div>
+        )}
+
+        {disparoError && (
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              marginTop: 14,
+              color: "var(--color-danger-strong)",
+              fontSize: 13,
+            }}
+          >
+            <AlertCircle size={17} /> <span>{disparoError}</span>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

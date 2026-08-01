@@ -47,6 +47,21 @@ export const configPrecosSchema = yup.object({
       }),
     )
     .required(),
+  inadimplencia: yup
+    .object({
+      diaCorte: yup
+        .number()
+        .typeError("Informe o dia")
+        .required("Informe o dia do corte")
+        .min(1, "Mínimo 1")
+        .max(28, "Máximo 28"),
+      mesesCarencia: yup
+        .number()
+        .typeError("Informe os meses")
+        .required("Informe os meses de carência")
+        .min(0, "Não pode ser negativo"),
+    })
+    .required(),
 });
 
 export type ConfigPrecosFormData = yup.InferType<typeof configPrecosSchema>;

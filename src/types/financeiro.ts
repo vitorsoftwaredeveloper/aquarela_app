@@ -9,6 +9,8 @@ export interface Mensalidade {
   mesShort: string; // "Jul"
   valor: number;
   status: StatusMensalidade;
+  /** ISO date — setado quando a mensalidade passou da carência configurada (Épico J). */
+  inadimplenteDesde?: string;
   updatedAt?: string;
 }
 

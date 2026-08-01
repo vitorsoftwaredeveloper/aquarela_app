@@ -8,6 +8,7 @@ import {
   ChevronRight,
   History,
   RefreshCw,
+  TriangleAlert,
   X,
 } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
@@ -15,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
+import { formatBRL } from "@/types/financeiro";
 import { type Crianca } from "@/types/crianca";
 import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { AGENDA_VISUAL } from "./agendaVisual";
@@ -24,8 +26,15 @@ const AVISO_TONE = { bg: "#F1ECFB", fg: "#6D45C4" };
 
 export function InicioScreen() {
   const { user } = useAuth();
-  const { criancas, active, activeId, setActive, loading, avatarColors } =
-    useResponsavel();
+  const {
+    criancas,
+    active,
+    activeId,
+    setActive,
+    loading,
+    avatarColors,
+    inadimplencia,
+  } = useResponsavel();
   const firstName = (user?.name ?? "").split(" ")[0] || "responsável";
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
@@ -145,6 +154,23 @@ export function InicioScreen() {
       </div>
 
       <NotificationOnboarding />
+      {inadimplencia.inadimplente && (
+        <Link href="/financeiro" className={styles.inadimplenteAlert}>
+          <span className={styles.inadimplenteIcon}>
+            <TriangleAlert size={18} />
+          </span>
+          <div>
+            <div className={styles.inadimplenteTitle}>
+              Mensalidade inadimplente
+            </div>
+            <div className={styles.inadimplenteText}>
+              {inadimplencia.desde &&
+                `Desde ${new Date(inadimplencia.desde).toLocaleDateString("pt-BR")} · `}
+              Total: {formatBRL(inadimplencia.valorTotal)}
+            </div>
+          </div>
+        </Link>
+      )}
       <Avisos />
       <AgendaHoje criancaId={active._id} />
       <ChildSwitcherSheet

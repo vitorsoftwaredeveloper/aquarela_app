@@ -2,12 +2,16 @@ import { api, publicApi } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
 import { unwrapItem } from "./unwrap";
 import {
+  INADIMPLENCIA_PADRAO,
   PLANOS_PADRAO,
   type ConfigPrecos,
   type UpdateConfigPrecos,
 } from "@/types/configPrecos";
 
-let devConfig: ConfigPrecos = { planos: PLANOS_PADRAO };
+let devConfig: ConfigPrecos = {
+  planos: PLANOS_PADRAO,
+  inadimplencia: INADIMPLENCIA_PADRAO,
+};
 
 /** Configuração de preços do simulador (admin). Contrato: docs/03-Backend §5. */
 export const ConfigPrecosService = {
@@ -24,7 +28,7 @@ export const ConfigPrecosService = {
 
   async update(payload: UpdateConfigPrecos): Promise<ConfigPrecos> {
     if (IS_DEV_DATA) {
-      devConfig = { planos: payload.planos };
+      devConfig = { planos: payload.planos, inadimplencia: payload.inadimplencia };
       return devConfig;
     }
     const { data } = await api.put("/config/precos", payload);

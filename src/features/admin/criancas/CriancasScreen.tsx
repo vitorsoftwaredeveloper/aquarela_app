@@ -11,12 +11,14 @@ import {
   Search,
   ShieldAlert,
   Trash2,
+  TriangleAlert,
   Wallet,
 } from "lucide-react";
 import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasAdminService } from "@/services/criancasAdmin";
 import { TurmasService } from "@/services/turmas";
+import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
 import { idadeEmAnos, type CriancaCadastro } from "@/types/criancaCadastro";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
@@ -33,6 +35,13 @@ export function CriancasScreen() {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const turmas = useFetch(() => TurmasService.list());
+  const inadimplentes = useFetch(() =>
+    FinanceiroAdminService.getInadimplentes(),
+  );
+  const criancasInadimplentes = useMemo(
+    () => new Set((inadimplentes.data ?? []).map((i) => i.criancaId)),
+    [inadimplentes.data],
+  );
   const [moving, setMoving] = useState<CriancaCadastro | null>(null);
   const [moveTurmaId, setMoveTurmaId] = useState("");
   const [moveBusy, setMoveBusy] = useState(false);
@@ -113,7 +122,7 @@ export function CriancasScreen() {
 
       <div className={styles.card}>
         {loading ? (
-          <TableSkeleton columns={6} />
+          <TableSkeleton columns={7} />
         ) : error ? (
           <ErrorState message={error} onRetry={reload} />
         ) : criancas.length === 0 ? (
@@ -146,6 +155,7 @@ export function CriancasScreen() {
                   <th>Turma</th>
                   <th>Responsável</th>
                   <th>Saúde</th>
+                  <th>Financeiro</th>
                   <th aria-label="Ações" />
                 </tr>
               </thead>
@@ -175,6 +185,15 @@ export function CriancasScreen() {
                         {alergias.length > 0 ? (
                           <Badge tone="danger">
                             <ShieldAlert size={12} /> {alergias.join(", ")}
+                          </Badge>
+                        ) : (
+                          <span className={styles.cellSub}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        {criancasInadimplentes.has(c._id) ? (
+                          <Badge tone="danger">
+                            <TriangleAlert size={12} /> Inadimplente
                           </Badge>
                         ) : (
                           <span className={styles.cellSub}>—</span>

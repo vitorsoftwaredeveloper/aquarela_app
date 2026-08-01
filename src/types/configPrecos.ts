@@ -15,8 +15,14 @@ export interface PlanoConfig {
   descontos?: DescontoConfig[] | null;
 }
 
+export interface InadimplenciaConfig {
+  diaCorte: number; // 1-28
+  mesesCarencia: number;
+}
+
 export interface ConfigPrecos {
   planos: PlanoConfig[];
+  inadimplencia?: InadimplenciaConfig;
 }
 
 /** Payload do PUT (igual ao IUpdateConfigPrecosPayload do serverless). */
@@ -25,6 +31,12 @@ export type UpdateConfigPrecos = ConfigPrecos;
 export const TIPO_LABEL: Record<PlanoTipo, string> = {
   integral: "Integral",
   meioPeriodo: "Meio período",
+};
+
+/** Corte de inadimplência sugerido quando o `configPrecos` ainda não foi populado. */
+export const INADIMPLENCIA_PADRAO: InadimplenciaConfig = {
+  diaCorte: 10,
+  mesesCarencia: 1,
 };
 
 /** Planos-base sugeridos quando o `configPrecos` ainda não foi populado. */

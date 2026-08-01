@@ -8,6 +8,7 @@ import {
   Download,
   AlertTriangle,
   Droplet,
+  TriangleAlert,
 } from "lucide-react";
 import { Button, Modal, Skeleton } from "@/components";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
@@ -63,6 +64,15 @@ export function FinanceiroScreen() {
   const emAberto = meses
     .filter((m) => m.status !== "pago")
     .reduce((sum, m) => sum + m.valor, 0);
+  const inadimplentes = meses.filter((m) => m.inadimplenteDesde);
+  const inadimplenteDesde = inadimplentes.reduce<string | undefined>(
+    (min, m) => (!min || m.inadimplenteDesde! < min ? m.inadimplenteDesde : min),
+    undefined,
+  );
+  const valorInadimplente = inadimplentes.reduce(
+    (soma, m) => soma + m.valor,
+    0,
+  );
 
   // Só o carregamento inicial (sem dados) bloqueia a tela. Um reload em
   // background (ex.: `onPaid` após confirmar o PIX) NÃO pode desmontar a lista
@@ -152,6 +162,22 @@ export function FinanceiroScreen() {
           </div>
         </div>
       </div>
+
+      {inadimplentes.length > 0 && (
+        <div className={styles.inadimplenteAlert} role="alert">
+          <span className={styles.inadimplenteIcon}>
+            <TriangleAlert size={18} />
+          </span>
+          <div>
+            <div className={styles.inadimplenteTitle}>
+              Inadimplente desde {formatDataPagamento(inadimplenteDesde)}
+            </div>
+            <div className={styles.inadimplenteText}>
+              Total em aberto: {formatBRL(valorInadimplente)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {error ? (
         <div className={styles.state}>

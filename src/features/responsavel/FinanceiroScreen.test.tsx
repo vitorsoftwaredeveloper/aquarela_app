@@ -72,6 +72,7 @@ function mockResponsavel(
     loading: false,
     error: null,
     avatarColors: {},
+    inadimplencia: { inadimplente: false, valorTotal: 0 },
     setActive: vi.fn(),
     reload: vi.fn(),
     ...overrides,

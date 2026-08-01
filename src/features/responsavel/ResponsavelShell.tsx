@@ -16,7 +16,7 @@ interface Tab {
 
 export function ResponsavelShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { activeId } = useResponsavel();
+  const { activeId, inadimplencia } = useResponsavel();
 
   const tabs: Tab[] = [
     {
@@ -64,7 +64,12 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
                   if (disabled) e.preventDefault();
                 }}
               >
-                <Icon size={22} />
+                <span className={styles.tabIconWrap}>
+                  <Icon size={22} />
+                  {label === "Financeiro" && inadimplencia.inadimplente && (
+                    <span className={styles.tabDot} aria-hidden />
+                  )}
+                </span>
                 <span>{label}</span>
               </Link>
             );

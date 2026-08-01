@@ -75,6 +75,20 @@
 .tabActive:hover {
   color: var(--color-primary-link);
 }
+.tabIconWrap {
+  position: relative;
+  display: inline-flex;
+}
+.tabDot {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger-strong);
+  border: 2px solid var(--surface);
+}
 
 /* ---------- Cabeçalho gradiente (início/financeiro/perfil) ---------- */
 .gradHeader {
@@ -321,6 +335,40 @@
   color: var(--color-danger-strong);
 }
 .intercorrenciaText {
+  font-size: 12px;
+  color: var(--color-danger-strong);
+  margin-top: 2px;
+}
+
+.inadimplenteAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  border-radius: 16px;
+  padding: 12px 13px;
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+.inadimplenteIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+}
+.inadimplenteTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--color-danger-strong);
+}
+.inadimplenteText {
   font-size: 12px;
   color: var(--color-danger-strong);
   margin-top: 2px;

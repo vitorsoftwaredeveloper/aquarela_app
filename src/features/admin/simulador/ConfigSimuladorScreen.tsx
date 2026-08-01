@@ -18,7 +18,12 @@ import {
   configPrecosSchema,
   type ConfigPrecosFormData,
 } from "@/schemas/configPrecos";
-import { PLANOS_PADRAO, type PlanoConfig } from "@/types/configPrecos";
+import {
+  INADIMPLENCIA_PADRAO,
+  PLANOS_PADRAO,
+  type InadimplenciaConfig,
+  type PlanoConfig,
+} from "@/types/configPrecos";
 import { ErrorState } from "../ListState";
 import admin from "../admin.module.css";
 import styles from "./configSimulador.module.css";
@@ -80,6 +85,7 @@ export function ConfigSimuladorScreen() {
       ) : (
         <ConfigForm
           initial={toFormPlanos(data?.planos ?? PLANOS_PADRAO)}
+          initialInadimplencia={data?.inadimplencia ?? INADIMPLENCIA_PADRAO}
           onSaved={reload}
         />
       )}
@@ -111,9 +117,11 @@ function ConfigSimuladorSkeleton() {
 
 function ConfigForm({
   initial,
+  initialInadimplencia,
   onSaved,
 }: {
   initial: ConfigPrecosFormData["planos"];
+  initialInadimplencia: InadimplenciaConfig;
   onSaved: () => void;
 }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -126,7 +134,7 @@ function ConfigForm({
     formState: { errors, isSubmitting },
   } = useForm<ConfigPrecosFormData>({
     resolver: yupResolver(configPrecosSchema),
-    defaultValues: { planos: initial },
+    defaultValues: { planos: initial, inadimplencia: initialInadimplencia },
   });
   const planos = useFieldArray({ control, name: "planos" });
 
@@ -142,6 +150,7 @@ function ConfigForm({
           valorDiario: p.valorDiario ?? null,
           descontos: p.descontos ?? [],
         })),
+        inadimplencia: values.inadimplencia,
       });
       setSaved(true);
       onSaved();
@@ -187,6 +196,39 @@ function ConfigForm({
       >
         <Plus size={16} /> Adicionar
       </button>
+
+      <div className={styles.planoCard} style={{ marginTop: 18 }}>
+        <div className={styles.planoHead}>
+          <span className={styles.planoBadge}>Corte de inadimplência</span>
+        </div>
+        <div className={styles.grid}>
+          <Input
+            label="Dia do corte"
+            type="number"
+            min="1"
+            max="28"
+            placeholder="10"
+            error={errors.inadimplencia?.diaCorte?.message}
+            {...register("inadimplencia.diaCorte", { valueAsNumber: true })}
+          />
+          <Input
+            label="Meses de carência"
+            type="number"
+            min="0"
+            placeholder="1"
+            error={errors.inadimplencia?.mesesCarencia?.message}
+            {...register("inadimplencia.mesesCarencia", {
+              valueAsNumber: true,
+            })}
+          />
+        </div>
+        <p className={styles.help}>
+          A mensalidade não paga vira &quot;inadimplente&quot; no dia do corte
+          do mês seguinte à competência, contando os meses de carência. Ex.:
+          corte 10 e carência 1 mês — uma mensalidade de agosto vira
+          inadimplente em 10/09.
+        </p>
+      </div>
 
       <div className={styles.footer}>
         {saved && (

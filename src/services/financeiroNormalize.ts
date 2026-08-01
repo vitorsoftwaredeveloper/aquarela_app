@@ -106,11 +106,20 @@ export function normalizarInadimplentes(bruto: unknown): Inadimplente[] {
       : [];
     const responsavel = responsaveis[0] ?? {};
     const valor = num(mensalidade.valor);
+    const inadimplenteDesde = mensalidade.inadimplenteDesde as
+      | string
+      | undefined;
 
     const atual = porCrianca.get(criancaId);
     if (atual) {
       atual.mesesEmAtraso += 1;
       atual.valorTotal += valor;
+      if (
+        inadimplenteDesde &&
+        (!atual.inadimplenteDesde || inadimplenteDesde < atual.inadimplenteDesde)
+      ) {
+        atual.inadimplenteDesde = inadimplenteDesde;
+      }
     } else {
       porCrianca.set(criancaId, {
         criancaId,
@@ -119,6 +128,7 @@ export function normalizarInadimplentes(bruto: unknown): Inadimplente[] {
         responsavelContato: (responsavel.telefone as string) || undefined,
         mesesEmAtraso: 1,
         valorTotal: valor,
+        inadimplenteDesde,
       });
     }
   }

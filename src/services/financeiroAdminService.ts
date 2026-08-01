@@ -1,6 +1,7 @@
 import { api } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
 import { devBalanco, devDespesas, devInadimplentes } from "./devData";
+import { unwrapItem } from "./unwrap";
 import {
   normalizarBalanco,
   normalizarInadimplentes,
@@ -10,6 +11,7 @@ import type {
   Despesa,
   Inadimplente,
   NovaDespesa,
+  ResultadoDisparoCobrancas,
 } from "@/types/financeiroAdmin";
 import { FinanceiroService } from "./financeiroService";
 import type { Mensalidade } from "@/types/financeiro";
@@ -34,6 +36,31 @@ export const FinanceiroAdminService = {
     if (IS_DEV_DATA) return devInadimplentes;
     const { data } = await api.get("/financeiro/inadimplentes");
     return normalizarInadimplentes(data);
+  },
+
+  /** Dispara cobrança por push sob demanda (mesmo motor do cron dos dias 05/20). */
+  async dispararCobrancas(
+    dryRun: boolean,
+  ): Promise<ResultadoDisparoCobrancas> {
+    if (IS_DEV_DATA) {
+      return {
+        dryRun,
+        responsaveisNotificados: devInadimplentes.length,
+        responsaveisSemToken: 0,
+        mensalidadesAtualizadas: dryRun ? 0 : devInadimplentes.length,
+      };
+    }
+    const { data } = await api.post("/financeiro/cobrancas/disparar", {
+      dryRun,
+    });
+    return (
+      unwrapItem<ResultadoDisparoCobrancas>(data) ?? {
+        dryRun,
+        responsaveisNotificados: 0,
+        responsaveisSemToken: 0,
+        mensalidadesAtualizadas: 0,
+      }
+    );
   },
 
   async listDespesas(): Promise<Despesa[]> {
