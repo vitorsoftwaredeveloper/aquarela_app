@@ -68,7 +68,10 @@ export function BalancoChart() {
       <figcaption className={styles.chartHead}>
         <div>
           <h2 className={styles.chartTitle}>Entradas × despesas</h2>
-          <p className={styles.chartSub}>Balanço mensal do ano</p>
+          <p className={styles.chartSub}>
+            Balanço mensal do ano · entradas em regime de caixa (data do
+            pagamento)
+          </p>
         </div>
 
         <div className={styles.chartHeadRight}>

@@ -62,7 +62,7 @@ export function DashboardScreen() {
               icon={<TrendingUp size={16} />}
               bg="var(--color-secondary-soft)"
               fg="var(--color-secondary-strong)"
-              foot="mensalidades recebidas"
+              foot="regime de caixa — data do pagamento"
             />
             <Kpi
               label="Despesas do mês"
