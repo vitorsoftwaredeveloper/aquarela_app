@@ -137,6 +137,7 @@ export const criancaSchema = yup.object({
 - **Etapa financeiro do cadastro de criança (`CriancaStepper.tsx`):** toggle **Plano fixo** × **Valor personalizado**. "Plano fixo" mantém o seletor de `GET /config/precos/planos` (preenche `valorMensalidade` a partir do plano e manda `financeiro.planoId` junto). "Valor personalizado" troca o seletor por um campo numérico livre (acordo fechado com os responsáveis, fora dos planos) e **omite `planoId`** do payload — o backend nunca recalcula `valorMensalidade` a partir de plano (`docs/03-Backend.md` §5), então o valor enviado é o que fica gravado, e os dois nunca são mandados como se fossem consistentes entre si.
 - **Financeiro (admin) — pagamento manual em dinheiro:** ícone de carteira na lista de crianças (`CriancasScreen.tsx`) abre `FinanceiroCriancaModal.tsx` com a grade de meses da criança (mesma rota `GET /mensalidades?criancaId=&ano=` do portal do pai). Clicar num mês `aberto`/`atrasado` troca o modal para um formulário de valor recebido; confirmar chama `POST /pagamentos/manual` (`docs/03-Backend.md` §7.1) e a mensalidade passa a aparecer `pago`, igual a uma paga por PIX.
 - **Simulador:** cálculo no cliente a partir dos valores configurados; gráfico de barras comparando períodos.
+- **Remover turma (`turmas/[turmaId]/page.tsx`):** `DELETE /turmas/{id}` apaga em cascata **avisos** e **planos de aula** (`planos-aula/page.tsx`) daquela turma — hard delete, sem confirmação extra do backend. O front deve avisar o admin disso antes de confirmar a remoção, e invalidar/recarregar a listagem de planos de aula em cache após o `DELETE` (`docs/03-Backend.md` §5).
 - **Relatórios (admin):** exportação `.xlsx` com `xlsx` (SheetJS) a partir dos dados do `DashboardContext`.
 - **Redefinir senha (admin):** ícone `KeyRound` na lista de usuários (`UsuariosScreen.tsx`, ao lado de Editar/Remover) abre `RedefinirSenhaForm` — o admin digita e confirma a nova senha (`schemas/usuario.ts` → `redefinirSenhaSchema`, mín. 8 caracteres) e o front chama `UsuariosService.redefinirSenha` (`PUT /usuarios/{id}/senha`, `docs/03-Backend.md` §5). Sucesso fecha o form e abre `SenhaRedefinidaModal` — mesmo padrão copia-e-cola do `CredencialModal` do cadastro (e-mail + senha em destaque, botão "Copiar tudo"), avisando que ela só aparece nessa hora. Assim como no cadastro, o usuário é obrigado a trocá-la no próximo login — o front não coleta a senha atual nem oferece esse fluxo para o próprio usuário se autoatender.
 
@@ -180,12 +181,21 @@ Regras:
 
 ### Recados (Épico K)
 
+- **Sem polling.** O recado chega por push (`onMessage`/`onBackgroundMessage`);
+  o app só chama `GET /mensagens?criancaId=&desde=` quando a notificação
+  chega ou quando a tela do recado ganha foreground — nunca em intervalo.
+  `desde` é o `createdAt` da última mensagem já em memória, então o fetch
+  busca só o delta.
+- **Não há "lida" no servidor** — o backend não sabe (nem precisa saber) se o
+  outro lado leu. Badge de não lidas é **contagem local**: o app guarda por
+  criança o `createdAt` da última mensagem vista (`ultimaAberturaChat`) e
+  conta quantas mensagens do `GET /mensagens` são mais recentes que isso.
+  Reinstalar o app/trocar de device zera essa marca (mostra badge "velho" uma
+  vez) — aceito, não é dado que precise sobreviver no servidor.
 - **Responsável** — `/crianca/[criancaId]/recados`: thread desc paginada por
-  cursor (`antesDe`), campo de texto + `UploadAnexo`, badge de não lidas na
-  entrada da tela da criança e no bottom-tab.
+  cursor (`antesDe`), campo de texto + `UploadAnexo`.
 - **Professor** — `/professor/turmas/[turmaId]/recados`: lista por aluno com
-  contador de não lidas; abrir a thread chama `POST /mensagens/{id}/lida`.
-  `AlunosScreen` ganha o contador por aluno (`GET /mensagens/nao-lidas`).
+  contador de não lidas (local, ver acima).
 - Admin **não envia** recado — só lê, para suporte.
 - O push do recado é **genérico** ("Novo recado sobre a Sofia"). O texto da
   mensagem nunca aparece na notificação; o `onMessage` em primeiro plano
@@ -280,13 +290,16 @@ admin esperava ver.
   `podeRetirar`**, saúde completa, turma, financeiro, consentimentos, rodapé com
   data de emissão + aviso de documento confidencial (LGPD).
 
-### `podeRetirar` é somente-leitura para o responsável (OPS-01)
+### Responsável não adiciona nem autoriza retirada (✅ OPS-01)
 
 Em `EditarCriancaScreen` (responsável) o toggle "Pode retirar a criança" fica
-`readOnly`, com faixa explicativa ("Só a secretaria autoriza quem pode retirar a
-criança"). O responsável pode adicionar um responsável novo, mas ele nasce
-**sem** permissão de retirada, e não pode remover uma entrada que já tem a
-permissão. No admin (`CriancaStepper`) segue tudo editável.
+`disabled` (checkbox não respeita `readOnly` em nenhum browser), com faixa
+explicativa ("Só a secretaria autoriza quem pode retirar a criança"). O botão
+"Adicionar responsável" **não existe** nessa tela — responsável não inclui
+gente nova na lista, só edita nome/telefone/CPF de quem já está lá; no lugar
+do botão, uma nota fixa explica que é a secretaria quem adiciona. Também não
+pode remover uma entrada que já tem `podeRetirar: true`. No admin
+(`CriancaStepper`) segue tudo editável e livre.
 
 > O bloqueio no front é **UX**: o backend responde
 > `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` de qualquer jeito, e é ele que vale.

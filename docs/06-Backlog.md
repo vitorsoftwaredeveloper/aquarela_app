@@ -22,7 +22,7 @@
 
 | # do pedido | Vira | # do pedido | Vira |
 | --- | --- | --- | --- |
-| 1 · cobrança automática dias 05 e 20 | COB-01…COB-05 | 8 · professor lê os recados | MSG-05, MSG-10 |
+| 1 · cobrança automática dias 05 e 20 | COB-01…COB-05 | 8 · professor lê os recados | MSG-10 |
 | 2 · corte de inadimplência no dia 10 | COB-06…COB-09 | 9 · tarefa de casa na agenda | AG2-03, AG2-04 |
 | 3 · responsável não concede `podeRetirar` | OPS-01 | 10 · falta / chegou atrasado | AG2-05, AG2-06 |
 | 4 · pagamento de 31/07 caiu em agosto | OPS-02 | 11 · imprimir ficha de cadastro | OPS-04 |
@@ -65,21 +65,21 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | ------ | -------------------------------------------------------------------------------------------------- | ---- | --- | ------ | -------------- | ----------------------------------------------------------------------------------------- |
 | CAD-01 | ✅ Modelo + CRUD **usuários** (BE): criar, listar, remover, papéis                                  | 🔴   | 5   | BE     | INF-06         | Admin cria/remove usuário; papel gravado; espelha `cognitoSub`                            |
 | CAD-02 | ✅ Provisionamento no Cognito ao criar usuário (convite/senha) — `src/libs/cognito.ts`              | 🔴   | 5   | BE     | CAD-01         | Novo usuário recebe acesso; vínculo Cognito↔`usuarios`                                    |
-| CAD-03 | ✅ Tela admin de **gestão de usuários** (lista, criar, remover) — `UsuariosScreen.tsx`             | 🔴   | 5   | FE     | CAD-01, INF-10 | Admin gerencia usuários; confirmação ao remover                                           |
+| CAD-03 | ✅ Tela admin de **gestão de usuários** (lista, criar, remover) — `UsuariosScreen.tsx` (aquarela_app) | 🔴   | 5   | FE     | CAD-01, INF-10 | Admin gerencia usuários; confirmação ao remover                                           |
 | CAD-04 | ✅ Modelo + CRUD **professores** (BE)                                                               | 🔴   | 3   | BE     | INF-06         | CRUD completo; vínculo `usuarioId`                                                        |
-| CAD-05 | ✅ Tela admin **cadastro de professores** (FE) — `ProfessoresScreen.tsx`                           | 🔴   | 3   | FE     | CAD-04, INF-10 | Formulário com validação; lista e edição                                                  |
+| CAD-05 | ✅ Tela admin **cadastro de professores** (FE) — `ProfessoresScreen.tsx` (aquarela_app)            | 🔴   | 3   | FE     | CAD-04, INF-10 | Formulário com validação; lista e edição                                                  |
 | CAD-06 | ✅ Modelo + CRUD **turmas** (BE): nome, descrição, faixa etária, professora                         | 🔴   | 5   | BE     | CAD-04         | Turma vincula 1 professora; faixa etária validada                                         |
-| CAD-07 | ✅ Tela admin **cadastro de turmas** (FE) — `TurmasScreen.tsx`                                     | 🔴   | 3   | FE     | CAD-06, INF-10 | Criar/editar turma; selecionar professora                                                 |
+| CAD-07 | ✅ Tela admin **cadastro de turmas** (FE) — `TurmasScreen.tsx` (aquarela_app)                      | 🔴   | 3   | FE     | CAD-06, INF-10 | Criar/editar turma; selecionar professora                                                 |
 | CAD-08 | ✅ Modelo **criança** completo (BE): identificação, responsáveis, saúde, financeiro                 | 🔴   | 8   | BE     | INF-06         | Todos os campos da seção 6 do PRD; validação de CPF                                       |
 | CAD-09 | ✅ Endpoint editar/atualizar criança + auditoria de alterações                                      | 🔴   | 5   | BE     | CAD-08         | Edição registra quem/quando; histórico de mudanças em saúde                               |
-| CAD-10 | ✅ Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) — `CriancaStepper.tsx` | 🔴   | 8   | FE     | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição; etapa financeiro tem seletor de plano fixo **e** campo de valor personalizado (acordo fechado), este último sobrepõe o plano e omite `planoId` no payload |
+| CAD-10 | ✅ Tela **cadastro/edição de criança** em stepper (identificação → responsáveis → saúde → financeiro) — `CriancaStepper.tsx` (aquarela_app) | 🔴   | 8   | FE     | CAD-08, INF-10 | Stepper com validação por etapa; salva parcial; edição; etapa financeiro tem seletor de plano fixo **e** campo de valor personalizado (acordo fechado), este último sobrepõe o plano e omite `planoId` no payload |
 | CAD-11 | ✅ Vínculo criança ↔ turma e criança ↔ responsável(is)                                              | 🔴   | 3   | FS     | CAD-06, CAD-08 | Criança aparece na turma; responsável enxerga o filho                                     |
 | CAD-12 | ✅ Upload de foto da criança (S3) — `src/services/shared/fotoUpload.ts`, `src/libs/s3.ts`           | 🟡   | 3   | FS     | CAD-08         | Foto salva em S3; exibida no cadastro/agenda                                              |
 | CAD-13 | ✅ Busca/filtro de crianças (por nome, turma, status)                                              | 🟡   | 3   | FS     | CAD-08         | Lista filtrável e paginada                                                                |
 | CAD-14 | ✅ Atualizar/remover **usuário** e **professor** (update + hard delete)                             | 🔴   | 3   | FS     | CAD-01, CAD-04 | `PUT`/`DELETE`; remover professor com turma → aviso/409; UI de editar/remover             |
-| CAD-15 | ✅ **Remover criança** (hard delete em cadeia — apaga agenda/mensalidades/pagamentos próprios, desvincula responsáveis) | 🔴   | 3   | FS     | CAD-09         | `DELETE /criancas/{id}`; `src/services/criancas/removeCrianca.ts` (aquarela_serverless); confirmação na UI |
-| CAD-16 | ✅ **Remover turma** com regra de turma não-vazia (bloquear) — `src/services/turmas/removeTurma.ts` (aquarela_serverless) | 🔴   | 3   | FS     | CAD-06, CAD-11 | `DELETE /turmas/{id}` bloqueia se houver crianças vinculadas (409 `TURMA_COM_CRIANCAS_VINCULADAS`) |
-| CAD-17 | ✅ **Vincular / desvincular / mover** criança ↔ turma — `src/services/criancas/moverCriancaTurma.ts` (aquarela_serverless) | 🔴   | 5   | FS     | CAD-06, CAD-08 | `POST`/`DELETE /turmas/{id}/criancas`; `PATCH /criancas/{id}/turma`; UI de mover de turma |
+| CAD-15 | ✅ **Remover criança** (hard delete em cadeia — apaga agenda/mensalidades/pagamentos próprios, desvincula responsáveis) | 🔴   | 3   | FS     | CAD-09         | `DELETE /criancas/{id}`; `src/services/criancas/removeCrianca.ts`; confirmação na UI      |
+| CAD-16 | ✅ **Remover turma** com regra de turma não-vazia (bloquear) — `src/services/turmas/removeTurma.ts` | 🔴   | 3   | FS     | CAD-06, CAD-11 | `DELETE /turmas/{id}` bloqueia se houver crianças vinculadas (409 `TURMA_COM_CRIANCAS_VINCULADAS`) |
+| CAD-17 | ✅ **Vincular / desvincular / mover** criança ↔ turma — `src/services/criancas/moverCriancaTurma.ts` | 🔴   | 5   | FS     | CAD-06, CAD-08 | `POST`/`DELETE /turmas/{id}/criancas`; `PATCH /criancas/{id}/turma`; UI de mover de turma |
 
 **Subtotal Épico A:** 73 pts (MVP: ~67 pts).
 
@@ -93,11 +93,11 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | AGD-02 | ✅ Endpoints criar/editar registro do dia (professor)                                          | 🔴   | 5   | BE     | AGD-01, INF-06 | Professor da turma cria/edita; validação ajv            |
 | AGD-03 | ✅ Endpoint ler agenda por dia + histórico por intervalo                                       | 🔴   | 3   | BE     | AGD-01         | Filtro por criança/data e por período (ordenado desc)   |
 | AGD-04 | ✅ Autorização de acesso: professor só da sua turma; pai só do filho                           | 🔴   | 5   | BE     | AGD-02, CAD-11 | 403 em acesso indevido; ownership validado              |
-| AGD-05 | ✅ Tela **registrar agenda** (professor): chips de alimentação, sono, atividades, humor, higiene — `RegistrarAgendaScreen.tsx` | 🔴   | 8   | FE     | AGD-02, INF-10 | Preenchível em < 2 min; salvamento otimista             |
-| AGD-06 | ✅ Faixa fixa de **cuidado** (alergias/medicações contínuas) no topo da agenda — `RegistrarAgendaScreen.tsx` | 🔴   | 3   | FE     | AGD-05, CAD-08 | Alergias/medicações da criança sempre visíveis          |
+| AGD-05 | ✅ Tela **registrar agenda** (professor): chips de alimentação, sono, atividades, humor, higiene — `RegistrarAgendaScreen.tsx` (aquarela_app) | 🔴   | 8   | FE     | AGD-02, INF-10 | Preenchível em < 2 min; salvamento otimista             |
+| AGD-06 | ✅ Faixa fixa de **cuidado** (alergias/medicações contínuas) no topo da agenda — `RegistrarAgendaScreen.tsx` (aquarela_app) | 🔴   | 3   | FE     | AGD-05, CAD-08 | Alergias/medicações da criança sempre visíveis          |
 | AGD-07 | ✅ Registro de **medicação administrada** (nome, dose, hora, por quem)                         | 🔴   | 3   | FS     | AGD-02, AGD-05 | Registro estruturado; aparece na agenda do pai          |
 | AGD-08 | ✅ Registro de **intercorrência** (febre, queda, doença) com flag de notificação — flag `notificado` gravada; disparo automático de push descartado por decisão do produto (ver NOT-09) | 🔴   | 5   | FS     | AGD-02, AGD-05 | Intercorrência destacada; marca `notificado`            |
-| AGD-09 | ✅ Tela **histórico** navegável por data (professor) — `HistoricoScreen.tsx`                   | 🟡   | 3   | FE     | AGD-03         | Navegar dias anteriores; ver registro completo          |
+| AGD-09 | ✅ Tela **histórico** navegável por data (professor) — `HistoricoScreen.tsx` (aquarela_app)     | 🟡   | 3   | FE     | AGD-03         | Navegar dias anteriores; ver registro completo          |
 | AGD-10 | ⚪ Anexar **fotos** ao registro do dia (S3) — descartado (decisão do produto, 31/07/2026) | ⚪ | 5 | FS | AGD-02, CAD-12 | Até N fotos por dia; exibidas ao pai — _Fase 2_         |
 
 **Subtotal Épico B:** 45 pts (MVP: ~40 pts).
@@ -108,12 +108,12 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 
 | ID     | Tarefa                                                      | Prio | Pts | Camada | Dep.           | AC                                                                             |
 | ------ | ----------------------------------------------------------- | ---- | --- | ------ | -------------- | ------------------------------------------------------------------------------ |
-| PAI-01 | ✅ **Home do responsável**: lista de filhos vinculados — `InicioScreen.tsx`  | 🔴   | 3   | FE     | INF-08, CAD-11 | Mostra só filhos do responsável logado                                         |
-| PAI-02 | ✅ Tela **agenda do dia** (somente leitura) do filho — `AgendaScreen.tsx`    | 🔴   | 5   | FE     | AGD-03, PAI-01 | Exibe alimentação, sono, atividades, medicação, obs.; intercorrência destacada |
-| PAI-03 | ✅ Tela **histórico** do filho (navegação por data) — `HistoricoScreen.tsx` | 🔴   | 3   | FE     | AGD-03, PAI-01 | Paginação por dia; acesso só ao próprio filho                                  |
-| PAI-04 | ✅ Destaque visual de **intercorrências/medicação** na leitura — `agendaVisual.tsx` | 🔴   | 2   | FE     | PAI-02         | Ícone + cor + texto (não só cor)                                               |
+| PAI-01 | ✅ **Home do responsável**: lista de filhos vinculados — `InicioScreen.tsx` (aquarela_app)   | 🔴   | 3   | FE     | INF-08, CAD-11 | Mostra só filhos do responsável logado                                         |
+| PAI-02 | ✅ Tela **agenda do dia** (somente leitura) do filho — `AgendaScreen.tsx` (aquarela_app)     | 🔴   | 5   | FE     | AGD-03, PAI-01 | Exibe alimentação, sono, atividades, medicação, obs.; intercorrência destacada |
+| PAI-03 | ✅ Tela **histórico** do filho (navegação por data) — `HistoricoScreen.tsx` (aquarela_app)   | 🔴   | 3   | FE     | AGD-03, PAI-01 | Paginação por dia; acesso só ao próprio filho                                  |
+| PAI-04 | ✅ Destaque visual de **intercorrências/medicação** na leitura — `agendaVisual.tsx` (aquarela_app) | 🔴   | 2   | FE     | PAI-02         | Ícone + cor + texto (não só cor)                                               |
 | PAI-05 | ✅ Suporte a **múltiplos filhos** (troca de criança)         | 🟡   | 3   | FE     | PAI-01         | Alterna entre filhos; contexto correto                                         |
-| PAI-06 | ✅ Alerta/aviso ao pai quando há intercorrência (in-app) — banner vermelho no topo de "Agenda de hoje" (`InicioScreen.tsx`), some quando não há intercorrência no dia | 🟡   | 3   | FS     | AGD-08, PAI-02 | Badge/aviso ao abrir; base para push da Fase 2                                 |
+| PAI-06 | ✅ Alerta/aviso ao pai quando há intercorrência (in-app) — banner vermelho no topo de "Agenda de hoje" (`InicioScreen.tsx`, aquarela_app), some quando não há intercorrência no dia | 🟡   | 3   | FS     | AGD-08, PAI-02 | Badge/aviso ao abrir; base para push da Fase 2                                 |
 
 **Subtotal Épico C:** 19 pts (MVP: ~13 pts).
 
@@ -129,14 +129,14 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | FIN-04 | ✅ Modelo `pagamentos` + integração **MercadoPago PIX** (criar cobrança)     | 🔴   | 8   | BE     | FIN-01, INF-05         | `POST /pagamentos` retorna copia-e-cola, QR, txid              |
 | FIN-05 | ✅ **Webhook** MercadoPago: confirmar pagamento + baixa idempotente          | 🔴   | 5   | BE     | FIN-04                 | Assinatura validada; mensalidade → pago; sem dupla baixa       |
 | FIN-06 | ⚪ Geração de **recibo** e armazenamento em S3 — **descartado** (decisão do produto, 30/07/2026); campo reservado no model `Pagamento` fica sem uso | ⚪   | 3   | BE     | FIN-05                 | Recibo gerado no pagamento; URL disponível                     |
-| FIN-07 | ✅ Tela **financeiro do responsável**: grade de meses (pago × aberto × atrasado) — `FinanceiroScreen.tsx` | 🔴   | 5   | FE     | FIN-03, INF-10         | Grade por ano; destaque de vencidos                            |
-| FIN-08 | ✅ Tela/modal **pagamento PIX** (QRCode + copia-e-cola + polling de status) — `FinanceiroScreen.tsx` | 🔴   | 5   | FE     | FIN-04, FIN-07         | Exibe QR (`qrcode.react`); status atualiza para pago           |
+| FIN-07 | ✅ Tela **financeiro do responsável**: grade de meses (pago × aberto × atrasado) — `FinanceiroScreen.tsx` (aquarela_app) | 🔴   | 5   | FE     | FIN-03, INF-10         | Grade por ano; destaque de vencidos                            |
+| FIN-08 | ✅ Tela/modal **pagamento PIX** (QRCode + copia-e-cola + polling de status) — `FinanceiroScreen.tsx` (aquarela_app) | 🔴   | 5   | FE     | FIN-04, FIN-07         | Exibe QR (`qrcode.react`); status atualiza para pago           |
 | FIN-09 | ✅ Modelo + CRUD **despesas** (BE)                                           | 🔴   | 3   | BE     | INF-06                 | Lançar/listar/editar despesa por categoria/data                |
-| FIN-10 | ✅ Tela admin **lançamento de despesas** — `FinanceiroAdminScreen.tsx`       | 🔴   | 3   | FE     | FIN-09, INF-10         | Formulário com categoria, valor, data, anexo                   |
+| FIN-10 | ✅ Tela admin **lançamento de despesas** — `FinanceiroAdminScreen.tsx` (aquarela_app) | 🔴   | 3   | FE     | FIN-09, INF-10         | Formulário com categoria, valor, data, anexo                   |
 | FIN-11 | ✅ Endpoint **balanço** mensal/anual (entradas − despesas)                   | 🔴   | 5   | BE     | FIN-03, FIN-09         | Agregação por período; entradas vs despesas                    |
 | FIN-12 | ✅ Endpoint **inadimplentes**                                                | 🔴   | 3   | BE     | FIN-03                 | Lista mensalidades atrasadas + criança/responsável             |
-| FIN-13 | ✅ Tela **dashboard financeiro** admin (KPIs + gráfico 12 meses) — `DashboardScreen.tsx`/`BalancoChart.tsx` | 🔴   | 8   | FE     | FIN-11, FIN-12, INF-10 | Entradas, despesas, inadimplentes, crianças ativas             |
-| FIN-14 | ✅ **Exportação de relatórios** em Excel (SheetJS) — `src/utils/exportXlsx.ts`, usado em `FinanceiroAdminScreen.tsx` | 🟡   | 3   | FE     | FIN-11                 | Exporta balanço/inadimplentes em `.xlsx`                       |
+| FIN-13 | ✅ Tela **dashboard financeiro** admin (KPIs + gráfico 12 meses) — `DashboardScreen.tsx`/`BalancoChart.tsx` (aquarela_app) | 🔴   | 8   | FE     | FIN-11, FIN-12, INF-10 | Entradas, despesas, inadimplentes, crianças ativas             |
+| FIN-14 | ✅ **Exportação de relatórios** em Excel (SheetJS) — `src/utils/exportXlsx.ts` (aquarela_app), usado em `FinanceiroAdminScreen.tsx` | 🟡   | 3   | FE     | FIN-11                 | Exporta balanço/inadimplentes em `.xlsx`                       |
 | FIN-15 | ✅ Endpoint **pagamento manual** (admin, dinheiro físico)                     | 🔴   | 3   | BE     | FIN-01, FIN-04         | `POST /pagamentos/manual` baixa mensalidade; audita admin (`recebidoPor`) |
 | FIN-16 | ✅ Tela admin: registrar pagamento em dinheiro no mês em aberto               | 🔴   | 3   | FE     | FIN-15, FIN-07         | Clique no mês aberto/atrasado abre modal de valor recebido     |
 
@@ -149,10 +149,10 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | ID     | Tarefa                                                               | Prio | Pts | Camada | Dep.           | AC                                                     |
 | ------ | -------------------------------------------------------------------- | ---- | --- | ------ | -------------- | ------------------------------------------------------ |
 | SIM-01 | ✅ Modelo `configPrecos` (singleton) + endpoint admin de preços      | 🔴   | 3   | BE     | INF-06         | Admin define valores/planos/descontos                  |
-| SIM-02 | ✅ Tela admin de **configuração de preços**                          | 🟡   | 3   | FE     | SIM-01, INF-10 | Editar planos, valores mensal/diário, descontos        |
-| SIM-03 | ✅ Tela pública **simulador**: período (meses/dias) + plano + resultado — `SimuladorScreen.tsx` | 🔴   | 5   | FE     | SIM-01         | Sem login; total e por mês; comparação visual (barras) |
-| SIM-04 | ✅ Cálculo com descontos por período (semestral/anual) — `src/services/simulador/simularMensalidade.ts` (aquarela_serverless) | 🔴   | 3   | FS     | SIM-01, SIM-03 | Aplica descontos configurados; feedback claro          |
-| SIM-05 | ⚪ CTA "Agende uma visita" / captura de lead — descartado (decisão do produto, 31/07/2026); `FinalCta.tsx` segue só com botão pro simulador + link direto de WhatsApp, sem form estruturado | ⚪ | 3 | FS | SIM-03         | Captura contato do interessado — _Fase 2/3_            |
+| SIM-02 | ✅ Tela admin de **configuração de preços** — `PlanosTab.tsx` (aba dentro de `FinanceiroAdminScreen.tsx`, aquarela_app) | 🟡   | 3   | FE     | SIM-01, INF-10 | Editar planos, valores mensal/diário, descontos        |
+| SIM-03 | ✅ Tela pública **simulador**: período (meses/dias) + plano + resultado — `SimuladorScreen.tsx` (aquarela_app) | 🔴   | 5   | FE     | SIM-01         | Sem login; total e por mês; comparação visual (barras) |
+| SIM-04 | ✅ Cálculo com descontos por período (semestral/anual) — `src/services/simulador/simularMensalidade.ts` | 🔴   | 3   | FS     | SIM-01, SIM-03 | Aplica descontos configurados; feedback claro          |
+| SIM-05 | ⚪ CTA "Agende uma visita" / captura de lead — descartado (decisão do produto, 31/07/2026); `FinalCta.tsx` (aquarela_app) segue só com botão pro simulador + link direto de WhatsApp, sem form estruturado | ⚪ | 3 | FS | SIM-03         | Captura contato do interessado — _Fase 2/3_            |
 
 **Subtotal Épico E:** 17 pts (MVP: ~11 pts).
 
@@ -162,9 +162,9 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 
 | ID     | Tarefa                                          | Prio | Pts | Camada | Dep.           | AC                                  |
 | ------ | ----------------------------------------------- | ---- | --- | ------ | -------------- | ----------------------------------- |
-| PED-01 | ✅ Modelo + CRUD **planos de aula** por turma (BE) — `src/handlers/planosAula` (aquarela_serverless) | 🟡   | 3   | BE     | CAD-06         | CRUD vinculado a turma/professor    |
+| PED-01 | ✅ Modelo + CRUD **planos de aula** por turma (BE) — `src/handlers/planosAula` | 🟡   | 3   | BE     | CAD-06         | CRUD vinculado a turma/professor    |
 | PED-02 | ✅ Tela **planos de aula** (professor)             | 🟡   | 5   | FE     | PED-01, INF-10 | Criar/editar/listar planos da turma (`PlanosAulaScreen`/`PlanoAulaFormScreen`); `NEXT_PUBLIC_USE_MOCKS=true` segue disponível pra preview |
-| PED-03 | ✅ Visão do professor: **minhas turmas → alunos** — `TurmasScreen.tsx`/`AlunosScreen.tsx` (professor) | 🔴   | 3   | FE     | CAD-06, CAD-11 | Professor vê suas turmas e alunos   |
+| PED-03 | ✅ Visão do professor: **minhas turmas → alunos** — `TurmasScreen.tsx`/`AlunosScreen.tsx` (professor, aquarela_app) | 🔴   | 3   | FE     | CAD-06, CAD-11 | Professor vê suas turmas e alunos   |
 | PED-04 | ⚪ Calendário pedagógico de atividades — descartado (decisão do produto, 31/07/2026) | ⚪ | 5 | FS | PED-01         | Atividades por data — _Fase 3_      |
 
 **Subtotal Épico F:** 16 pts (MVP: apenas PED-03 = 3 pts).
@@ -176,7 +176,7 @@ Base para todos os demais épicos. Não entrega valor ao usuário final, mas des
 | ID    | Tarefa                                                             | Prio | Pts | Camada | Dep.           | AC                                                                |
 | ----- | ------------------------------------------------------------------ | ---- | --- | ------ | -------------- | ----------------------------------------------------------------- |
 | QA-01 | Testes unitários de services/validações (Jest) — cobertura crítica | 🔴   | 5   | BE     | Épicos A–D     | Cobertura em agenda, financeiro, auth                             |
-| QA-02 | ✅ Testes de componentes críticos (agenda, pagamento)              | 🟡   | 3   | FE     | AGD-05, FIN-08 | RTL nos fluxos-chave                                              |
+| QA-02 | ✅ Testes de componentes críticos (agenda, pagamento) (aquarela_app) | 🟡   | 3   | FE     | AGD-05, FIN-08 | RTL nos fluxos-chave                                              |
 | QA-03 | ✅ Revisão **LGPD**: consentimento, acesso, criptografia, retenção | 🔴   | 5   | FS     | CAD-08         | Consentimento no cadastro; acesso por papel; política de retenção |
 | QA-04 | ✅ Trilha de auditoria (cadastro de criança + baixas financeiras)  | 🟡   | 3   | BE     | CAD-09, FIN-05 | Log de quem alterou o quê e quando                                |
 | QA-05 | ⚪ Seeds e dados de demonstração — descartado (decisão do produto, 31/07/2026) | ⚪ | 2 | BE | Épicos A–B | Turmas/crianças fictícias para demo                               |
@@ -377,15 +377,15 @@ Spike executado com página estática (`public/spike-push.html` + `public/fireba
 
 | ID     | Tarefa                                                                                       | Prio | Pts | Camada | Dep.            | AC                                                                                                       |
 | ------ | -------------------------------------------------------------------------------------------- | ---- | --- | ------ | --------------- | --------------------------------------------------------------------------------------------------------- |
-| COB-01 | ✅ Cron `dispararCobrancas` nos dias **05 e 20** (`cron(0 12 5,20 * ? *)` = 09:00 GMT-3) (aquarela_serverless) | 🔴   | 5   | BE     | FIN-01, NOT-05  | Seleciona só mensalidades `aberto`/`atrasado` com `vencimento` **até o fim do mês corrente** — nunca cobra competência futura pré-gerada por `gerarMensalidadesAno` |
-| COB-02 | ✅ Agregar por responsável (1 push por pessoa, não por mensalidade) + deep link para `/financeiro` | 🔴   | 3   | BE     | COB-01          | Responsável com 3 filhos × 4 meses em aberto recebe **1** notificação, não 12; `dados.tipo = "cobranca"`  |
+| COB-01 | ✅ Cron `dispararCobrancas` nos dias **05 e 20** (`cron(0 12 5,20 * ? *)` = 09:00 GMT-3)       | 🔴   | 5   | BE     | FIN-01, NOT-05  | Seleciona só mensalidades `aberto`/`atrasado` com `vencimento` **até o fim do mês corrente** — nunca cobra competência futura pré-gerada por `gerarMensalidadesAno` |
+| COB-02 | ✅ Agregar por responsável (1 push por pessoa, não por mensalidade) + deep link para `/financeiro` | 🔴   | 3   | BE     | COB-01          | Responsável com 3 filhos × 4 meses em aberto recebe **1** notificação, não 12; `dados.tipo = "cobranca"`; 1 chamada de `enviarNotificacao` por responsável (motor não mudou de assinatura) |
 | COB-03 | ✅ `mensalidades.cobrancas[]` + idempotência por `(gatilho, disparado hoje)`                   | 🔴   | 2   | BE     | COB-01          | Cron reexecutado no mesmo dia não redispara; histórico capado nas últimas 12 entradas                    |
-| COB-04 | ✅ `POST /financeiro/cobrancas/disparar` (admin) com `dryRun`                                  | 🟡   | 3   | BE     | COB-01          | `dryRun:true` devolve contagens sem enviar nada; `false` dispara e grava em `cobrancas[]`. `GET /financeiro/cobrancas` não implementado |
+| COB-04 | ✅ `POST /financeiro/cobrancas/disparar` (admin) com `dryRun`                                  | 🟡   | 3   | BE     | COB-01          | `dryRun:true` devolve **contagens** (notificados/sem token) sem enviar nada; `false` dispara e grava em `cobrancas[]`. `GET /financeiro/cobrancas` (histórico) **não implementado** — fora do escopo desses IDs |
 | COB-05 | Tela admin: botão "Disparar cobranças agora" + prévia da lista                                | 🟡   | 3   | FE     | COB-04          | Prévia (dryRun) antes de confirmar; feedback de quantos foram notificados e quantos **sem token válido**  |
 | COB-06 | ✅ `configPrecos.inadimplencia { diaCorte, mesesCarencia }` + campo na tela de config           | 🔴   | 3   | FS     | SIM-01          | Admin edita o corte (default `{ diaCorte: 10, mesesCarencia: 1 }`); validação `1 ≤ diaCorte ≤ 28`         |
-| COB-07 | ✅ Cron diário `marcarInadimplentes` + `mensalidades.inadimplenteDesde` (aquarela_serverless)   | 🔴   | 5   | BE     | COB-06          | Roda 00:05 GMT-3 (`cron(5 3 * * ? *)`); cron só **marca** (pagar é quem limpa `inadimplenteDesde`, na mesma transação da baixa) |
+| COB-07 | ✅ Cron diário `marcarInadimplentes` + `mensalidades.inadimplenteDesde`                        | 🔴   | 5   | BE     | COB-06          | Roda 00:05 GMT-3 (`cron(5 3 * * ? *)`); cron só **marca** (pagar é quem limpa `inadimplenteDesde`, na mesma transação da baixa — ver `docs/03-Backend.md`) |
 | COB-08 | ✅ `GET /financeiro/inadimplentes` passa a filtrar `inadimplenteDesde` (não mais `status`) + KPI | 🔴   | 3   | FS     | COB-07, FIN-12  | Mensalidade `atrasado` dentro da carência **some** da lista; KPI do dashboard conta **crianças distintas** (automático — front já agrupa por `criancaId` antes de contar) |
-| COB-09 | ✅ Badge "Inadimplente" na lista de crianças + faixa no financeiro do responsável              | 🟡   | 3   | FE     | COB-08          | Ícone + texto (nunca só cor); responsável vê desde quando está inadimplente e o valor total; também: pontinho na tab "Financeiro" e banner na Início |
+| COB-09 | ✅ Badge "Inadimplente" na lista de crianças + faixa no financeiro do responsável (`aquarela_app`) | 🟡   | 3   | FE     | COB-08          | Ícone + texto (nunca só cor); responsável vê desde quando está inadimplente e o valor total; também: pontinho na tab "Financeiro" e banner na Início |
 
 **Subtotal Épico J:** 30 pts.
 
@@ -431,17 +431,17 @@ provisionar bucket novo.
 | ------ | ------------------------------------------------------------------------------------- | ---- | --- | ------ | -------------- | ----------------------------------------------------------------------------------------------------- |
 | MSG-01 | `POST /anexos/upload-url` — presigned PUT + whitelist de tipo + teto de 10MB          | 🔴   | 5   | BE     | CAD-12         | `Content-Type`/`Content-Length` na assinatura; 5 min de validade; tipo fora da whitelist → `422`      |
 | MSG-02 | Validação `HeadObject` no vínculo + cron diário `limparAnexosOrfaos`                  | 🔴   | 3   | BE     | MSG-01         | Key forjada/de outro escopo → `422 ANEXO_INVALIDO`; órfão > 24h é apagado do bucket                  |
-| MSG-03 | Modelo `mensagens` + índices `{criancaId, createdAt:-1}` e `{turmaId, createdAt:-1}`  | 🔴   | 3   | BE     | CAD-08         | Estrutura da doc de banco; `turmaId` derivado da criança no back, **nunca** do payload               |
-| MSG-04 | `POST /mensagens` e `GET /mensagens?criancaId=` com ownership                          | 🔴   | 5   | BE     | MSG-03, MSG-02 | Responsável só do próprio filho, professor só de criança da sua turma, admin tudo; senão `403`       |
-| MSG-05 | `POST /mensagens/{id}/lida` + `GET /mensagens/nao-lidas` (badge)                       | 🔴   | 3   | BE     | MSG-04         | `lidaPor[]` idempotente; contagem agrupada por criança/turma para o professor                        |
+| MSG-03 | Modelo `mensagens` + índice `{criancaId, createdAt:-1}`                              | 🔴   | 3   | BE     | CAD-08         | Estrutura da doc de banco; `turmaId` derivado da criança no back, **nunca** do payload               |
+| MSG-04 | `POST /mensagens` e `GET /mensagens?criancaId=&desde=` com ownership                   | 🔴   | 5   | BE     | MSG-03, MSG-02 | Responsável só do próprio filho, professor só de criança da sua turma, admin tudo; senão `403`; `desde` filtra por `createdAt >` para fetch incremental pós-push |
+| ~~MSG-05~~ | ~~`POST /mensagens/{id}/lida` + `GET /mensagens/nao-lidas`~~ — **removido (01/08/2026)** | ⚪ | – | – | – | Quem leu não é dado de negócio; badge vira cálculo local no cliente (ver MSG-10). Sem write nem query extra por abertura de thread |
 | MSG-06 | `DELETE /mensagens/{id}` (autor ou admin) apagando o anexo no S3                       | 🟡   | 2   | BE     | MSG-04         | Hard delete; objeto do S3 removido junto; terceiro → `403`                                           |
 | MSG-07 | Push ao professor quando o responsável envia (e vice-versa)                            | 🔴   | 2   | BE     | MSG-04, NOT-05 | Corpo genérico ("Novo recado sobre a Sofia"), **sem** o conteúdo da mensagem — LGPD, tela de bloqueio |
 | MSG-08 | Componente `UploadAnexo` (presigned PUT + progresso + resize de imagem)                | 🔴   | 5   | FE     | MSG-01, INF-10 | Reusa `utils/imagem.ts` para imagem; PDF sobe cru; erro de rede é retentável sem perder o texto      |
-| MSG-09 | Tela **Recados** do responsável (thread por filho + anexo)                             | 🔴   | 5   | FE     | MSG-04, MSG-08 | Entrada pela tela da criança; lista desc paginada; anexo baixa por URL pré-assinada                  |
-| MSG-10 | Tela **Recados** do professor + badge de não lidas na lista de alunos                  | 🔴   | 5   | FE     | MSG-05, MSG-09 | `AlunosScreen` mostra contador por aluno; abrir a thread marca como lida                             |
+| MSG-09 | Tela **Recados** do responsável (thread por filho + anexo), push-driven                | 🔴   | 5   | FE     | MSG-04, MSG-08 | Entrada pela tela da criança; lista desc paginada; sem polling — busca em `desde` ao abrir/receber push; anexo baixa por URL pré-assinada |
+| MSG-10 | Tela **Recados** do professor + badge de não lidas na lista de alunos                  | 🔴   | 5   | FE     | MSG-09         | `AlunosScreen` mostra contador por aluno calculado **no cliente** (mensagens com `createdAt` após a última abertura salva localmente); abrir a thread atualiza a marca |
 | MSG-11 | Atualizar `docs/03-Backend.md` e `docs/04-Banco-de-Dados.md` com o contrato            | 🔴   | 1   | BE     | MSG-01…MSG-07  | `/anexos/upload-url`, `/mensagens` e a coleção `mensagens` documentados                              |
 
-**Subtotal Épico K:** 39 pts.
+**Subtotal Épico K:** 36 pts.
 
 ---
 
@@ -468,8 +468,8 @@ das 11h e não sabe que mudou. A rota passa a ser **"notificar (re)envio"**:
 
 | ID     | Tarefa                                                                              | Prio | Pts | Camada | Dep.            | AC                                                                                            |
 | ------ | ----------------------------------------------------------------------------------- | ---- | --- | ------ | --------------- | ------------------------------------------------------------------------------------------------ |
-| AG2-01 | `enviarAgenda` renotifica em toda edição + debounce de 10 min; remove o `409`        | 🔴   | 5   | BE     | NOT-08          | 2º envio após 10 min notifica "atualizada"; dentro da janela responde 200 sem notificar        |
-| AG2-02 | Front: novo contrato (sem `409`) + estado "atualização enviada" na tela do professor | 🔴   | 2   | FE     | AG2-01, NOT-15  | Professor vê 1º envio e último reenvio; falha de envio não bloqueia o salvamento (best-effort) |
+| AG2-01 | ✅ `enviarAgenda` renotifica em toda edição + debounce de 10 min; remove o `409`        | 🔴   | 5   | BE     | NOT-08          | 2º envio após 10 min notifica "atualizada"; dentro da janela responde 200 sem notificar        |
+| AG2-02 | ✅ Front: novo contrato (sem `409`) + estado "atualização enviada" na tela do professor | 🔴   | 2   | FE     | AG2-01, NOT-15  | Professor vê 1º envio e último reenvio; falha de envio não bloqueia o salvamento (best-effort) |
 | AG2-03 | `agendasDiarias.tarefaCasa { status, observacao? }` + schema ajv                     | 🔴   | 2   | BE     | AGD-01          | `status ∈ feito \| nao_feito \| incompleto`; campo ausente no `PUT` = esvaziado (regra vigente) |
 | AG2-04 | Chips de **tarefa de casa** no registro + destaque na leitura do responsável         | 🔴   | 3   | FE     | AG2-03, AGD-05  | 3 estados com ícone + texto (nunca só cor); observação opcional                                |
 | AG2-05 | `agendasDiarias.presenca { status, horaChegada?, justificativa? }` + validação       | 🔴   | 3   | BE     | AGD-01          | `status ∈ presente \| falta \| atrasado`; `horaChegada` **obrigatório** se `atrasado` (ajv `if/then`) |
@@ -539,48 +539,56 @@ isso:
 
 | ID     | Tarefa                                                                    | Prio | Pts | Camada | Dep.           | AC                                                                                             |
 | ------ | ------------------------------------------------------------------------- | ---- | --- | ------ | -------------- | ------------------------------------------------------------------------------------------------- |
-| OPS-01 | ✅ 🔴 **Responsável não pode conceder `podeRetirar`** (add/edit/remove)   | 🔴   | 5   | FS     | CAD-09         | Ver regra detalhada abaixo; comparação por `usuarioId`/`cpfHash`, **nunca por índice do array** |
-| OPS-02 | ✅ 🔴 **Balanço em regime de caixa + fuso GMT-3**                         | 🔴   | 5   | FS     | FIN-11         | Pagamento de 31/07 23:00 GMT-3 aparece em **julho**; despesa lançada 31/07 22h idem            |
+| OPS-01 | ✅ **Responsável não adiciona nem concede `podeRetirar`** (add é admin-only; edit/remove trava `podeRetirar`) | 🔴 | 5 | FS | CAD-09 | Ver regra detalhada abaixo; comparação por `usuarioId`/CPF normalizado, **nunca por índice do array** |
+| OPS-02 | ✅ **Balanço em regime de caixa + fuso GMT-3** (back pronto; rótulo do card no `aquarela_app` segue pendente) | 🔴   | 5   | FS     | FIN-11         | Pagamento de 31/07 23:00 GMT-3 aparece em **julho**; despesa lançada 31/07 22h idem            |
 | OPS-03 | **Múltiplos professores por turma** (`professorIds[]`)                    | 🔴   | 8   | FS     | CAD-06         | Migração sem downtime; todo ownership por turma passa a usar `includes`                        |
 | OPS-04 | **Ficha de cadastro da criança para impressão** (A4, `@media print`)      | 🟡   | 5   | FE     | CAD-08         | Sem endpoint novo e sem lib de PDF — impressão nativa do browser                               |
 | OPS-05 | **Notificação de aniversário** da criança                                 | 🟡   | 5   | FS     | NOT-05         | Cron 08:00 GMT-3; responsáveis + professores da turma; idempotente no mesmo dia                |
 
 **Subtotal Épico N:** 28 pts.
 
-### OPS-01 — `podeRetirar` é decisão da secretaria (furo de segurança atual)
+### OPS-01 — `podeRetirar` é decisão da secretaria (✅ furo de segurança corrigido)
 
-Hoje `PUT /criancas/{id}` aceita papel `responsavel` e a única trava é
-`CAMPOS_EXCLUSIVOS_ADMIN = ["financeiro"]`. O array `responsaveis` inteiro passa
-livre — **um responsável pode adicionar qualquer pessoa com `podeRetirar: true`**
-e essa pessoa passa a constar como autorizada a tirar a criança da escola. É
-segurança física de menor, não regra administrativa.
+Até aqui `PUT /criancas/{id}` aceitava papel `responsavel` e a única trava era
+`CAMPOS_EXCLUSIVOS_ADMIN = ["financeiro"]`. O array `responsaveis` inteiro
+passava livre — **um responsável conseguia adicionar qualquer pessoa com
+`podeRetirar: true`** e essa pessoa passava a constar como autorizada a tirar a
+criança da escola. É segurança física de menor, não regra administrativa.
 
-Regra nova, em `assertPodeEditarCrianca`/`assertMutacaoResponsaveis`
-(`src/services/shared/criancaAccess.ts`), aplicada só quando o requester **não é
-admin**:
+Regra em `assertMutacaoResponsaveis`
+(`src/services/shared/criancaAccess.ts`), chamada logo depois de
+`assertPodeEditarCrianca` em `updateCriancaService`, aplicada só quando o
+requester **não é admin**:
 
 | Ação sobre `responsaveis` | Admin | Responsável                                                     |
 | ------------------------- | ----- | --------------------------------------------------------------- |
-| Adicionar entrada         | livre | permitido, mas `podeRetirar` é **forçado a `false`**; mandar `true` → `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` |
-| Alterar `podeRetirar` de entrada existente | livre | **bloqueado** nos dois sentidos (`true→false` também) |
-| Remover entrada com `podeRetirar: true`    | livre | **bloqueado** (`403`) — não derruba quem a escola autorizou |
+| Adicionar uma nova entrada (pessoa nova) | livre | **bloqueado** (`403 RESPONSAVEL_EXCLUSIVO_ADMIN`) — independe de `podeRetirar`, é a secretaria quem inclui gente nova |
+| Alterar `podeRetirar` de entrada existente | livre | **bloqueado** nos dois sentidos (`true→false` também), `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` |
+| Remover entrada com `podeRetirar: true`    | livre | **bloqueado** (`403 PODE_RETIRAR_EXCLUSIVO_ADMIN`) — não derruba quem a escola autorizou |
 | Remover entrada com `podeRetirar: false`   | livre | permitido |
-| Alterar `usuarioId` de qualquer entrada    | livre | **bloqueado** |
-| Editar nome/telefone/parentesco/CPF        | livre | permitido |
+| Alterar `usuarioId` de qualquer entrada    | livre | **bloqueado** (`403 PODE_RETIRAR_EXCLUSIVO_ADMIN`) |
+| Editar nome/telefone/parentesco/CPF de entrada já existente | livre | permitido |
 
 Detalhes que fazem a regra valer de fato:
 
 - A comparação entre o array do banco e o do payload é feita **casando por
-  `usuarioId` (quando existe) ou `cpfHash`** — nunca por posição no array.
-  Comparar por índice deixa o bypass trivial: basta reordenar o array para uma
-  entrada com `podeRetirar: true` "virar" outra.
+  CPF normalizado (só dígitos) e, quando existe, `usuarioId`** — nunca por
+  posição no array. Comparar por índice deixa o bypass trivial: basta
+  reordenar o array para uma entrada com `podeRetirar: true` "virar" outra.
+  Não existe `cpfHash` por entrada de `responsaveis` (só `criancas.cpfHash`,
+  da própria criança) — a comparação usa o CPF já decifrado em memória, sem
+  tocar `src/libs/crypto.ts`.
 - Toda mutação de `responsaveis` feita por responsável entra em
   `criancas.auditoria` (CAD-09) com os campos alterados — é o registro de quem
-  mexeu em quê.
+  mexeu em quê. Reusa o `appendAuditoria` que já existia, sem mecanismo novo.
 - **Front (`EditarCriancaScreen`, responsável):** o toggle "Pode retirar a
-  criança" fica `readOnly`, com faixa explicativa ("Só a secretaria autoriza
-  quem pode retirar a criança"). No admin (`CriancaStepper`) segue editável.
-  O bloqueio do front é UX — a fonte da verdade é o `403` do backend.
+  criança" fica `disabled` (checkbox não respeita `readOnly` em nenhum
+  browser), com nota explicativa ("Só a secretaria autoriza quem pode retirar
+  a criança"). O botão "Adicionar responsável" **não existe** nessa tela — no
+  lugar, uma nota fixa explica que só a secretaria adiciona alguém novo. No
+  admin (`CriancaStepper`) segue tudo livre: botão de adicionar, toggle
+  editável, sem nenhuma trava. O bloqueio do front é UX — a fonte da verdade é
+  o `403` do backend.
 
 ### OPS-02 — Balanço em regime de caixa (bug relatado em 01/08/2026)
 

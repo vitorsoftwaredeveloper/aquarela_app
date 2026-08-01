@@ -211,7 +211,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > **Valor personalizado (acordo fechado) vs. plano fixo:** `financeiro.valorMensalidade` é sempre obrigatório e é sempre o valor que o admin digitou — o backend não recalcula a partir de `planoId`/`configPrecos` em nenhum momento (`createCriancaService`/`updateCriancaService` gravam `payload.financeiro` como veio). `planoId` é **opcional** e só guarda a referência de qual plano fixo (`GET /config/precos/planos`) foi usado de base, quando foi usado. Omitir `planoId` representa um valor negociado direto com os responsáveis, sem vínculo com nenhum plano — os dois nunca são mandados como se fossem consistentes entre si.
 >
-> `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são desvinculados (`$pull` em `criancasVinculadas`) e, **para cada um que fica sem nenhuma criança vinculada**, a conta também é apagada em cadeia (Cognito + registro em `usuarios`) — mesmo hard delete de `DELETE /usuarios/{id}`, só que automático. Só entra nessa remoção automática **usuário com papel `responsavel`**: conta `admin`/`professor` reaproveitada por e-mail igual nunca é apagada por aqui. Front não precisa de tratamento especial — é efeito colateral do mesmo `DELETE /criancas/{id}` que já dispara.
+> `DELETE /criancas/{id}` é **hard delete em cadeia** (irreversível): apaga a criança + toda `AgendaDiaria`/`Mensalidade`/`Pagamento` vinculados; usuários responsáveis são desvinculados (`$pull` em `criancasVinculadas`) e, **para cada um que fica sem nenhuma criança vinculada** (`CriancaRepository.count({ "responsaveis.usuarioId": ... }) === 0`, checado depois do `$pull`), a conta também é apagada em cadeia (Cognito `AdminDeleteUser` + registro em `usuarios`) — mesmo hard delete de `DELETE /usuarios/{id}`, só que automático. Só entra nessa remoção automática **usuário com `papel: "responsavel"`**: se o e-mail do responsável já batia com uma conta `admin`/`professor` existente (reuso por e-mail em `ensureResponsavelUsuario`), essa conta nunca é apagada por aqui.
 >
 > **Consentimento LGPD (QA-03).** `POST /criancas` exige `consentimentoLgpd:
 > boolean` no corpo (`additionalProperties:false` + `required` — sem o campo,
@@ -226,7 +226,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 
 **Regras de vínculo e remoção:**
 - Uma criança pertence a **uma turma por vez**. Vincular a uma nova turma (ou `PATCH .../turma`) substitui o vínculo anterior.
-- **Remover turma** com crianças ativas é bloqueado (`409`): o admin deve antes realocar/desvincular as crianças (o front pode oferecer "mover todos para a turma X").
+- **Remover turma** com crianças ativas é bloqueado (`409`): o admin deve antes realocar/desvincular as crianças (o front pode oferecer "mover todos para a turma X"). Ao remover, avisos e **planos de aula** vinculados à turma são apagados em cascata (hard delete).
 - **Remover professor** vinculado a uma turma retorna aviso/`409`; trocar a professora da turma é feito via `PUT /turmas/{id}`.
 
 ### Agenda diária
@@ -234,7 +234,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | PUT | `/agenda/{id}` | professor | Editar registro do dia |
 | GET | `/agenda?criancaId=&data=` | professor/responsavel* | Registro por dia |
 | GET | `/agenda/historico?criancaId=&de=&ate=` | professor/responsavel* | Histórico |
-| POST | `/agenda/{id}/enviar` | professor | Gatilho **"Enviar para os pais"** — dispara a notificação push (ver §Notificações push abaixo). Só a professora da turma (mesma regra de `PUT /agenda/{id}`); 2ª chamada → `409 AGENDA_JA_ENVIADA`. Resposta é a agenda com `enviadaEm` preenchido |
+| POST | `/agenda/{id}/enviar` | professor | Gatilho **"Enviar para os pais"** — dispara a notificação push (ver §Notificações push abaixo). Só a professora da turma (mesma regra de `PUT /agenda/{id}`); **renotifica em toda chamada** ("agenda atualizada" a partir da 2ª), com debounce de 10 min por agenda (`200 { notificado: false, motivo: "DEBOUNCE" }` dentro da janela). Resposta é a agenda com `enviadaEm`/`ultimoEnvioEm`/`enviosCount` + `{ notificado, motivo? }` |
 | DELETE | `/agenda/{id}` | professor | Remover registro do dia. Mesma guarda de `PUT /agenda/{id}` (só a professora da turma; senão `403 FORBIDDEN`); agenda inexistente → `404 NOT_FOUND`. **Hard delete** — registro diário não tem soft delete |
 
 > **`PUT /agenda/{id}` substitui por completo os campos opcionais — não é patch parcial.**
@@ -280,7 +280,7 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > - Fluxo de permissão: pedir `Notification.requestPermission()` só **depois** de explicar o benefício (o browser só pergunta uma vez — negou, só reverte manualmente nas configs do browser)
 > - `getToken()` do Firebase SDK (`firebase/messaging`) → `POST /dispositivos` no login; reenviar em `onTokenRefresh`; `DELETE /dispositivos/{token}` no logout
 > - **iPhone só recebe push com o PWA instalado na tela de início** (iOS 16.4+) — abrir pelo Safari normal não funciona, e abrir pelo **webview do WhatsApp/Instagram também não** (confirmado no spike `NOT-00`: `PushManager` indisponível). Precisa detectar os dois casos e instruir o responsável
-> - `RegistrarAgendaScreen` chama `POST /agenda/{id}/enviar` (ver acima) **automaticamente logo após salvar** a agenda (criação ou edição) — sem botão "Enviar para os pais" na tela. Cada criança gera seu próprio envio: um responsável com vários filhos na escola recebe uma notificação por criança. Falha ao notificar não bloqueia o salvamento (chamada best-effort, erro silenciado) e reenvio em edições posteriores é idempotente no back (`409 AGENDA_JA_ENVIADA`)
+> - `RegistrarAgendaScreen` chama `POST /agenda/{id}/enviar` (ver acima) **automaticamente logo após salvar** a agenda (criação ou edição) — sem botão "Enviar para os pais" na tela. Cada criança gera seu próprio envio: um responsável com vários filhos na escola recebe uma notificação por criança. Falha ao notificar não bloqueia o salvamento (chamada best-effort, erro silenciado) e reenvio em edições posteriores renotifica o responsável, com debounce de 10 min por agenda no back
 
 ### Planos de aula
 | Método | Rota | Papel | Descrição |
@@ -404,15 +404,13 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
 | POST | `/mensagens` | professor/responsavel | Enviar recado sobre uma criança (com anexos opcionais) |
-| GET | `/mensagens?criancaId=&limit=&antesDe=` | admin/professor/responsavel* | Thread da criança, mais recentes primeiro |
-| GET | `/mensagens/nao-lidas` | professor/responsavel | Contagem de não lidas agrupada por criança (badge) |
-| POST | `/mensagens/{id}/lida` | professor/responsavel | Marcar como lida (idempotente) |
+| GET | `/mensagens?criancaId=&limit=&antesDe=&desde=` | admin/professor/responsavel* | Thread da criança, mais recentes primeiro |
 | DELETE | `/mensagens/{id}` | autor/admin | Remover em definitivo (hard delete + apaga o anexo no S3) |
 
 > **É thread por criança, não chat livre.** Toda mensagem nasce ligada a uma
 > `criancaId` — é isso que resolve a autorização sem inventar um modelo de
 > conversa. Sem tempo real, sem indicador de digitação, sem edição de mensagem
-> já enviada.
+> já enviada, sem confirmação de leitura no servidor (ver push-driven abaixo).
 >
 > Body do `POST`: `{ criancaId, corpo, anexos?: [{ key, nome, contentType, tamanho }] }`.
 > `corpo` até 2000 caracteres, máx. **5 anexos** por mensagem. **`turmaId` é
@@ -426,7 +424,9 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > `GET /mensagens` devolve cada anexo já com `url` (presigned de 1h) além de
 > `key`/`nome`/`contentType`/`tamanho`. Paginação por cursor (`antesDe` =
-> `createdAt` da última lida), `limit` default 30, teto 100.
+> `createdAt` da mais antiga já em tela), `limit` default 30, teto 100.
+> `desde` = `createdAt` da mais recente já em tela — fetch incremental depois
+> de um push, sem repaginar a thread inteira.
 >
 > **Notificação:** recado do responsável notifica os professores das turmas da
 > criança; recado do professor notifica os responsáveis. Corpo **genérico**
@@ -435,6 +435,12 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >
 > `DELETE` é permitido ao **autor** ou ao **admin**; qualquer outro recebe `403`.
 > Apaga o documento e os objetos do S3 vinculados.
+>
+> **Push-driven, sem polling nem "lida" no servidor:** o cliente busca
+> `/mensagens` só ao abrir a thread e ao receber push — nunca em intervalo. Não
+> existe `POST /mensagens/{id}/lida` nem `GET /mensagens/nao-lidas`: quem leu
+> não é informação de negócio aqui, então o contador de "não lidas" é
+> calculado no cliente comparando `createdAt` contra a última abertura local.
 
 ### Mural de fotos por evento — Épico M
 
@@ -485,10 +491,19 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 
 ### Cobrança automática e inadimplência — Épico J
 
+> **Status (01/08/2026): Fase 3 (inadimplência) e Fase 4 (cobrança automática)
+> implementadas.** `configPrecos.inadimplencia`, cron `marcarInadimplentes`,
+> `GET /financeiro/inadimplentes` filtrando por `inadimplenteDesde`, cron
+> `dispararCobrancas` (dias 05/20) e `POST /financeiro/cobrancas/disparar`
+> (com `dryRun`) — tudo em produção. **`GET /financeiro/cobrancas` (histórico
+> por `ano`/`mes`) segue fora do escopo, deliberado** — não corresponde a
+> nenhum item do backlog (COB-01…05 cobrem só o disparo, não um histórico
+> navegável); a rota abaixo é especificação, não contrato vigente.
+
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
 | POST | `/financeiro/cobrancas/disparar` | admin | Dispara o mesmo motor do cron sob demanda; `{ dryRun?: boolean }` |
-| GET | `/financeiro/cobrancas?ano=&mes=` | admin | Histórico do que foi disparado (a partir de `mensalidades.cobrancas[]`) |
+| GET | `/financeiro/cobrancas?ano=&mes=` | admin | **Não implementado.** Histórico do que foi disparado (a partir de `mensalidades.cobrancas[]`) |
 
 > **Cron `dispararCobrancas` — dias 05 e 20, 09:00 GMT-3** (`cron(0 12 5,20 * ? *)`).
 > Notifica por push (FCM, motor `enviarNotificacao`) **só quem ainda deve**.
@@ -511,9 +526,10 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > **Idempotência:** cada envio grava em `mensalidades.cobrancas[]`
 > `{ enviadaEm, canal, gatilho: "dia05"|"dia20"|"manual" }` (capado nas últimas
 > 12 entradas). O cron reexecutado no mesmo dia com o mesmo gatilho não
-> redispara. `POST .../disparar` com `dryRun: true` devolve a lista de quem
-> **seria** notificado (e quantos estão **sem token válido**) sem enviar nem
-> gravar nada.
+> redispara. `POST .../disparar` com `dryRun: true` devolve **as contagens**
+> de quem seria notificado e quantos estão **sem token válido**
+> (`{ responsaveisNotificados, responsaveisSemToken, mensalidadesAtualizadas: 0 }`)
+> sem enviar nem gravar nada — não uma lista nominal de responsáveis.
 
 > **Inadimplência é diferente de atraso (mudança de contrato do
 > `GET /financeiro/inadimplentes`).** Hoje a rota devolve tudo que está
@@ -561,29 +577,36 @@ soube que mudou. A rota passa a ser **"notificar (re)envio"**:
 - Resposta passa a incluir `{ notificado: boolean, motivo?: "DEBOUNCE" }` além
   da agenda. O front deve **remover** o tratamento de `409` desse fluxo.
 
-**`PUT /criancas/{id}` — responsável não concede `podeRetirar`** (OPS-01).
+**`PUT /criancas/{id}` — responsável não concede `podeRetirar`** (OPS-01, ✅
+implementado).
 
-Hoje a única trava para o papel `responsavel` é
-`CAMPOS_EXCLUSIVOS_ADMIN = ["financeiro"]`: o array `responsaveis` passa livre,
-então **um responsável pode adicionar qualquer pessoa com `podeRetirar: true`**.
-Isso é segurança física de menor, não regra administrativa. Regra nova em
-`src/services/shared/criancaAccess.ts`, aplicada só quando o requester **não é
-admin**:
+Até aqui a única trava para o papel `responsavel` era
+`CAMPOS_EXCLUSIVOS_ADMIN = ["financeiro"]`: o array `responsaveis` passava
+livre, então **um responsável conseguia adicionar qualquer pessoa com
+`podeRetirar: true`**. Isso é segurança física de menor, não regra
+administrativa. Regra em `assertMutacaoResponsaveis`
+(`src/services/shared/criancaAccess.ts`), aplicada só quando o requester **não
+é admin**:
 
 | Ação sobre `responsaveis` | Responsável |
 |---|---|
-| Adicionar entrada | permitido, mas `podeRetirar` é **forçado a `false`**; mandar `true` → `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` |
-| Alterar `podeRetirar` de entrada existente | **bloqueado** nos dois sentidos (`true→false` também) |
-| Remover entrada com `podeRetirar: true` | **bloqueado** (`403`) |
+| Adicionar uma nova entrada (pessoa nova) | **bloqueado** (`403 RESPONSAVEL_EXCLUSIVO_ADMIN`) — independe de `podeRetirar`, só a secretaria inclui gente nova |
+| Alterar `podeRetirar` de entrada existente | **bloqueado** nos dois sentidos (`true→false` também), `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` |
+| Remover entrada com `podeRetirar: true` | **bloqueado** (`403 PODE_RETIRAR_EXCLUSIVO_ADMIN`) |
 | Remover entrada com `podeRetirar: false` | permitido |
-| Alterar `usuarioId` de qualquer entrada | **bloqueado** |
-| Editar nome/telefone/parentesco/CPF | permitido |
+| Alterar `usuarioId` de qualquer entrada | **bloqueado** (`403 PODE_RETIRAR_EXCLUSIVO_ADMIN`) |
+| Editar nome/telefone/parentesco/CPF de entrada já existente | permitido |
 
-> A comparação entre o array do banco e o do payload casa por **`usuarioId`
-> (quando existe) ou `cpfHash`** — **nunca por posição no array**. Comparar por
-> índice deixa o bypass trivial: basta reordenar o array para uma entrada com
-> `podeRetirar: true` "virar" outra. Toda mutação de `responsaveis` feita por
-> responsável entra em `criancas.auditoria` (CAD-09).
+> A comparação entre o array do banco e o do payload casa cada entrada por
+> **CPF normalizado** (só dígitos) e, quando existe, confere também o
+> `usuarioId` — **nunca por posição no array**. Comparar por índice deixa o
+> bypass trivial: basta reordenar o array para uma entrada com
+> `podeRetirar: true` "virar" outra. Não existe `cpfHash` por entrada de
+> `responsaveis` (só `criancas.cpfHash`, da própria criança) — a comparação usa
+> o CPF já decifrado em memória (`CriancaRepository.findById` decifra antes de
+> devolver), sem tocar `src/libs/crypto.ts`. Toda mutação de `responsaveis`
+> feita por responsável entra em `criancas.auditoria` (CAD-09), via o mesmo
+> `appendAuditoria` já usado por qualquer edição de criança.
 
 **`GET /financeiro/balanco` — regime de caixa e fuso GMT-3** (OPS-02).
 
@@ -681,6 +704,7 @@ Sem rota HTTP.
   mesmo dia não duplica.
 
 **Novos códigos de erro do lote:** `PODE_RETIRAR_EXCLUSIVO_ADMIN` (403) ·
+`RESPONSAVEL_EXCLUSIVO_ADMIN` (403) ·
 `TIPO_ANEXO_INVALIDO` (422) · `ANEXO_MUITO_GRANDE` (422) · `ANEXO_INVALIDO` (422)
 · `SEM_CONSENTIMENTO_IMAGEM` (422) · `EVENTO_LIMITE_FOTOS` (422) ·
 `MENSAGEM_LIMITE_ANEXOS` (422).

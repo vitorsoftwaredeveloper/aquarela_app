@@ -243,15 +243,15 @@ Um usuário pode ter N dispositivos (celular + notebook). `token` é upsert idem
   criancaId: ObjectId (idx),        // thread é sempre por criança
   turmaId: ObjectId (idx),          // DERIVADO da criança no backend, nunca do payload
   autorId: ObjectId (usuarios),
+  autorNome: string,                 // snapshot do nome no envio, para exibir no balão sem join
   autorPapel: "responsavel" | "professor",
   corpo: string,                    // ≤ 2000 chars
   anexos: [{ key: string, nome: string, contentType: string, tamanho: number }],  // máx. 5
-  lidaPor: [{ usuarioId: ObjectId, lidaEm: Date }],
   createdAt, updatedAt
 }
 ```
-Índices: `{criancaId, createdAt: -1}` (thread paginada) e `{turmaId, createdAt: -1}`
-(badge de não lidas do professor).
+Índice: `{criancaId, createdAt: -1}` (thread paginada, e a base do fetch
+incremental por `desde`).
 
 > `turmaId` é redundante com `crianca.turmaId` **de propósito**: sem ele, contar
 > não lidas de uma turma exigiria varrer todas as crianças a cada abertura de
@@ -265,8 +265,11 @@ Um usuário pode ter N dispositivos (celular + notebook). `token` é upsert idem
 > `GET /mensagens`. Hard delete (`DELETE /mensagens/{id}`) apaga o documento e os
 > objetos do S3 juntos.
 >
-> `lidaPor` é array porque a criança pode ter 2 responsáveis e a turma mais de um
-> professor (OPS-03) — "lida" não é booleano global.
+> **Sem rastreio de leitura no banco.** Quem leu o recado não é dado de
+> negócio — o app é push-driven (chega notificação → busca `/mensagens`) e o
+> contador de "não lidas" é local ao cliente, comparando `createdAt` contra a
+> última abertura da thread. Evita 1 write + 1 query extra por
+> abertura/mensagem sem perder nada que o produto realmente usa.
 
 ### `eventos` — Épico M (mural de fotos)
 ```
@@ -401,12 +404,12 @@ inadimplencia: { diaCorte: number, mesesCarencia: number }
 | usuarios | `cognitoSub` unique, `email` unique | login/lookup |
 | criancas | `cpfHash` unique, `turmaId` | busca e listagem por turma |
 | agendasDiarias | `{criancaId, data}` unique; `{criancaId, data:-1}` | dia e histórico |
-| mensalidades | `{criancaId, ano, mes}` unique; `status` | financeiro do pai/inadimplência |
+| mensalidades | `{criancaId, ano, mes}` unique; `status` | financeiro do pai/transição atrasado |
 | pagamentos | `txid` unique | conciliação/idempotência |
 | despesas | `data` | balanço por período |
 | avisos | `{createdAt:-1}` | listagem por mais recente |
 | dispositivos | `token` unique; `usuarioId` | resolver tokens do usuário no envio; upsert por token |
-| mensagens | `{criancaId, createdAt:-1}`; `{turmaId, createdAt:-1}` | thread da criança; badge de não lidas do professor |
+| mensagens | `{criancaId, createdAt:-1}` | thread da criança e fetch incremental (`desde`) |
 | eventos | `{turmaId, data:-1}`; `{publicado, data:-1}` | mural por turma; listagem do responsável só do publicado |
 | criancas | `nascimentoDiaMes` | cron de aniversário sem collection scan |
 | turmas | `professorIds` | "minhas turmas" com mais de um professor por turma |
@@ -420,7 +423,7 @@ inadimplencia: { diaCorte: number, mesesCarencia: number }
 - **Agenda do dia (pai/professor):** `agendasDiarias.findOne({ criancaId, data })`.
 - **Histórico:** `agendasDiarias.find({ criancaId, data: { $gte, $lte } }).sort({ data: -1 })`.
 - **Meses do responsável:** `mensalidades.find({ criancaId, ano }).sort({ mes })`.
-- **Inadimplentes:** `mensalidades.find({ status: "atrasado" })` + join lógico com `criancas`.
+- **Inadimplentes:** `mensalidades.find({ inadimplenteDesde: { $ne: null } })` + join lógico com `criancas`.
 - **Balanço mensal:** agregação de `mensalidades` pagas − `despesas` no período (`$group` por mês/ano).
 - **Alunos da turma:** `criancas.find({ turmaId })`.
 
