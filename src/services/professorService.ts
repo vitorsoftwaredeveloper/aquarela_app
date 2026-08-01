@@ -16,6 +16,10 @@ export interface AgendaDoDia extends AgendaRegistroPayload {
   _id: string;
   /** Preenchido por `POST /agenda/{id}/enviar` (docs §"Notificações push"). */
   enviadaEm?: string;
+  ultimoEnvioEm?: string;
+  enviosCount?: number;
+  notificado?: boolean;
+  motivo?: "DEBOUNCE";
 }
 
 /**
@@ -161,11 +165,7 @@ export const ProfessorService = {
     await api.delete(`/agenda/${id}`);
   },
 
-  /**
-   * Gatilho "Enviar para os pais" — dispara a notificação push (docs
-   * §"Notificações push"). Idempotente: reenviar responde `409
-   * AGENDA_JA_ENVIADA`, sem marcar `enviadaEm` de novo.
-   */
+  /** Gatilho "Enviar para os pais" — dispara a notificação push (docs §"Notificações push"). */
   async enviarAgenda(id: string): Promise<AgendaDoDia> {
     if (IS_DEV_DATA) {
       const enviadaEm = new Date().toISOString();
@@ -173,7 +173,12 @@ export const ProfessorService = {
       const criancaId = id.replace(/^dev-/, "");
       devAgendasEnviadasHoje.add(criancaId);
       const payload = devAgendaPorCrianca.get(criancaId);
-      return { ...(payload as AgendaRegistroPayload), _id: id, enviadaEm };
+      return {
+        ...(payload as AgendaRegistroPayload),
+        _id: id,
+        enviadaEm,
+        notificado: true,
+      };
     }
     const { data } = await api.post(`/agenda/${id}/enviar`);
     const item = unwrapItem<AgendaDoDia>(data);
