@@ -21,6 +21,7 @@
     );
 }
 .viewport {
+  --tabbar-h: 62px;
   width: 100%;
   max-width: 460px;
   min-height: 100dvh;
@@ -42,13 +43,15 @@
 }
 .scroll {
   flex: 1;
-  padding-bottom: 84px;
+  padding-bottom: var(--tabbar-h);
 }
 
 /* Bottom tab bar */
 .tabbar {
   position: sticky;
   bottom: 0;
+  height: var(--tabbar-h);
+  box-sizing: border-box;
   display: flex;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(12px);

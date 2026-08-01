@@ -175,7 +175,7 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 84px;
+  bottom: var(--tabbar-h, 62px);
   width: 100%;
   max-width: 460px;
   z-index: 15;
