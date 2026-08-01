@@ -48,7 +48,7 @@ const RESP_VAZIO = {
   parentesco: "",
   telefone: "",
   email: "",
-  podeRetirar: true,
+  podeRetirar: false,
 };
 
 export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
@@ -349,22 +349,29 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
                   {...register(`responsaveis.${i}.email`)}
                 />
               )}
-              <label className={styles.check}>
-                <input
-                  type="checkbox"
-                  {...register(`responsaveis.${i}.podeRetirar`)}
-                />
-                Pode retirar a criança na escola
-              </label>
+              <div>
+                <label className={styles.check}>
+                  <input
+                    type="checkbox"
+                    disabled
+                    {...register(`responsaveis.${i}.podeRetirar`)}
+                  />
+                  Pode retirar a criança na escola
+                </label>
+                <span className={styles.campoNota}>
+                  <Lock size={12} /> Só a secretaria autoriza quem pode
+                  retirar a criança.
+                </span>
+              </div>
             </div>
           ))}
-          <button
-            type="button"
-            className={styles.addBlock}
-            onClick={() => responsaveis.append(RESP_VAZIO)}
-          >
-            <Plus size={16} /> Adicionar responsável
-          </button>
+          <div className={styles.readonly}>
+            <Lock size={15} className={styles.readonlyIcon} />
+            <span>
+              Só a secretaria adiciona um novo responsável. Fale com a escola
+              para incluir alguém.
+            </span>
+          </div>
         </div>
       </div>
 

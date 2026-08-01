@@ -305,6 +305,48 @@ vez de uma por plano.
 > telas enquanto a API não tem rotas. Controla `IS_DEV_DATA` (em `config/env.ts`).
 > Deixe `false`/ausente quando a API estiver no ar.
 
+## 7.1 Lote de 01/08/2026 — Épicos J–N (planejado, ainda não implementado)
+
+14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência), **K**
+(recados com anexo), **L** (agenda v2), **M** (mural de fotos) e **N** (ajustes).
+Telas e regras de UI em [`docs/02-Frontend.md`](./docs/02-Frontend.md) §6.1,
+contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
+[`docs/06-Backlog.md`](./docs/06-Backlog.md). O que muda em código que já existe:
+
+- **⚠️ `409 AGENDA_JA_ENVIADA` sai do contrato.** `RegistrarAgendaScreen` segue
+  chamando `POST /agenda/{id}/enviar` depois de salvar, mas agora **toda edição
+  renotifica** o responsável. O branch que tratava `409` pode ser removido; a
+  resposta traz `{ notificado, motivo? }` e `motivo: "DEBOUNCE"` (salvamento
+  dentro da janela de 10 min) significa "salvo, mas não notifiquei" — a tela não
+  deve prometer envio nesse caso.
+- **⚠️ Dois mecanismos de upload convivendo.** Foto de criança/professor
+  **continua em base64** no corpo (teto 2MB, `utils/imagem.ts`). Anexo de
+  **recado, agenda e mural** usa `POST /anexos/upload-url` → `PUT` direto no S3
+  (teto 10MB), no componente novo `components/UploadAnexo`. Esse `PUT` **não pode
+  passar pela instância `api`** — o interceptor injeta o `Authorization` do
+  Cognito e invalida a assinatura do S3.
+- **⚠️ "Inadimplente" ≠ "atrasado" na UI.** Mês vencido e não pago segue vermelho
+  na grade do responsável; "inadimplente" é o estado **depois da carência**
+  (`inadimplenteDesde`) e é o que alimenta o KPI do dashboard e o badge na lista
+  de crianças. Rótulos diferentes — tratar os dois como a mesma coisa foi o que
+  motivou a mudança.
+- **⚠️ Dashboard passa a regime de caixa.** Entradas somam **pagamentos por data
+  de pagamento**, não mensalidades por competência: pagamento de 31/07 de uma
+  mensalidade de agosto passa a aparecer em **julho**. Rotular o card e o tooltip
+  como "Entradas (regime de caixa — data do pagamento)" — a grade do responsável
+  em `/financeiro` continua por competência, de propósito.
+- **`GET /turmas` devolve `professores: [...]`** (plural) e mantém `professor`
+  (= `professores[0]`) por um release. O `Select` de professora dentro de
+  `features/admin/turmas/TurmasScreen.tsx` vira multi-select; migrar para
+  `professores` e não escrever código novo em cima do campo deprecado.
+- **`podeRetirar` fica `readOnly` para o responsável** em `EditarCriancaScreen`
+  (o backend responde `403 PODE_RETIRAR_EXCLUSIVO_ADMIN`; o front é só UX).
+- **`consentimentoImagem` é um checkbox separado e revogável** — não confundir com
+  o `consentimentoLgpd`, que só aparece na criação e é imutável.
+- **Telas novas:** Recados (responsável e professor) · Mural de fotos (professor e
+  responsável) · Ficha de cadastro para impressão (`/admin/criancas/[id]/ficha`,
+  sem lib de PDF — `window.print()` + `@media print`).
+
 ## 8. Documentação (pasta `docs/`)
 
 | Arquivo | Conteúdo |

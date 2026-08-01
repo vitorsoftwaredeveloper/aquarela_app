@@ -91,6 +91,14 @@
   accent-color: var(--color-primary);
   cursor: pointer;
 }
+.check input:disabled {
+  accent-color: var(--text-dim);
+  cursor: not-allowed;
+}
+.check:has(input:disabled) {
+  cursor: not-allowed;
+  color: var(--text-dim);
+}
 
 .leitura input {
   color: var(--text-dim);

@@ -100,6 +100,52 @@ describe("EditarCriancaScreen", () => {
     expect(email).not.toHaveAttribute("readonly");
   });
 
+  it("trava o toggle de retirada (só a secretaria autoriza) — OPS-01", async () => {
+    vi.mocked(CriancasService.getCadastro).mockResolvedValue(crianca);
+
+    render(<EditarCriancaScreen criancaId="c1" />);
+
+    await screen.findByDisplayValue("Marina Souza");
+    const podeRetirar = screen.getByRole("checkbox", {
+      name: /pode retirar/i,
+    });
+    expect(podeRetirar).toBeDisabled();
+    expect(
+      screen.getByText(/só a secretaria autoriza/i),
+    ).toBeInTheDocument();
+  });
+
+  it("mantém o podeRetirar carregado mesmo com o toggle travado", async () => {
+    const user = userEvent.setup();
+    vi.mocked(CriancasService.getCadastro).mockResolvedValue(crianca);
+    vi.mocked(CriancasService.update).mockResolvedValue(crianca);
+
+    render(<EditarCriancaScreen criancaId="c1" />);
+
+    await screen.findByDisplayValue("Marina Souza");
+    await user.click(screen.getByRole("button", { name: /salvar/i }));
+
+    await waitFor(() =>
+      expect(CriancasService.update).toHaveBeenCalledTimes(1),
+    );
+    const [, payload] = vi.mocked(CriancasService.update).mock.calls[0];
+    expect(payload.responsaveis?.[0].podeRetirar).toBe(true);
+  });
+
+  it("não oferece adicionar novo responsável — só a secretaria adiciona", async () => {
+    vi.mocked(CriancasService.getCadastro).mockResolvedValue(crianca);
+
+    render(<EditarCriancaScreen criancaId="c1" />);
+
+    await screen.findByDisplayValue("Marina Souza");
+    expect(
+      screen.queryByRole("button", { name: /adicionar responsável/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/só a secretaria adiciona um novo responsável/i),
+    ).toBeInTheDocument();
+  });
+
   it("salva sem financeiro, turmaId nem cpf da criança", async () => {
     const user = userEvent.setup();
     vi.mocked(CriancasService.getCadastro).mockResolvedValue(crianca);
