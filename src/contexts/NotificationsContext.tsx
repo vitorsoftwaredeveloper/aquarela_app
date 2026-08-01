@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { IS_PUSH_CONFIGURED } from "@/config/env";
 import { getFcmToken, onForegroundMessage } from "@/lib/firebaseMessaging";
 import { DispositivosService } from "@/services/dispositivos";
+import { registrarNovoRecadoRecebido } from "@/services/recadosNaoLidos";
 import { storage } from "@/storage/localStorage";
 import { detectPlataforma, isIOS, isStandalonePwa } from "@/utils/device";
 import { ToastStack, type ToastItem } from "@/components";
@@ -47,7 +48,7 @@ export function NotificationsProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
   const router = useRouter();
 
   const [permission, setPermission] = useState<PushPermission>("default");
@@ -123,6 +124,20 @@ export function NotificationsProvider({
     let cancelled = false;
 
     onForegroundMessage((payload) => {
+      const criancaId = payload.data?.criancaId;
+      const mensagemId = payload.data?.mensagemId;
+      const ehRecado = Boolean(mensagemId && criancaId);
+
+      if (ehRecado && criancaId) {
+        registrarNovoRecadoRecebido(criancaId);
+      }
+
+      const urlRecado = ehRecado && criancaId
+        ? role === "professor"
+          ? `/professor/recados/${criancaId}`
+          : `/recados/${criancaId}`
+        : undefined;
+
       const id = `${Date.now()}-${Math.random()}`;
       setToasts((prev) => [
         ...prev,
@@ -131,7 +146,7 @@ export function NotificationsProvider({
           title:
             payload.data?.title ?? payload.notification?.title ?? "Aquarela Kids",
           message: payload.data?.body ?? payload.notification?.body ?? "",
-          url: payload.data?.url,
+          url: payload.data?.url ?? urlRecado,
         },
       ]);
     }).then((unsub) => {
@@ -143,11 +158,26 @@ export function NotificationsProvider({
       cancelled = true;
       unsubscribe?.();
     };
-  }, []);
+  }, [role]);
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
+      return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "notification-click" && event.data?.url) {
+        router.push(event.data.url);
+      }
+    };
+
+    navigator.serviceWorker.addEventListener("message", handleMessage);
+    return () =>
+      navigator.serviceWorker.removeEventListener("message", handleMessage);
+  }, [router]);
 
   const handleToastClick = useCallback(
     (toast: ToastItem) => {

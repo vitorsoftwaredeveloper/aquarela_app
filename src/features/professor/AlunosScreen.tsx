@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
-import { MensagensService } from "@/services/mensagens";
+import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
 import styles from "./professor.module.css";
@@ -24,14 +24,7 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
     () => ProfessorService.listAlunos(turmaId),
     [turmaId],
   );
-  const naoLidas = useFetch(() => MensagensService.naoLidas());
-  const naoLidasPorCrianca = useMemo(() => {
-    const mapa = new Map<string, number>();
-    (naoLidas.data ?? []).forEach((item) =>
-      mapa.set(item.criancaId, item.naoLidas),
-    );
-    return mapa;
-  }, [naoLidas.data]);
+  const naoLidos = useRecadosNaoLidos();
   const alunos = data ?? [];
   const registradas = alunos.filter((a) => a.agendaRegistrada).length;
   const avatarColors = useMemo(
@@ -100,7 +93,7 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
         <div className={styles.alunoList}>
           {alunos.map((a) => {
             const alerta = temCuidados(a);
-            const naoLidasDoAluno = naoLidasPorCrianca.get(a._id) ?? 0;
+            const temNaoLido = naoLidos.has(a._id);
             return (
               <div key={a._id} className={styles.alunoCardWrap}>
                 <button
@@ -180,17 +173,13 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
                   className={styles.recadosBtn}
                   onClick={() => router.push(`/professor/recados/${a._id}`)}
                   aria-label={
-                    naoLidasDoAluno > 0
-                      ? `${naoLidasDoAluno} recados não lidos de ${a.nome}`
+                    temNaoLido
+                      ? `Recados não lidos de ${a.nome}`
                       : `Recados de ${a.nome}`
                   }
                 >
                   <MessageCircle size={16} />
-                  {naoLidasDoAluno > 0 && (
-                    <span className={styles.recadosBadge}>
-                      {naoLidasDoAluno > 9 ? "9+" : naoLidasDoAluno}
-                    </span>
-                  )}
+                  {temNaoLido && <span className={styles.recadosBadge} />}
                 </button>
               </div>
             );

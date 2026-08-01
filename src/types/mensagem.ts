@@ -15,8 +15,3 @@ export interface Mensagem {
   createdAt: string;
   status: "enviando" | "enviada";
 }
-
-export interface MensagemNaoLidas {
-  criancaId: string;
-  naoLidas: number;
-}

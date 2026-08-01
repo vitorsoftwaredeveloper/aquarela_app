@@ -16,6 +16,10 @@ import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { MensagensService } from "@/services/mensagens";
 import { getApiErrorMessage } from "@/services/apiError";
+import {
+  RecadosNaoLidos,
+  onNovoRecadoRecebido,
+} from "@/services/recadosNaoLidos";
 import { sortearCoresAvatar } from "@/types/crianca";
 import type { AnexoReferencia } from "@/types/anexo";
 import type { Mensagem } from "@/types/mensagem";
@@ -47,6 +51,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const base = useFetch(() => MensagensService.listar(criancaId));
   const [enviadas, setEnviadas] = useState<Mensagem[]>([]);
+  const [recebidasNovas, setRecebidasNovas] = useState<Mensagem[]>([]);
   const [removidasIds, setRemovidasIds] = useState<Set<string>>(new Set());
   const [corpo, setCorpo] = useState("");
   const [anexos, setAnexos] = useState<AnexoReferencia[]>([]);
@@ -54,19 +59,23 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   const [compositorHeight, setCompositorHeight] = useState(96);
   const compositorRef = useRef<HTMLDivElement>(null);
-  const lidasRef = useRef(new Set<string>());
+  const ultimoCreatedAtRef = useRef<string | null>(null);
   const avatarBg = useMemo(
     () => sortearCoresAvatar([criancaId])[criancaId],
     [criancaId],
   );
 
   const mensagens = useMemo(() => {
-    const recebidas = (base.data ?? []).filter((m) => !removidasIds.has(m.id));
-    const locais = enviadas.filter((m) => !removidasIds.has(m.id));
-    return [...recebidas, ...locais].sort((a, b) =>
-      a.createdAt.localeCompare(b.createdAt),
-    );
-  }, [base.data, enviadas, removidasIds]);
+    const idsVistos = new Set<string>();
+    const todas = [...(base.data ?? []), ...recebidasNovas, ...enviadas];
+    const unicas = todas.filter((m) => {
+      if (removidasIds.has(m.id)) return false;
+      if (idsVistos.has(m.id)) return false;
+      idsVistos.add(m.id);
+      return true;
+    });
+    return unicas.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }, [base.data, recebidasNovas, enviadas, removidasIds]);
 
   const professorNomeHeader = useMemo(() => {
     for (let i = mensagens.length - 1; i >= 0; i -= 1) {
@@ -93,14 +102,33 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   }, [mensagens.length, compositorHeight]);
 
   useEffect(() => {
-    mensagens.forEach((mensagem) => {
-      if (mensagem.status === "enviando") return;
-      if (mensagem.autorPapel === user?.role) return;
-      if (lidasRef.current.has(mensagem.id)) return;
-      lidasRef.current.add(mensagem.id);
-      MensagensService.marcarLida(mensagem.id).catch(() => {});
+    if (mensagens.length > 0) {
+      ultimoCreatedAtRef.current = mensagens[mensagens.length - 1].createdAt;
+    }
+  }, [mensagens]);
+
+  useEffect(() => {
+    RecadosNaoLidos.marcarLido(criancaId);
+  }, [criancaId]);
+
+  useEffect(() => {
+    return onNovoRecadoRecebido((idRecebido) => {
+      if (idRecebido !== criancaId) return;
+      RecadosNaoLidos.marcarLido(criancaId);
+
+      const desde = ultimoCreatedAtRef.current ?? undefined;
+      MensagensService.listar(criancaId, undefined, desde)
+        .then((novas) => {
+          if (novas.length === 0) return;
+          setRecebidasNovas((atual) => {
+            const idsAtuais = new Set(atual.map((m) => m.id));
+            const filtradas = novas.filter((m) => !idsAtuais.has(m.id));
+            return filtradas.length > 0 ? [...atual, ...filtradas] : atual;
+          });
+        })
+        .catch(() => {});
     });
-  }, [mensagens, user?.role]);
+  }, [criancaId]);
 
   async function enviar() {
     const texto = corpo.trim();
@@ -183,6 +211,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
 
   return (
     <div>
+      <div className={styles.watermark} aria-hidden />
       {user?.role === "professor" ? (
         <div className={styles.pushHeader}>
           <button

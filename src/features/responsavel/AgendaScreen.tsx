@@ -7,7 +7,7 @@ import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
-import { MensagensService } from "@/services/mensagens";
+import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { linhaCuidados, temCuidados } from "@/types/crianca";
 import { AgendaStory } from "./AgendaStory";
 import styles from "./responsavel.module.css";
@@ -16,12 +16,11 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const agenda = useFetch(() => AgendaService.getDia(criancaId));
-  const naoLidas = useFetch(() => MensagensService.naoLidas());
+  const naoLidos = useRecadosNaoLidos();
 
   const c = crianca.data;
   const dia = agenda.data;
-  const naoLidasDoFilho =
-    naoLidas.data?.find((item) => item.criancaId === criancaId)?.naoLidas ?? 0;
+  const temRecadoNaoLido = naoLidos.has(criancaId);
 
   return (
     <div>
@@ -49,11 +48,7 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
         >
           <MessageCircle size={14} />
           Recados
-          {naoLidasDoFilho > 0 && (
-            <span className={styles.pushActionBadge}>
-              {naoLidasDoFilho > 9 ? "9+" : naoLidasDoFilho}
-            </span>
-          )}
+          {temRecadoNaoLido && <span className={styles.pushActionBadge} />}
         </Link>
         <Link
           href={`/historico/${criancaId}`}

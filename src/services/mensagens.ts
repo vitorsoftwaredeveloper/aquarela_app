@@ -2,11 +2,7 @@ import { api } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
 import { unwrapItem, unwrapList } from "./unwrap";
 import type { AnexoReferencia } from "@/types/anexo";
-import type {
-  AnexoMensagem,
-  Mensagem,
-  MensagemNaoLidas,
-} from "@/types/mensagem";
+import type { AnexoMensagem, Mensagem } from "@/types/mensagem";
 
 interface MensagemRaw {
   _id: string;
@@ -34,10 +30,14 @@ function normalize(raw: MensagemRaw): Mensagem {
 }
 
 export const MensagensService = {
-  async listar(criancaId: string, antesDe?: string): Promise<Mensagem[]> {
+  async listar(
+    criancaId: string,
+    antesDe?: string,
+    desde?: string,
+  ): Promise<Mensagem[]> {
     if (IS_DEV_DATA) return [];
     const { data } = await api.get("/mensagens", {
-      params: { criancaId, antesDe },
+      params: { criancaId, antesDe, desde },
     });
     return unwrapList<MensagemRaw>(data).map(normalize);
   },
@@ -53,18 +53,7 @@ export const MensagensService = {
     return normalize(raw);
   },
 
-  async marcarLida(id: string): Promise<void> {
-    if (IS_DEV_DATA) return;
-    await api.post(`/mensagens/${id}/lida`);
-  },
-
   async remover(id: string): Promise<void> {
     await api.delete(`/mensagens/${id}`);
-  },
-
-  async naoLidas(): Promise<MensagemNaoLidas[]> {
-    if (IS_DEV_DATA) return [];
-    const { data } = await api.get("/mensagens/nao-lidas");
-    return unwrapList<MensagemNaoLidas>(data);
   },
 };

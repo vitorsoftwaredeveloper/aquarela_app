@@ -1,3 +1,18 @@
+.watermark {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url("../../components/Logo/aquarela-logo.png");
+  background-repeat: no-repeat;
+  background-position: center 46%;
+  background-size: min(62vw, 320px) auto;
+  opacity: 0.06;
+  pointer-events: none;
+}
+:root[data-theme="dark"] .watermark {
+  opacity: 0.12;
+}
+
 .pushHeader {
   position: sticky;
   top: 0;

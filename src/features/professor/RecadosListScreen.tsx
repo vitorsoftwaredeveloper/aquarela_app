@@ -6,7 +6,7 @@ import { MessageCircle } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
-import { MensagensService } from "@/services/mensagens";
+import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar } from "@/types/crianca";
 import type { AlunoTurma } from "@/types/professorAgenda";
@@ -21,7 +21,7 @@ export function RecadosListScreen() {
   const { user } = useAuth();
   const nome = user?.name ?? user?.email ?? "Professor(a)";
   const turmas = useFetch(() => ProfessorService.listMinhasTurmas());
-  const naoLidas = useFetch(() => MensagensService.naoLidas());
+  const naoLidos = useRecadosNaoLidos();
   const [alunos, setAlunos] = useState<AlunoComTurma[] | null>(null);
 
   useEffect(() => {
@@ -40,12 +40,6 @@ export function RecadosListScreen() {
     };
   }, [turmas.data]);
 
-  const naoLidasPorCrianca = useMemo(() => {
-    const mapa = new Map<string, number>();
-    (naoLidas.data ?? []).forEach((item) => mapa.set(item.criancaId, item.naoLidas));
-    return mapa;
-  }, [naoLidas.data]);
-
   const avatarColors = useMemo(
     () => sortearCoresAvatar((alunos ?? []).map((a) => a._id)),
     [alunos],
@@ -54,12 +48,12 @@ export function RecadosListScreen() {
   const ordenados = useMemo(() => {
     if (!alunos) return [];
     return [...alunos].sort((a, b) => {
-      const naoLidasA = naoLidasPorCrianca.get(a._id) ?? 0;
-      const naoLidasB = naoLidasPorCrianca.get(b._id) ?? 0;
-      if (naoLidasA !== naoLidasB) return naoLidasB - naoLidasA;
+      const naoLidoA = naoLidos.has(a._id) ? 1 : 0;
+      const naoLidoB = naoLidos.has(b._id) ? 1 : 0;
+      if (naoLidoA !== naoLidoB) return naoLidoB - naoLidoA;
       return a.nome.localeCompare(b.nome);
     });
-  }, [alunos, naoLidasPorCrianca]);
+  }, [alunos, naoLidos]);
 
   const carregando = turmas.loading || alunos === null;
 
@@ -95,7 +89,7 @@ export function RecadosListScreen() {
       ) : (
         <div className={styles.alunoList}>
           {ordenados.map((aluno) => {
-            const naoLidasDoAluno = naoLidasPorCrianca.get(aluno._id) ?? 0;
+            const temNaoLido = naoLidos.has(aluno._id);
             return (
               <button
                 key={aluno._id}
@@ -116,7 +110,7 @@ export function RecadosListScreen() {
                     {aluno.turmaNome}
                   </span>
                 </span>
-                {naoLidasDoAluno > 0 ? (
+                {temNaoLido ? (
                   <span
                     className={styles.status}
                     style={{
@@ -124,7 +118,7 @@ export function RecadosListScreen() {
                       background: "var(--color-danger)",
                     }}
                   >
-                    {naoLidasDoAluno > 9 ? "9+" : naoLidasDoAluno}
+                    Novo
                   </span>
                 ) : (
                   <MessageCircle size={18} style={{ color: "var(--text-mute)" }} />
