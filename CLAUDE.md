@@ -265,9 +265,11 @@ do próprio cadastro vem de `GET /me` → `IUsuario.professorId`, propagado em
 
 **Épico D — Financeiro admin (front):** FIN-10/12/13/14 ✅ — **Dashboard** com KPIs
 (entradas, despesas, saldo, inadimplentes) e **gráfico de barras agrupadas
-entradas × despesas (12 meses)**; **Financeiro** com abas de despesas (CRUD) e
-inadimplentes, ambas com **exportação `.xlsx`** (`utils/exportXlsx.ts`).
-Consomem `services/financeiroAdminService.ts`.
+entradas × despesas (12 meses)**; **Financeiro** com abas de despesas (CRUD),
+inadimplentes e **planos** (config de preços/descontos, `PlanosTab` — antiga
+tela standalone "Valores do simulador"), as duas primeiras com **exportação
+`.xlsx`** (`utils/exportXlsx.ts`). Consomem `services/financeiroAdminService.ts`
+e `services/configPrecosService.ts`.
 
 > **Paleta do gráfico é validada, não escolhida no olho:** entradas `#2F7FCB` ·
 > despesas `#C7522B` passam nas checagens de banda de luminosidade, croma, CVD

@@ -26,7 +26,7 @@ import {
 } from "@/types/configPrecos";
 import { ErrorState } from "../ListState";
 import admin from "../admin.module.css";
-import styles from "./configSimulador.module.css";
+import styles from "./planosTab.module.css";
 
 const TIPO_OPTIONS = [
   { value: "integral", label: "Integral" },
@@ -59,25 +59,20 @@ const PLANO_VAZIO = {
   descontos: [] as { meses: number; percentual: number }[],
 };
 
-export function ConfigSimuladorScreen() {
+export function Planos() {
   const { data, loading, error, reload } = useFetch(() =>
     ConfigPrecosService.get(),
   );
 
   return (
-    <div className={admin.page}>
-      <div className={admin.pageHead}>
-        <div>
-          <h1 className={admin.pageTitle}>Valores do simulador</h1>
-          <p className={admin.pageSub}>
-            Planos, mensalidades e descontos progressivos usados no simulador
-            público e no cálculo de mensalidade.
-          </p>
-        </div>
-      </div>
+    <div>
+      <p className={admin.pageSub} style={{ marginBottom: 16 }}>
+        Planos, mensalidades e descontos progressivos usados no simulador
+        público e no cálculo de mensalidade.
+      </p>
 
       {loading && !data ? (
-        <ConfigSimuladorSkeleton />
+        <PlanosSkeleton />
       ) : error ? (
         <div className={admin.card}>
           <ErrorState message={error} onRetry={reload} />
@@ -93,7 +88,7 @@ export function ConfigSimuladorScreen() {
   );
 }
 
-function ConfigSimuladorSkeleton() {
+function PlanosSkeleton() {
   return (
     <div className={styles.planos} role="status" aria-label="Carregando…">
       {Array.from({ length: 2 }).map((_, i) => (

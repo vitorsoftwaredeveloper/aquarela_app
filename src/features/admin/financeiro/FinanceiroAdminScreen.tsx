@@ -38,9 +38,10 @@ import { exportToXlsx, hojeSufixo } from "@/utils/exportXlsx";
 import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
 import { exportToPdfTable } from "@/utils/exportPdfTable";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
+import { Planos } from "./PlanosTab";
 import styles from "../admin.module.css";
 
-type Aba = "despesas" | "inadimplentes";
+type Aba = "despesas" | "inadimplentes" | "planos";
 
 function formatData(iso: string): string {
   const dataPart = iso.split("T")[0];
@@ -57,7 +58,7 @@ export function FinanceiroAdminScreen() {
         <div>
           <h1 className={styles.pageTitle}>Financeiro</h1>
           <p className={styles.pageSub}>
-            Lançamento de despesas e acompanhamento de inadimplência.
+            Despesas, inadimplência e planos de mensalidade.
           </p>
         </div>
       </div>
@@ -84,9 +85,24 @@ export function FinanceiroAdminScreen() {
         >
           Inadimplentes
         </Button>
+        <Button
+          variant={aba === "planos" ? "primary" : "secondary"}
+          size="sm"
+          role="tab"
+          aria-selected={aba === "planos"}
+          onClick={() => setAba("planos")}
+        >
+          Planos
+        </Button>
       </div>
 
-      {aba === "despesas" ? <Despesas /> : <Inadimplentes />}
+      {aba === "despesas" ? (
+        <Despesas />
+      ) : aba === "inadimplentes" ? (
+        <Inadimplentes />
+      ) : (
+        <Planos />
+      )}
     </div>
   );
 }

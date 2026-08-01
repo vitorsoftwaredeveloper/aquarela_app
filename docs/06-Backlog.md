@@ -539,8 +539,8 @@ isso:
 
 | ID     | Tarefa                                                                    | Prio | Pts | Camada | Dep.           | AC                                                                                             |
 | ------ | ------------------------------------------------------------------------- | ---- | --- | ------ | -------------- | ------------------------------------------------------------------------------------------------- |
-| OPS-01 | 🔴 **Responsável não pode conceder `podeRetirar`** (add/edit/remove)      | 🔴   | 5   | FS     | CAD-09         | Ver regra detalhada abaixo; comparação por `usuarioId`/`cpfHash`, **nunca por índice do array** |
-| OPS-02 | 🔴 **Balanço em regime de caixa + fuso GMT-3**                            | 🔴   | 5   | FS     | FIN-11         | Pagamento de 31/07 23:00 GMT-3 aparece em **julho**; despesa lançada 31/07 22h idem            |
+| OPS-01 | ✅ 🔴 **Responsável não pode conceder `podeRetirar`** (add/edit/remove)   | 🔴   | 5   | FS     | CAD-09         | Ver regra detalhada abaixo; comparação por `usuarioId`/`cpfHash`, **nunca por índice do array** |
+| OPS-02 | ✅ 🔴 **Balanço em regime de caixa + fuso GMT-3**                         | 🔴   | 5   | FS     | FIN-11         | Pagamento de 31/07 23:00 GMT-3 aparece em **julho**; despesa lançada 31/07 22h idem            |
 | OPS-03 | **Múltiplos professores por turma** (`professorIds[]`)                    | 🔴   | 8   | FS     | CAD-06         | Migração sem downtime; todo ownership por turma passa a usar `includes`                        |
 | OPS-04 | **Ficha de cadastro da criança para impressão** (A4, `@media print`)      | 🟡   | 5   | FE     | CAD-08         | Sem endpoint novo e sem lib de PDF — impressão nativa do browser                               |
 | OPS-05 | **Notificação de aniversário** da criança                                 | 🟡   | 5   | FS     | NOT-05         | Cron 08:00 GMT-3; responsáveis + professores da turma; idempotente no mesmo dia                |
