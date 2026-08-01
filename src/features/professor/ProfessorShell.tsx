@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, School, User, type LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  MessageCircle,
+  School,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import styles from "./professor.module.css";
 
 const TABS: {
@@ -20,6 +26,12 @@ const TABS: {
       !pathname.includes("/planos-aula") &&
       (pathname === "/professor/turmas" ||
         pathname.startsWith("/professor/turmas/")),
+  },
+  {
+    href: "/professor/recados",
+    label: "Recados",
+    icon: MessageCircle,
+    isActive: (pathname) => pathname.startsWith("/professor/recados"),
   },
   {
     href: "/professor/planos-aula",

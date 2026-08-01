@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BookOpen } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { TurmaListSkeleton } from "./TurmasScreen";
@@ -17,6 +18,8 @@ const CORES = [
 /** Entrada da tab "Planos" — escolhe a turma antes de ver os planos dela. */
 export function PlanosAulaTurmasScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+  const nome = user?.name ?? user?.email ?? "Professor(a)";
   const { data, loading, error } = useFetch(() =>
     ProfessorService.listMinhasTurmas(),
   );
@@ -26,8 +29,11 @@ export function PlanosAulaTurmasScreen() {
     <div>
       <div className={styles.header}>
         <div>
-          <div className={styles.headerWho}>Planos de aula</div>
-          <div className={styles.headerTitle}>Escolha a turma</div>
+          <div className={styles.headerWho}>{nome}</div>
+          <div className={styles.headerTitle}>Planos de aula</div>
+          <div className={styles.pushSub} style={{ color: "rgba(255,255,255,0.85)" }}>
+            Escolha a turma
+          </div>
         </div>
       </div>
 

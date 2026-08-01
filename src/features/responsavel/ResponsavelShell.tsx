@@ -2,31 +2,67 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, User, Wallet, type LucideIcon } from "lucide-react";
+import { Home, MessageCircle, User, Wallet, type LucideIcon } from "lucide-react";
+import { useResponsavel } from "@/contexts/ResponsavelContext";
 import styles from "./responsavel.module.css";
 
-const TABS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/inicio", label: "Início", icon: Home },
-  { href: "/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "/perfil", label: "Perfil", icon: User },
-];
+interface Tab {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  isActive: (pathname: string) => boolean;
+  disabled?: boolean;
+}
 
 export function ResponsavelShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { activeId } = useResponsavel();
+
+  const tabs: Tab[] = [
+    {
+      href: "/inicio",
+      label: "Início",
+      icon: Home,
+      isActive: (p) => p === "/inicio",
+    },
+    {
+      href: activeId ? `/recados/${activeId}` : "/inicio",
+      label: "Recados",
+      icon: MessageCircle,
+      isActive: (p) => p.startsWith("/recados/"),
+      disabled: !activeId,
+    },
+    {
+      href: "/financeiro",
+      label: "Financeiro",
+      icon: Wallet,
+      isActive: (p) => p === "/financeiro",
+    },
+    {
+      href: "/perfil",
+      label: "Perfil",
+      icon: User,
+      isActive: (p) => p === "/perfil" || p.startsWith("/perfil/"),
+    },
+  ];
 
   return (
     <div className={styles.app}>
       <div className={styles.viewport}>
         <div className={styles.scroll}>{children}</div>
         <nav className={styles.tabbar} aria-label="Navegação">
-          {TABS.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || pathname.startsWith(href + "/");
+          {tabs.map(({ href, label, icon: Icon, isActive, disabled }) => {
+            const active = isActive(pathname);
             return (
               <Link
-                key={href}
+                key={label}
                 href={href}
                 className={`${styles.tab} ${active ? styles.tabActive : ""}`}
                 aria-current={active ? "page" : undefined}
+                aria-disabled={disabled}
+                onClick={(e) => {
+                  if (disabled) e.preventDefault();
+                }}
               >
                 <Icon size={22} />
                 <span>{label}</span>

@@ -8,10 +8,12 @@ import {
   CheckCheck,
   ChevronLeft,
   Clock,
+  MessageCircle,
   ShieldAlert,
 } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
+import { MensagensService } from "@/services/mensagens";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
 import styles from "./professor.module.css";
@@ -22,6 +24,14 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
     () => ProfessorService.listAlunos(turmaId),
     [turmaId],
   );
+  const naoLidas = useFetch(() => MensagensService.naoLidas());
+  const naoLidasPorCrianca = useMemo(() => {
+    const mapa = new Map<string, number>();
+    (naoLidas.data ?? []).forEach((item) =>
+      mapa.set(item.criancaId, item.naoLidas),
+    );
+    return mapa;
+  }, [naoLidas.data]);
   const alunos = data ?? [];
   const registradas = alunos.filter((a) => a.agendaRegistrada).length;
   const avatarColors = useMemo(
@@ -90,76 +100,99 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
         <div className={styles.alunoList}>
           {alunos.map((a) => {
             const alerta = temCuidados(a);
+            const naoLidasDoAluno = naoLidasPorCrianca.get(a._id) ?? 0;
             return (
-              <button
-                key={a._id}
-                className={styles.alunoCard}
-                onClick={() => router.push(`/professor/agenda/${a._id}`)}
-              >
-                <span className={styles.alunoAvatarWrap}>
-                  <Avatar
-                    nome={a.nome}
-                    fotoUrl={a.fotoUrl}
-                    bg={avatarColors[a._id]}
-                    className={styles.alunoAvatar}
-                  />
-                  {alerta && (
+              <div key={a._id} className={styles.alunoCardWrap}>
+                <button
+                  className={styles.alunoCard}
+                  onClick={() => router.push(`/professor/agenda/${a._id}`)}
+                >
+                  <span className={styles.alunoAvatarWrap}>
+                    <Avatar
+                      nome={a.nome}
+                      fotoUrl={a.fotoUrl}
+                      bg={avatarColors[a._id]}
+                      className={styles.alunoAvatar}
+                    />
+                    {alerta && (
+                      <span
+                        className={styles.allergyDot}
+                        title="Tem alergia/medicação"
+                      >
+                        <ShieldAlert size={12} />
+                      </span>
+                    )}
+                  </span>
+                  <span style={{ flex: 1 }}>
                     <span
-                      className={styles.allergyDot}
-                      title="Tem alergia/medicação"
+                      className={styles.alunoName}
+                      style={{ display: "block" }}
                     >
-                      <ShieldAlert size={12} />
+                      {a.nome}
                     </span>
-                  )}
-                </span>
-                <span style={{ flex: 1 }}>
-                  <span
-                    className={styles.alunoName}
-                    style={{ display: "block" }}
-                  >
-                    {a.nome}
+                    <span
+                      className={styles.alunoSub}
+                      style={{ display: "block" }}
+                    >
+                      {a.idadeLabel ?? a.sub}
+                    </span>
                   </span>
                   <span
-                    className={styles.alunoSub}
-                    style={{ display: "block" }}
-                  >
-                    {a.idadeLabel ?? a.sub}
-                  </span>
-                </span>
-                <span
-                  className={styles.status}
-                  title={a.agendaEnviada ? "Registrada e enviada aos pais" : undefined}
-                  style={
-                    a.agendaEnviada
-                      ? {
-                          color: "var(--color-secondary-strong)",
-                          background: "var(--color-secondary-soft)",
-                        }
-                      : a.agendaRegistrada
+                    className={styles.status}
+                    title={
+                      a.agendaEnviada
+                        ? "Registrada e enviada aos pais"
+                        : undefined
+                    }
+                    style={
+                      a.agendaEnviada
                         ? {
-                            color: "var(--color-primary-link)",
-                            background: "var(--color-primary-soft)",
+                            color: "var(--color-secondary-strong)",
+                            background: "var(--color-secondary-soft)",
                           }
-                        : {
-                            color: "#C7522B",
-                            background: "var(--color-accent-soft)",
-                          }
+                        : a.agendaRegistrada
+                          ? {
+                              color: "var(--color-primary-link)",
+                              background: "var(--color-primary-soft)",
+                            }
+                          : {
+                              color: "#C7522B",
+                              background: "var(--color-accent-soft)",
+                            }
+                    }
+                  >
+                    {a.agendaEnviada ? (
+                      <CheckCheck size={13} />
+                    ) : a.agendaRegistrada ? (
+                      <Check size={13} />
+                    ) : (
+                      <Clock size={13} />
+                    )}
+                    {a.agendaEnviada
+                      ? "Enviada"
+                      : a.agendaRegistrada
+                        ? "Registrada"
+                        : "Pendente"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.recadosBtn}
+                  onClick={() => router.push(`/professor/recados/${a._id}`)}
+                  aria-label={
+                    naoLidasDoAluno > 0
+                      ? `${naoLidasDoAluno} recados não lidos de ${a.nome}`
+                      : `Recados de ${a.nome}`
                   }
                 >
-                  {a.agendaEnviada ? (
-                    <CheckCheck size={13} />
-                  ) : a.agendaRegistrada ? (
-                    <Check size={13} />
-                  ) : (
-                    <Clock size={13} />
+                  <MessageCircle size={16} />
+                  {naoLidasDoAluno > 0 && (
+                    <span className={styles.recadosBadge}>
+                      {naoLidasDoAluno > 9 ? "9+" : naoLidasDoAluno}
+                    </span>
                   )}
-                  {a.agendaEnviada
-                    ? "Enviada"
-                    : a.agendaRegistrada
-                      ? "Registrada"
-                      : "Pendente"}
-                </span>
-              </button>
+                </button>
+              </div>
             );
           })}
         </div>

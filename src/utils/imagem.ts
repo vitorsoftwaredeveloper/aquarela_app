@@ -1,6 +1,9 @@
 export const FOTO_LADO_MAX = 800;
 export const FOTO_MAX_BYTES = 2 * 1024 * 1024;
 
+export const ANEXO_IMAGEM_LADO_MAX = 1600;
+export const ANEXO_IMAGEM_MAX_BYTES = 10 * 1024 * 1024;
+
 const QUALIDADES = [0.8, 0.65, 0.5, 0.35];
 
 export interface FotoUpload {
@@ -10,6 +13,11 @@ export interface FotoUpload {
 
 export interface FotoPreparada {
   foto: FotoUpload;
+  previewUrl: string;
+}
+
+export interface ImagemAnexoPreparada {
+  blob: Blob;
   previewUrl: string;
 }
 
@@ -42,16 +50,15 @@ async function decodificar(file: File): Promise<ImageBitmap> {
   }
 }
 
-export async function prepararFoto(file: File): Promise<FotoPreparada> {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Selecione um arquivo de imagem (JPEG, PNG ou WEBP).");
-  }
-
+async function redimensionarParaCanvas(
+  file: File,
+  ladoMax: number,
+): Promise<HTMLCanvasElement> {
   const bitmap = await decodificar(file);
   const { largura, altura } = dimensionarPara(
     bitmap.width,
     bitmap.height,
-    FOTO_LADO_MAX,
+    ladoMax,
   );
 
   const canvas = document.createElement("canvas");
@@ -65,6 +72,25 @@ export async function prepararFoto(file: File): Promise<FotoPreparada> {
   ctx.drawImage(bitmap, 0, 0, largura, altura);
   bitmap.close();
 
+  return canvas;
+}
+
+function canvasParaBlob(
+  canvas: HTMLCanvasElement,
+  qualidade: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", qualidade),
+  );
+}
+
+export async function prepararFoto(file: File): Promise<FotoPreparada> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione um arquivo de imagem (JPEG, PNG ou WEBP).");
+  }
+
+  const canvas = await redimensionarParaCanvas(file, FOTO_LADO_MAX);
+
   for (const qualidade of QUALIDADES) {
     const previewUrl = canvas.toDataURL("image/jpeg", qualidade);
     const base64 = previewUrl.split(",")[1] ?? "";
@@ -74,4 +100,23 @@ export async function prepararFoto(file: File): Promise<FotoPreparada> {
   }
 
   throw new Error("Imagem muito pesada. Escolha outra foto.");
+}
+
+export async function prepararImagemAnexo(
+  file: File,
+): Promise<ImagemAnexoPreparada> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione um arquivo de imagem (JPEG, PNG ou WEBP).");
+  }
+
+  const canvas = await redimensionarParaCanvas(file, ANEXO_IMAGEM_LADO_MAX);
+
+  for (const qualidade of QUALIDADES) {
+    const blob = await canvasParaBlob(canvas, qualidade);
+    if (blob && blob.size <= ANEXO_IMAGEM_MAX_BYTES) {
+      return { blob, previewUrl: canvas.toDataURL("image/jpeg", qualidade) };
+    }
+  }
+
+  throw new Error("Imagem muito pesada. Escolha outra imagem.");
 }
