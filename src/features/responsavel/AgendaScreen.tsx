@@ -94,8 +94,9 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
             criancaNome={c?.nome}
             professor={dia.professor}
             dataLabel={dia.dataLabel}
+            anexos={dia.anexos}
           />
-          {dia.entries.length > 0 && (
+          {(dia.entries.length > 0 || (dia.anexos?.length ?? 0) > 0) && (
             <div className={styles.signedBy}>
               Registrado no fim do dia · Aquarela Kids
             </div>

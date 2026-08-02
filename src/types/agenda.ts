@@ -1,3 +1,9 @@
+import type { AnexoReferencia } from "./anexo";
+
+export interface AnexoAgenda extends AnexoReferencia {
+  url?: string;
+}
+
 /** Tipos de item da agenda diária. */
 export type AgendaTipo =
   | "alimentacao"
@@ -7,14 +13,18 @@ export type AgendaTipo =
   | "higiene"
   | "medicacao"
   | "intercorrencia"
-  | "observacao";
+  | "observacao"
+  | "tarefaCasa"
+  | "presenca";
 
 export interface AgendaEntry {
   tipo: AgendaTipo;
   title: string;
   text: string;
-  /** Intercorrência/medicação → destaque visual. */
+  /** Intercorrência/medicação/falta/tarefa não feita → destaque visual. */
   destaque?: boolean;
+  /** Valor cru (ex.: código do humor/presença/tarefa), para quem renderiza escolher ícone. */
+  value?: string;
 }
 
 export interface AgendaProfessor {
@@ -30,6 +40,7 @@ export interface AgendaDia {
   dataLabel: string;
   entries: AgendaEntry[];
   professor?: AgendaProfessor;
+  anexos?: AnexoAgenda[];
 }
 
 /** Aviso/recado do mural — visível para todos os responsáveis ou só p/ uma turma. */
@@ -50,8 +61,10 @@ export interface HistoricoDia {
   data: string;
   dataLabel: string;
   humorLabel: string;
-  humorEmoji: string;
+  /** Código cru do humor (feliz|tranquilo|neutro|choroso), pra escolher o ícone. */
+  humorValue?: string;
   chips: string[];
   alerta?: string;
   observacoes?: string;
+  anexos?: AnexoAgenda[];
 }

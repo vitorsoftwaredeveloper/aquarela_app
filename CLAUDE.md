@@ -349,6 +349,28 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
   responsável) · Ficha de cadastro para impressão (`/admin/criancas/[id]/ficha`,
   sem lib de PDF — `window.print()` + `@media print`).
 
+> **✅ Épico L (Agenda v2) — MVP implementado em 02/08/2026** (AG2-01…AG2-08,
+> AG2-10; **AG2-09**, relatório de frequência, **adiado** por decisão do
+> usuário — sem tela consumidora ainda). `RegistrarAgendaScreen.tsx` ganhou
+> as seções **Presença** (presente/falta/atrasado — `atrasado` exige hora de
+> chegada, validado no front espelhando o `if/then` do ajv no back) e
+> **Tarefa de casa** (feito/não feito/incompleto), além de **Anexo** via
+> `<UploadAnexo escopo="agenda" …>` (mesmo componente do Épico K, zero código
+> novo de upload). Na leitura do responsável, `AgendaStory.tsx` colapsa os
+> blocos de alimentação/sono/atividade quando `presenca.status === "falta"`
+> (não faz sentido narrar refeição de quem faltou) — mas **não** colapsa em
+> `atrasado`, só em falta mesmo. `HistoricoScreen.tsx` (professor e
+> responsável) ganhou chip de presença/tarefa e link de anexo por dia.
+>
+> **Ícone de humor trocou de emoji colorido pra ícone de traço** (mesmo pedido
+> que motivou mexer na tela): `HUMORES` em `types/professorAgenda.ts` agora
+> carrega `icon: LucideIcon` (`Laugh`/`Smile`/`Meh`/`Frown`) em vez de
+> `emoji: string` — consistente com o resto do design system, que já só usa
+> ícone de traço (`Utensils`, `Moon`, `Palette`…). `AgendaEntry` ganhou um
+> campo genérico `value?: string` (código cru, ex. `"feliz"`/`"falta"`) porque
+> string não carrega componente React — quem renderiza escolhe o ícone a
+> partir do valor via `HUMOR_ICON` (mapa exportado ao lado de `HUMORES`).
+
 ## 8. Documentação (pasta `docs/`)
 
 | Arquivo | Conteúdo |

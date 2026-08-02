@@ -1,6 +1,8 @@
 import {
   AlertTriangle,
   Baby,
+  BookOpen,
+  CalendarCheck,
   Moon,
   Palette,
   Pill,
@@ -54,5 +56,15 @@ export const AGENDA_VISUAL: Record<
     icon: StickyNote,
     bg: "var(--surface-2)",
     fg: "var(--text-dim)",
+  },
+  tarefaCasa: {
+    icon: BookOpen,
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-strong)",
+  },
+  presenca: {
+    icon: CalendarCheck,
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-strong)",
   },
 };

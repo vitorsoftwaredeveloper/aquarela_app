@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ShieldAlert } from "lucide-react";
+import { ChevronLeft, Paperclip, ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
+import { HUMOR_ICON } from "@/types/professorAgenda";
 import styles from "./professor.module.css";
 
 export function HistoricoScreen({ criancaId }: { criancaId: string }) {
@@ -55,33 +56,52 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
         </div>
       ) : (
         <div className={styles.histList}>
-          {dias.map((h) => (
-            <div key={h.data} className={styles.histCard}>
-              <div className={styles.histHead}>
-                <span className={styles.histDate}>{h.dataLabel}</span>
-                <span className={styles.histMood}>
-                  <span aria-hidden>{h.humorEmoji}</span> {h.humorLabel}
-                </span>
-              </div>
-              <div className={styles.histChips}>
-                {h.chips.map((chip) => (
-                  <span key={chip} className={styles.histChip}>
-                    {chip}
+          {dias.map((h) => {
+            const HumorIcon = h.humorValue ? HUMOR_ICON[h.humorValue] : undefined;
+            return (
+              <div key={h.data} className={styles.histCard}>
+                <div className={styles.histHead}>
+                  <span className={styles.histDate}>{h.dataLabel}</span>
+                  <span className={styles.histMood}>
+                    {HumorIcon && <HumorIcon size={14} aria-hidden />}{" "}
+                    {h.humorLabel}
                   </span>
-                ))}
+                </div>
+                <div className={styles.histChips}>
+                  {h.chips.map((chip) => (
+                    <span key={chip} className={styles.histChip}>
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+                {h.alerta && (
+                  <div className={styles.histAlert}>
+                    <ShieldAlert size={14} /> {h.alerta}
+                  </div>
+                )}
+                {h.observacoes && (
+                  <div className={styles.histObs}>
+                    <span>{h.observacoes}</span>
+                  </div>
+                )}
+                {(h.anexos?.length ?? 0) > 0 && (
+                  <div className={styles.histAnexos}>
+                    {h.anexos!.map((anexo) => (
+                      <a
+                        key={anexo.key}
+                        href={anexo.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.histAnexoLink}
+                      >
+                        <Paperclip size={12} /> {anexo.nome}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-              {h.alerta && (
-                <div className={styles.histAlert}>
-                  <ShieldAlert size={14} /> {h.alerta}
-                </div>
-              )}
-              {h.observacoes && (
-                <div className={styles.histObs}>
-                  <span>{h.observacoes}</span>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

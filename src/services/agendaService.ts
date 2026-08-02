@@ -8,11 +8,14 @@ import {
   ACEITACAO_OPTS,
   HUMORES,
   INTERCORRENCIA_TIPO,
+  PRESENCAS,
   REFEICAO_CODIGO,
+  TAREFAS_CASA,
 } from "@/types/professorAgenda";
 import type {
   AgendaDia,
   AgendaEntry,
+  AnexoAgenda,
   Aviso,
   HistoricoDia,
 } from "@/types/agenda";
@@ -33,6 +36,9 @@ interface AgendaRaw {
   }[];
   intercorrencias?: { tipo: string; descricao: string; hora: string }[];
   observacoes?: string;
+  tarefaCasa?: { status: string; observacao?: string };
+  presenca?: { status: string; horaChegada?: string; justificativa?: string };
+  anexos?: AnexoAgenda[];
   professor?: { _id: string; nome: string; fotoUrl?: string };
 }
 
@@ -45,13 +51,20 @@ const ACEITACAO_LABEL: Record<string, string> = Object.fromEntries(
   ACEITACAO_OPTS.map((o) => [o.value, o.label]),
 );
 
-const HUMOR_INFO: Record<string, { label: string; emoji: string }> =
-  Object.fromEntries(
-    HUMORES.map((h) => [h.value, { label: h.label, emoji: h.emoji }]),
-  );
+const HUMOR_LABEL: Record<string, string> = Object.fromEntries(
+  HUMORES.map((h) => [h.value, h.label]),
+);
 
 const INTERCORRENCIA_LABEL: Record<string, string> = Object.fromEntries(
   Object.entries(INTERCORRENCIA_TIPO).map(([label, code]) => [code, label]),
+);
+
+const TAREFA_CASA_LABEL: Record<string, string> = Object.fromEntries(
+  TAREFAS_CASA.map((t) => [t.value, t.label]),
+);
+
+const PRESENCA_LABEL: Record<string, string> = Object.fromEntries(
+  PRESENCAS.map((p) => [p.value, p.label]),
 );
 
 /** "Hoje" para a data corrente; senão DD/MM. `iso` pode vir com hora (Date serializado). */
@@ -113,11 +126,42 @@ function toEntries(raw: AgendaRaw): AgendaEntry[] {
   }
 
   if (raw.humor) {
-    const info = HUMOR_INFO[raw.humor];
     entries.push({
       tipo: "humor",
       title: "Humor",
-      text: info ? `${info.emoji} ${info.label}` : raw.humor,
+      text: HUMOR_LABEL[raw.humor] ?? raw.humor,
+      value: raw.humor,
+    });
+  }
+
+  if (raw.tarefaCasa) {
+    entries.push({
+      tipo: "tarefaCasa",
+      title: "Tarefa de casa",
+      text: [
+        TAREFA_CASA_LABEL[raw.tarefaCasa.status] ?? raw.tarefaCasa.status,
+        raw.tarefaCasa.observacao,
+      ]
+        .filter(Boolean)
+        .join(" — "),
+      value: raw.tarefaCasa.status,
+      destaque: raw.tarefaCasa.status === "nao_feito",
+    });
+  }
+
+  if (raw.presenca) {
+    const detalhe =
+      raw.presenca.status === "atrasado"
+        ? `chegou às ${raw.presenca.horaChegada}`
+        : raw.presenca.justificativa;
+    entries.push({
+      tipo: "presenca",
+      title: "Presença",
+      text: [PRESENCA_LABEL[raw.presenca.status] ?? raw.presenca.status, detalhe]
+        .filter(Boolean)
+        .join(" — "),
+      value: raw.presenca.status,
+      destaque: raw.presenca.status !== "presente",
     });
   }
 
@@ -181,19 +225,27 @@ function toHistoricoDia(raw: AgendaRaw): HistoricoDia {
   for (const a of raw.atividades ?? []) chips.push(a);
   const fraldas = raw.higiene?.fraldas ?? 0;
   if (fraldas > 0) chips.push(`${fraldas} fralda${fraldas === 1 ? "" : "s"}`);
+  if (raw.presenca && raw.presenca.status !== "presente") {
+    chips.push(PRESENCA_LABEL[raw.presenca.status] ?? raw.presenca.status);
+  }
+  if (raw.tarefaCasa && raw.tarefaCasa.status !== "feito") {
+    chips.push(
+      `Tarefa: ${TAREFA_CASA_LABEL[raw.tarefaCasa.status] ?? raw.tarefaCasa.status}`,
+    );
+  }
 
-  const humorInfo = raw.humor ? HUMOR_INFO[raw.humor] : undefined;
   const alerta =
     (raw.intercorrencias ?? []).map((i) => i.descricao).join(", ") || undefined;
 
   return {
     data: raw.data.slice(0, 10),
     dataLabel: formatDataLabel(raw.data),
-    humorLabel: humorInfo?.label ?? "—",
-    humorEmoji: humorInfo?.emoji ?? "—",
+    humorLabel: raw.humor ? (HUMOR_LABEL[raw.humor] ?? raw.humor) : "—",
+    humorValue: raw.humor,
     chips,
     alerta,
     observacoes: raw.observacoes,
+    anexos: raw.anexos,
   };
 }
 
@@ -227,6 +279,7 @@ export const AgendaService = {
         professor: raw?.professor
           ? { nome: raw.professor.nome, fotoUrl: raw.professor.fotoUrl }
           : undefined,
+        anexos: raw?.anexos,
       };
     } catch (err) {
       if (getApiErrorStatus(err) === 404) {

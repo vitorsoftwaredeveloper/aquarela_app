@@ -1,5 +1,12 @@
-import type { AgendaEntry, AgendaProfessor, AgendaTipo } from "@/types/agenda";
+import { Paperclip } from "lucide-react";
+import type {
+  AgendaEntry,
+  AgendaProfessor,
+  AgendaTipo,
+  AnexoAgenda,
+} from "@/types/agenda";
 import { Avatar } from "@/components";
+import { HUMOR_ICON } from "@/types/professorAgenda";
 import { AGENDA_VISUAL } from "./agendaVisual";
 import styles from "./responsavel.module.css";
 
@@ -24,30 +31,35 @@ interface StoryClause {
 function buildStoryClauses(entries: AgendaEntry[]): StoryClause[] {
   const clauses: StoryClause[] = [];
 
-  for (const e of entries.filter((e) => e.tipo === "alimentacao")) {
-    clauses.push({
-      tipo: "alimentacao",
-      label: `No ${e.title.toLowerCase()},`,
-      value: decapitalizeFirst(e.text),
-    });
-  }
+  const presenca = entries.find((e) => e.tipo === "presenca");
+  const faltou = presenca?.value === "falta";
 
-  const sonecas = entries.filter((e) => e.tipo === "sono");
-  if (sonecas.length > 0) {
-    clauses.push({
-      tipo: "sono",
-      label: sonecas.length > 1 ? "Tirou sonecas" : "Tirou soneca",
-      value: sonecas.map((e) => `das ${e.text}`).join(" e "),
-    });
-  }
+  if (!faltou) {
+    for (const e of entries.filter((e) => e.tipo === "alimentacao")) {
+      clauses.push({
+        tipo: "alimentacao",
+        label: `No ${e.title.toLowerCase()},`,
+        value: decapitalizeFirst(e.text),
+      });
+    }
 
-  const atividade = entries.find((e) => e.tipo === "atividade");
-  if (atividade) {
-    clauses.push({
-      tipo: "atividade",
-      label: "As atividades foram",
-      value: atividade.text,
-    });
+    const sonecas = entries.filter((e) => e.tipo === "sono");
+    if (sonecas.length > 0) {
+      clauses.push({
+        tipo: "sono",
+        label: sonecas.length > 1 ? "Tirou sonecas" : "Tirou soneca",
+        value: sonecas.map((e) => `das ${e.text}`).join(" e "),
+      });
+    }
+
+    const atividade = entries.find((e) => e.tipo === "atividade");
+    if (atividade) {
+      clauses.push({
+        tipo: "atividade",
+        label: "As atividades foram",
+        value: atividade.text,
+      });
+    }
   }
 
   const higiene = entries.find((e) => e.tipo === "higiene");
@@ -56,6 +68,15 @@ function buildStoryClauses(entries: AgendaEntry[]): StoryClause[] {
       tipo: "higiene",
       label: "Na higiene,",
       value: decapitalizeFirst(higiene.text),
+    });
+  }
+
+  const tarefaCasa = entries.find((e) => e.tipo === "tarefaCasa");
+  if (tarefaCasa && !tarefaCasa.destaque) {
+    clauses.push({
+      tipo: "tarefaCasa",
+      label: "A tarefa de casa ficou",
+      value: decapitalizeFirst(tarefaCasa.text),
     });
   }
 
@@ -108,6 +129,7 @@ interface AgendaStoryProps {
   /** Quem registrou o dia — também assina a carta ao final. */
   professor?: AgendaProfessor;
   dataLabel?: string;
+  anexos?: AnexoAgenda[];
 }
 
 export function AgendaStory({
@@ -115,9 +137,11 @@ export function AgendaStory({
   criancaNome,
   professor,
   dataLabel,
+  anexos = [],
 }: AgendaStoryProps) {
   const clauses = buildStoryClauses(entries);
   const humor = entries.find((e) => e.tipo === "humor");
+  const HumorIcon = humor?.value ? HUMOR_ICON[humor.value] : undefined;
   const alertas = entries.filter((e) => e.destaque);
   const observacoes = entries.filter((e) => e.tipo === "observacao");
 
@@ -125,7 +149,8 @@ export function AgendaStory({
     clauses.length === 0 &&
     !humor &&
     alertas.length === 0 &&
-    observacoes.length === 0
+    observacoes.length === 0 &&
+    anexos.length === 0
   ) {
     return (
       <p className={styles.storyEmpty}>Ainda não há registros para hoje.</p>
@@ -154,7 +179,11 @@ export function AgendaStory({
             escreveu sobre o dia{dataLabel ? ` · ${dataLabel}` : ""}
           </div>
         </div>
-        {humor && <span className={styles.storyMood}>{humor.text}</span>}
+        {humor && (
+          <span className={styles.storyMood}>
+            {HumorIcon && <HumorIcon size={16} aria-hidden />} {humor.text}
+          </span>
+        )}
       </div>
 
       <p className={styles.storyGreeting}>
@@ -179,6 +208,22 @@ export function AgendaStory({
       {observacoes.map((e, i) => (
         <StoryBilhetinho key={`obs-${i}`} entry={e} />
       ))}
+
+      {anexos.length > 0 && (
+        <div className={styles.storyAnexos}>
+          {anexos.map((anexo) => (
+            <a
+              key={anexo.key}
+              href={anexo.url}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.storyAnexoLink}
+            >
+              <Paperclip size={13} /> {anexo.nome}
+            </a>
+          ))}
+        </div>
+      )}
 
       <div className={styles.storySignature}>
         <span className={styles.storySignatureLabel}>Com carinho,</span>

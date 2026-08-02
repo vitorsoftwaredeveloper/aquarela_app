@@ -7,12 +7,15 @@ import {
   AlertCircle,
   Baby,
   Bell,
+  BookOpen,
+  CalendarCheck,
   Check,
   ChevronLeft,
   FileText,
   Minus,
   Moon,
   Palette,
+  Paperclip,
   Pill,
   Plus,
   ShieldAlert,
@@ -21,20 +24,23 @@ import {
   Trash2,
   Utensils,
 } from "lucide-react";
-import { Button, Modal, Skeleton } from "@/components";
+import { Button, Modal, Skeleton, UploadAnexo } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
 import { agoraHHMM, hojeISO } from "@/utils/date";
 import { getApiErrorMessage } from "@/services/apiError";
+import type { AnexoReferencia } from "@/types/anexo";
 import {
   ACEITACAO_OPTS,
   ATIVIDADES,
   HUMORES,
   INTERCORRENCIA_TIPO,
   INTERCORRENCIAS,
+  PRESENCAS,
   REFEICAO_CODIGO,
   REFEICOES,
+  TAREFAS_CASA,
   type Aceitacao,
   type AgendaRegistroPayload,
 } from "@/types/professorAgenda";
@@ -75,6 +81,14 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const [fraldas, setFraldas] = useState(0);
   const [intercorrencias, setIntercorrencias] = useState<string[]>([]);
   const [observacoes, setObservacoes] = useState("");
+  const [tarefaCasaStatus, setTarefaCasaStatus] = useState<string | null>(
+    null,
+  );
+  const [tarefaCasaObs, setTarefaCasaObs] = useState("");
+  const [presencaStatus, setPresencaStatus] = useState<string | null>(null);
+  const [presencaHora, setPresencaHora] = useState("");
+  const [presencaJustificativa, setPresencaJustificativa] = useState("");
+  const [anexos, setAnexos] = useState<AnexoReferencia[]>([]);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -96,7 +110,13 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     humor !== null ||
     fraldas > 0 ||
     intercorrencias.length > 0 ||
-    observacoes.trim().length > 0;
+    observacoes.trim().length > 0 ||
+    tarefaCasaStatus !== null ||
+    presencaStatus !== null ||
+    anexos.length > 0;
+
+  const presencaInvalida =
+    presencaStatus === "atrasado" && !presencaHora.trim();
 
   const carregando = crianca.loading || agendaExistente.loading;
   const erroCarregar = crianca.error || agendaExistente.error;
@@ -128,6 +148,12 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
     setFraldas(raw.higiene?.fraldas ?? 0);
     setIntercorrencias((raw.intercorrencias ?? []).map((i) => i.descricao));
     setObservacoes(raw.observacoes ?? "");
+    setTarefaCasaStatus(raw.tarefaCasa?.status ?? null);
+    setTarefaCasaObs(raw.tarefaCasa?.observacao ?? "");
+    setPresencaStatus(raw.presenca?.status ?? null);
+    setPresencaHora(raw.presenca?.horaChegada ?? "");
+    setPresencaJustificativa(raw.presenca?.justificativa ?? "");
+    setAnexos(raw.anexos ?? []);
     setPrefilled(true);
   }, [agendaExistente.loading, agendaExistente.data, prefilled]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -164,6 +190,10 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   }
 
   async function salvar() {
+    if (presencaInvalida) {
+      setSaveError("Informe a hora de chegada para salvar.");
+      return;
+    }
     setSaving(true);
     setSaveError(null);
 
@@ -192,6 +222,21 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
           }))
         : undefined,
       observacoes: observacoes.trim() || undefined,
+      tarefaCasa: tarefaCasaStatus
+        ? {
+            status: tarefaCasaStatus,
+            observacao: tarefaCasaObs.trim() || undefined,
+          }
+        : undefined,
+      presenca: presencaStatus
+        ? {
+            status: presencaStatus,
+            horaChegada:
+              presencaStatus === "atrasado" ? presencaHora : undefined,
+            justificativa: presencaJustificativa.trim() || undefined,
+          }
+        : undefined,
+      anexos: anexos.length ? anexos : undefined,
     };
 
     try {
@@ -306,6 +351,64 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
           )}
 
           <div className={styles.form}>
+            {/* Presença */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <CalendarCheck size={17} color="#6D45C4" /> Presença
+              </div>
+              <div className={styles.chipRow}>
+                {PRESENCAS.map((p) => (
+                  <button
+                    key={p.value}
+                    type="button"
+                    aria-pressed={presencaStatus === p.value}
+                    className={`${styles.chip} ${
+                      presencaStatus === p.value ? styles.chipOn : ""
+                    }`}
+                    onClick={() =>
+                      setPresencaStatus((prev) =>
+                        prev === p.value ? null : p.value,
+                      )
+                    }
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              {presencaStatus === "atrasado" && (
+                <div className={styles.mealRow}>
+                  <div className={styles.mealLabel}>Hora de chegada</div>
+                  <input
+                    type="time"
+                    className={styles.timeInput}
+                    value={presencaHora}
+                    onChange={(e) => setPresencaHora(e.target.value)}
+                    aria-label="Hora de chegada"
+                  />
+                </div>
+              )}
+              {presencaStatus === "falta" && (
+                <div className={styles.mealRow}>
+                  <div className={styles.mealLabel}>
+                    Justificativa (opcional)
+                  </div>
+                  <input
+                    type="text"
+                    className={styles.textInput}
+                    placeholder="Ex.: consulta médica"
+                    value={presencaJustificativa}
+                    onChange={(e) => setPresencaJustificativa(e.target.value)}
+                  />
+                </div>
+              )}
+              {presencaInvalida && (
+                <div className={styles.incidentAlert}>
+                  <AlertCircle size={15} /> Informe a hora de chegada para
+                  salvar.
+                </div>
+              )}
+            </section>
+
             {/* Alimentação */}
             <section className={styles.card}>
               <div className={styles.cardHead}>
@@ -412,6 +515,46 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
               </div>
             </section>
 
+            {/* Tarefa de casa */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <BookOpen size={17} color="#2E9E7B" /> Tarefa de casa
+              </div>
+              <div className={styles.chipRow}>
+                {TAREFAS_CASA.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    aria-pressed={tarefaCasaStatus === t.value}
+                    className={`${styles.chip} ${
+                      tarefaCasaStatus === t.value ? styles.chipOnGreen : ""
+                    }`}
+                    onClick={() =>
+                      setTarefaCasaStatus((prev) =>
+                        prev === t.value ? null : t.value,
+                      )
+                    }
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              {tarefaCasaStatus && (
+                <div className={styles.mealRow}>
+                  <div className={styles.mealLabel}>
+                    Observação (opcional)
+                  </div>
+                  <input
+                    type="text"
+                    className={styles.textInput}
+                    placeholder="Ex.: faltou só a última página"
+                    value={tarefaCasaObs}
+                    onChange={(e) => setTarefaCasaObs(e.target.value)}
+                  />
+                </div>
+              )}
+            </section>
+
             {/* Humor */}
             <section className={styles.card}>
               <div className={styles.cardHead}>
@@ -433,9 +576,11 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                         <Check size={11} />
                       </span>
                     )}
-                    <span className={styles.moodEmoji} aria-hidden>
-                      {h.emoji}
-                    </span>
+                    <h.icon
+                      size={20}
+                      className={styles.moodIcon}
+                      aria-hidden
+                    />
                     <span className={styles.moodLabel}>{h.label}</span>
                   </button>
                 ))}
@@ -528,11 +673,24 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
               />
             </section>
 
+            {/* Anexo */}
+            <section className={styles.card}>
+              <div className={styles.cardHead}>
+                <Paperclip size={17} color="var(--text-dim)" /> Anexo
+              </div>
+              <UploadAnexo
+                escopo="agenda"
+                anexos={anexos}
+                onChange={setAnexos}
+                max={5}
+              />
+            </section>
+
             <button
               type="button"
               className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ""}`}
               onClick={salvar}
-              disabled={saving || saved || !temInformacaoMinima}
+              disabled={saving || saved || !temInformacaoMinima || presencaInvalida}
             >
               {saved ? (
                 <>

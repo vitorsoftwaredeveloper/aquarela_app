@@ -134,7 +134,7 @@
   position: sticky;
   bottom: 0;
   padding: 14px 0;
-  background: linear-gradient(to top, var(--surface-2) 70%, transparent);
+  background: linear-gradient(to top, var(--screen) 70%, transparent);
 }
 
 .saved {

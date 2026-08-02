@@ -293,8 +293,21 @@ const agendaLorena: AgendaDia = {
     { tipo: "alimentacao", title: "Lanche", text: "Recusou" },
     { tipo: "sono", title: "Soneca", text: "12:30 às 14:00" },
     { tipo: "atividade", title: "Atividades", text: "Pintura, Música" },
-    { tipo: "humor", title: "Humor", text: "😀 Alegre" },
+    { tipo: "humor", title: "Humor", text: "Alegre", value: "feliz" },
     { tipo: "higiene", title: "Higiene", text: "1 troca de fralda" },
+    {
+      tipo: "tarefaCasa",
+      title: "Tarefa de casa",
+      text: "Feito",
+      value: "feito",
+    },
+    {
+      tipo: "presenca",
+      title: "Presença",
+      text: "Atrasado — chegou às 09:15",
+      value: "atrasado",
+      destaque: true,
+    },
     {
       tipo: "medicacao",
       title: "Dipirona",
@@ -313,6 +326,15 @@ const agendaLorena: AgendaDia = {
       text: "Dia ótimo! Interagiu bastante com os amigos.",
     },
   ],
+  anexos: [
+    {
+      key: "agendas/dev-atestado.pdf",
+      nome: "atestado.pdf",
+      contentType: "application/pdf",
+      tamanho: 102400,
+      url: "#",
+    },
+  ],
 };
 
 const agendaTheo: AgendaDia = {
@@ -321,9 +343,16 @@ const agendaTheo: AgendaDia = {
   dataLabel: "Terça, 16 jul",
   professor: { nome: "Prof. Bruno" },
   entries: [
+    {
+      tipo: "presenca",
+      title: "Presença",
+      text: "Falta",
+      value: "falta",
+      destaque: true,
+    },
     { tipo: "alimentacao", title: "Almoço", text: "Comeu tudo" },
     { tipo: "atividade", title: "Atividades", text: "Circuito motor, Leitura" },
-    { tipo: "humor", title: "Humor", text: "😀 Alegre" },
+    { tipo: "humor", title: "Humor", text: "Alegre", value: "feliz" },
   ],
 };
 
@@ -338,21 +367,21 @@ export const devHistoricoByChild: Record<string, HistoricoDia[]> = {
       data: "2026-07-15",
       dataLabel: "Segunda, 15 jul",
       humorLabel: "Tranquila",
-      humorEmoji: "🙂",
+      humorValue: "tranquilo",
       chips: ["Comeu bem", "Soneca 1h30", "Pintura"],
     },
     {
       data: "2026-07-12",
       dataLabel: "Sexta, 12 jul",
       humorLabel: "Alegre",
-      humorEmoji: "😀",
+      humorValue: "feliz",
       chips: ["Comeu tudo", "Parquinho", "Música"],
     },
     {
       data: "2026-07-11",
       dataLabel: "Quinta, 11 jul",
       humorLabel: "Cansada",
-      humorEmoji: "😴",
+      humorValue: "neutro",
       chips: ["Soneca longa", "Recusou lanche"],
       alerta: "Chegou espirrando pela manhã.",
     },
@@ -360,7 +389,7 @@ export const devHistoricoByChild: Record<string, HistoricoDia[]> = {
       data: "2026-07-10",
       dataLabel: "Quarta, 10 jul",
       humorLabel: "Alegre",
-      humorEmoji: "😀",
+      humorValue: "feliz",
       chips: ["Comeu bem", "Massinha", "Roda de leitura"],
     },
   ],
@@ -369,14 +398,14 @@ export const devHistoricoByChild: Record<string, HistoricoDia[]> = {
       data: "2026-07-15",
       dataLabel: "Segunda, 15 jul",
       humorLabel: "Animado",
-      humorEmoji: "😀",
+      humorValue: "feliz",
       chips: ["Repetiu almoço", "Futebol", "Desenho"],
     },
     {
       data: "2026-07-12",
       dataLabel: "Sexta, 12 jul",
       humorLabel: "Tranquilo",
-      humorEmoji: "🙂",
+      humorValue: "tranquilo",
       chips: ["Comeu bem", "Blocos", "História"],
     },
   ],

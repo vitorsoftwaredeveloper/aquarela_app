@@ -1,4 +1,6 @@
+import { Frown, Laugh, Meh, Smile, type LucideIcon } from "lucide-react";
 import type { Crianca } from "./crianca";
+import type { AnexoReferencia } from "./anexo";
 
 /** Turma na visão do professor (com progresso do dia). */
 export interface TurmaProfessor {
@@ -32,6 +34,9 @@ export interface AgendaRegistroPayload {
   higiene?: { fraldas: number };
   intercorrencias?: { tipo: string; descricao: string; hora: string }[];
   observacoes?: string;
+  tarefaCasa?: { status: string; observacao?: string };
+  presenca?: { status: string; horaChegada?: string; justificativa?: string };
+  anexos?: AnexoReferencia[];
 }
 
 /** Opções pré-definidas — preencher em toques, sem digitar (docs §UX). */
@@ -65,11 +70,27 @@ export const ATIVIDADES = [
 ];
 
 /** `value` já é o código aceito pela API (feliz|tranquilo|neutro|choroso). */
-export const HUMORES: { value: string; emoji: string; label: string }[] = [
-  { value: "feliz", emoji: "😀", label: "Alegre" },
-  { value: "tranquilo", emoji: "🙂", label: "Tranquilo" },
-  { value: "neutro", emoji: "😐", label: "Quieto" },
-  { value: "choroso", emoji: "😢", label: "Choroso" },
+export const HUMORES: { value: string; icon: LucideIcon; label: string }[] = [
+  { value: "feliz", icon: Laugh, label: "Alegre" },
+  { value: "tranquilo", icon: Smile, label: "Tranquilo" },
+  { value: "neutro", icon: Meh, label: "Quieto" },
+  { value: "choroso", icon: Frown, label: "Choroso" },
+];
+
+export const HUMOR_ICON: Record<string, LucideIcon> = Object.fromEntries(
+  HUMORES.map((h) => [h.value, h.icon]),
+);
+
+export const TAREFAS_CASA: { value: string; label: string }[] = [
+  { value: "feito", label: "Feito" },
+  { value: "nao_feito", label: "Não feito" },
+  { value: "incompleto", label: "Incompleto" },
+];
+
+export const PRESENCAS: { value: string; label: string }[] = [
+  { value: "presente", label: "Presente" },
+  { value: "falta", label: "Falta" },
+  { value: "atrasado", label: "Atrasado" },
 ];
 
 export const INTERCORRENCIAS = [
