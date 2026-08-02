@@ -22,6 +22,7 @@ import {
   Input,
   Modal,
   Select,
+  Tabs,
   Tooltip,
 } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
@@ -39,9 +40,17 @@ import { dataBrParaIso, isoParaDataBr } from "@/utils/dataBr";
 import { exportToPdfTable } from "@/utils/exportPdfTable";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import { Planos } from "./PlanosTab";
+import { PagamentosTab } from "./PagamentosTab";
 import styles from "../admin.module.css";
 
-type Aba = "despesas" | "inadimplentes" | "planos";
+type Aba = "despesas" | "inadimplentes" | "pagamentos" | "planos";
+
+const ABAS: { value: Aba; label: string }[] = [
+  { value: "despesas", label: "Despesas" },
+  { value: "inadimplentes", label: "Inadimplentes" },
+  { value: "pagamentos", label: "Pagamentos" },
+  { value: "planos", label: "Planos" },
+];
 
 function formatData(iso: string): string {
   const dataPart = iso.split("T")[0];
@@ -63,43 +72,14 @@ export function FinanceiroAdminScreen() {
         </div>
       </div>
 
-      <div
-        role="tablist"
-        style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}
-      >
-        <Button
-          variant={aba === "despesas" ? "primary" : "secondary"}
-          size="sm"
-          role="tab"
-          aria-selected={aba === "despesas"}
-          onClick={() => setAba("despesas")}
-        >
-          Despesas
-        </Button>
-        <Button
-          variant={aba === "inadimplentes" ? "primary" : "secondary"}
-          size="sm"
-          role="tab"
-          aria-selected={aba === "inadimplentes"}
-          onClick={() => setAba("inadimplentes")}
-        >
-          Inadimplentes
-        </Button>
-        <Button
-          variant={aba === "planos" ? "primary" : "secondary"}
-          size="sm"
-          role="tab"
-          aria-selected={aba === "planos"}
-          onClick={() => setAba("planos")}
-        >
-          Planos
-        </Button>
-      </div>
+      <Tabs tabs={ABAS} value={aba} onChange={setAba} />
 
       {aba === "despesas" ? (
         <Despesas />
       ) : aba === "inadimplentes" ? (
         <Inadimplentes />
+      ) : aba === "pagamentos" ? (
+        <PagamentosTab />
       ) : (
         <Planos />
       )}

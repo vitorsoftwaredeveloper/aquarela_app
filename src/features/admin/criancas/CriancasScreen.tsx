@@ -12,7 +12,6 @@ import {
   ShieldAlert,
   Trash2,
   TriangleAlert,
-  Wallet,
 } from "lucide-react";
 import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
@@ -22,7 +21,6 @@ import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
 import { idadeEmAnos, type CriancaCadastro } from "@/types/criancaCadastro";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
-import { FinanceiroCriancaModal } from "./FinanceiroCriancaModal";
 import styles from "../admin.module.css";
 
 export function CriancasScreen() {
@@ -46,8 +44,6 @@ export function CriancasScreen() {
   const [moveTurmaId, setMoveTurmaId] = useState("");
   const [moveBusy, setMoveBusy] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
-  const [financeiroCrianca, setFinanceiroCrianca] =
-    useState<CriancaCadastro | null>(null);
 
   const criancas = useMemo(() => {
     const list = data ?? [];
@@ -221,15 +217,6 @@ export function CriancasScreen() {
                               <ArrowLeftRight size={16} />
                             </button>
                           </Tooltip>
-                          <Tooltip label="Financeiro">
-                            <button
-                              className={styles.iconBtn}
-                              onClick={() => setFinanceiroCrianca(c)}
-                              aria-label={`Financeiro de ${c.nome}`}
-                            >
-                              <Wallet size={16} />
-                            </button>
-                          </Tooltip>
                           <Tooltip label="Remover">
                             <button
                               className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
@@ -345,11 +332,6 @@ export function CriancasScreen() {
           </div>
         )}
       </Modal>
-
-      <FinanceiroCriancaModal
-        crianca={financeiroCrianca}
-        onClose={() => setFinanceiroCrianca(null)}
-      />
     </div>
   );
 }

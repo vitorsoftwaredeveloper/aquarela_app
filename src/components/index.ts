@@ -18,4 +18,5 @@ export { Skeleton } from "./Skeleton/Skeleton";
 export { ToastStack, type ToastItem } from "./Toast/Toast";
 export { InstallPrompt } from "./InstallPrompt/InstallPrompt";
 export { Tooltip } from "./Tooltip/Tooltip";
+export { Tabs, type TabItem } from "./Tabs/Tabs";
 export { UploadAnexo } from "./UploadAnexo/UploadAnexo";
