@@ -9,7 +9,12 @@ import type { Mensalidade } from "@/types/financeiro";
 import type { Turma } from "@/types/turma";
 import type { CriancaCadastro } from "@/types/criancaCadastro";
 import type { PlanoAula } from "@/types/planoAula";
-import type { Balanco, Despesa, Inadimplente } from "@/types/financeiroAdmin";
+import type {
+  Balanco,
+  Despesa,
+  Inadimplente,
+  RelatorioAnual,
+} from "@/types/financeiroAdmin";
 
 const MESES_CURTO = [
   "Jan",
@@ -115,6 +120,72 @@ export const devDespesas: Despesa[] = [
     data: "2026-07-08",
   },
 ];
+
+export function devRelatorioAnual(ano: number): RelatorioAnual {
+  const nomes = [
+    "Alice Ribeiro",
+    "Bento Almeida",
+    "Lorena Castro",
+    "Miguel Fontes",
+    "Sofia Marques",
+  ];
+  const criancas = nomes.map((nome, indice) => {
+    const mensalidade = 780 + indice * 45;
+    const meses = Array.from({ length: 12 }, (_, i) => i + 1)
+      .filter((mes) => (indice + mes) % 7 !== 0)
+      .map((mes) => ({ mes, valor: mensalidade, quantidadePagamentos: 1 }));
+    return {
+      criancaId: `dev-c-${indice}`,
+      nome,
+      turmaNome: indice % 2 === 0 ? "Berçário II" : "Maternal I",
+      total: meses.reduce((soma, m) => soma + m.valor, 0),
+      meses,
+    };
+  });
+
+  const meses = Array.from({ length: 12 }, (_, indice) => {
+    const mes = indice + 1;
+    const pagamentos = criancas.reduce(
+      (soma, crianca) =>
+        soma + (crianca.meses.find((m) => m.mes === mes)?.valor ?? 0),
+      0,
+    );
+    const despesas = Math.round(pagamentos * 0.46);
+    return {
+      mes,
+      pagamentos,
+      despesas,
+      saldo: pagamentos - despesas,
+      quantidadePagamentos: criancas.filter((crianca) =>
+        crianca.meses.some((m) => m.mes === mes),
+      ).length,
+    };
+  });
+
+  const totalPagamentos = meses.reduce((soma, m) => soma + m.pagamentos, 0);
+  const totalDespesas = meses.reduce((soma, m) => soma + m.despesas, 0);
+  const quantidadePagamentos = meses.reduce(
+    (soma, m) => soma + m.quantidadePagamentos,
+    0,
+  );
+
+  return {
+    ano,
+    consolidadoEm: `${ano}-12-31T23:59:00.000Z`,
+    origem: ano < new Date().getFullYear() ? "consolidado" : "calculado",
+    anosDisponiveis: [ano + 1, ano, ano - 1].sort((a, b) => b - a),
+    totais: {
+      pagamentos: totalPagamentos,
+      despesas: totalDespesas,
+      saldo: totalPagamentos - totalDespesas,
+      quantidadePagamentos,
+      criancasComPagamento: criancas.length,
+      ticketMedio: Math.round(totalPagamentos / quantidadePagamentos),
+    },
+    meses,
+    criancas,
+  };
+}
 
 export const devTurmas: Turma[] = [
   {

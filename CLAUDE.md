@@ -266,10 +266,22 @@ do próprio cadastro vem de `GET /me` → `IUsuario.professorId`, propagado em
 **Épico D — Financeiro admin (front):** FIN-10/12/13/14 ✅ — **Dashboard** com KPIs
 (entradas, despesas, saldo, inadimplentes) e **gráfico de barras agrupadas
 entradas × despesas (12 meses)**; **Financeiro** com abas de despesas (CRUD),
-inadimplentes e **planos** (config de preços/descontos, `PlanosTab` — antiga
-tela standalone "Valores do simulador"), as duas primeiras com **exportação
-`.xlsx`** (`utils/exportXlsx.ts`). Consomem `services/financeiroAdminService.ts`
+inadimplentes, pagamentos, **relatórios** e **planos** (config de
+preços/descontos, `PlanosTab` — antiga tela standalone "Valores do
+simulador"), com **exportação `.xlsx`/`.pdf`** (`utils/exportXlsx.ts`,
+`utils/exportPdfTable.ts`). Consomem `services/financeiroAdminService.ts`
 e `services/configPrecosService.ts`.
+
+> **Aba Relatórios (`RelatoriosTab`)** — grade de pagamentos por criança × 12
+> meses de um ano, com KPIs do ano e export PDF/Excel. Consome `GET
+> /financeiro/relatorio-anual?ano=`, normalizado por `normalizarRelatorioAnual`
+> (completa os 12 meses quando a API manda só os com movimento).
+>
+> O badge **"Ano fechado"** aparece quando `origem === "consolidado"`: aquele
+> ano já passou pelo cron `limparDadosAnoAnterior` do backend, que apaga os
+> `pagamentos` do ano depois de gravar o fechamento. O número vem do snapshot,
+> não de soma ao vivo — não tente conferir contra a lista de pagamentos, ela
+> não existe mais para esse ano.
 
 > **Paleta do gráfico é validada, não escolhida no olho:** entradas `#2F7FCB` ·
 > despesas `#C7522B` passam nas checagens de banda de luminosidade, croma, CVD

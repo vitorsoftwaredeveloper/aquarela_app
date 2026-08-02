@@ -41,14 +41,21 @@ import { exportToPdfTable } from "@/utils/exportPdfTable";
 import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import { Planos } from "./PlanosTab";
 import { PagamentosTab } from "./PagamentosTab";
+import { RelatoriosTab } from "./RelatoriosTab";
 import styles from "../admin.module.css";
 
-type Aba = "despesas" | "inadimplentes" | "pagamentos" | "planos";
+type Aba =
+  | "despesas"
+  | "inadimplentes"
+  | "pagamentos"
+  | "relatorios"
+  | "planos";
 
 const ABAS: { value: Aba; label: string }[] = [
   { value: "despesas", label: "Despesas" },
   { value: "inadimplentes", label: "Inadimplentes" },
   { value: "pagamentos", label: "Pagamentos" },
+  { value: "relatorios", label: "Relatórios" },
   { value: "planos", label: "Planos" },
 ];
 
@@ -67,7 +74,7 @@ export function FinanceiroAdminScreen() {
         <div>
           <h1 className={styles.pageTitle}>Financeiro</h1>
           <p className={styles.pageSub}>
-            Despesas, inadimplência e planos de mensalidade.
+            Despesas, inadimplência, relatórios e planos de mensalidade.
           </p>
         </div>
       </div>
@@ -80,6 +87,8 @@ export function FinanceiroAdminScreen() {
         <Inadimplentes />
       ) : aba === "pagamentos" ? (
         <PagamentosTab />
+      ) : aba === "relatorios" ? (
+        <RelatoriosTab />
       ) : (
         <Planos />
       )}

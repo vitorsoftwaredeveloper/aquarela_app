@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   normalizarBalanco,
   normalizarInadimplentes,
+  normalizarRelatorioAnual,
 } from "./financeiroNormalize";
 
 describe("normalizarBalanco", () => {
@@ -159,5 +160,53 @@ describe("normalizarInadimplentes", () => {
     expect(normalizarInadimplentes(undefined)).toEqual([]);
     expect(normalizarInadimplentes({ formatoInesperado: true })).toEqual([]);
     expect(normalizarInadimplentes({ data: "oops" })).toEqual([]);
+  });
+});
+
+describe("normalizarRelatorioAnual", () => {
+  it("completa os 12 meses quando a API manda só os meses com movimento", () => {
+    const relatorio = normalizarRelatorioAnual(
+      { data: { ano: 2025, meses: [{ mes: 3, pagamentos: 900, despesas: 400 }] } },
+      2025,
+    );
+    expect(relatorio.meses).toHaveLength(12);
+    expect(relatorio.meses[2]).toEqual({
+      mes: 3,
+      pagamentos: 900,
+      despesas: 400,
+      saldo: 500,
+      quantidadePagamentos: 0,
+    });
+    expect(relatorio.meses[0].pagamentos).toBe(0);
+  });
+
+  it("preserva o saldo que a API mandou em vez de recalcular", () => {
+    const relatorio = normalizarRelatorioAnual(
+      { data: { meses: [{ mes: 1, pagamentos: 100, despesas: 40, saldo: 55 }] } },
+      2025,
+    );
+    expect(relatorio.meses[0].saldo).toBe(55);
+  });
+
+  it("marca origem consolidado só quando a API diz isso", () => {
+    expect(
+      normalizarRelatorioAnual({ data: { origem: "consolidado" } }, 2025).origem,
+    ).toBe("consolidado");
+    expect(normalizarRelatorioAnual({ data: {} }, 2025).origem).toBe(
+      "calculado",
+    );
+  });
+
+  it("cai no ano pedido e numa lista de anos usável quando a API omite", () => {
+    const relatorio = normalizarRelatorioAnual({ data: {} }, 2024);
+    expect(relatorio.ano).toBe(2024);
+    expect(relatorio.anosDisponiveis).toEqual([2024]);
+  });
+
+  it("NÃO quebra com payload inesperado", () => {
+    const relatorio = normalizarRelatorioAnual(undefined, 2025);
+    expect(relatorio.criancas).toEqual([]);
+    expect(relatorio.meses).toHaveLength(12);
+    expect(relatorio.totais.pagamentos).toBe(0);
   });
 });

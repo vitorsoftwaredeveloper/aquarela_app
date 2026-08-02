@@ -1,16 +1,23 @@
 import { api } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
-import { devBalanco, devDespesas, devInadimplentes } from "./devData";
+import {
+  devBalanco,
+  devDespesas,
+  devInadimplentes,
+  devRelatorioAnual,
+} from "./devData";
 import { unwrapItem } from "./unwrap";
 import {
   normalizarBalanco,
   normalizarInadimplentes,
+  normalizarRelatorioAnual,
 } from "./financeiroNormalize";
 import type {
   Balanco,
   Despesa,
   Inadimplente,
   NovaDespesa,
+  RelatorioAnual,
   ResultadoDisparoCobrancas,
 } from "@/types/financeiroAdmin";
 import { FinanceiroService } from "./financeiroService";
@@ -30,6 +37,17 @@ export const FinanceiroAdminService = {
       console.info("[financeiro] payload do balanço:", data);
     }
     return normalizarBalanco(data);
+  },
+
+  /** Relatório anual de pagamentos por criança/mês (aba Relatórios). */
+  async getRelatorioAnual(
+    ano = new Date().getFullYear(),
+  ): Promise<RelatorioAnual> {
+    if (IS_DEV_DATA) return devRelatorioAnual(ano);
+    const { data } = await api.get("/financeiro/relatorio-anual", {
+      params: { ano },
+    });
+    return normalizarRelatorioAnual(data, ano);
   },
 
   async getInadimplentes(): Promise<Inadimplente[]> {

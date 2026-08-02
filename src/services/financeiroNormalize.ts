@@ -1,4 +1,10 @@
-import type { Balanco, Inadimplente } from "@/types/financeiroAdmin";
+import type {
+  Balanco,
+  Inadimplente,
+  RelatorioAnual,
+  RelatorioAnualCrianca,
+  RelatorioAnualMes,
+} from "@/types/financeiroAdmin";
 
 const MESES_CURTO = [
   "Jan",
@@ -136,4 +142,82 @@ export function normalizarInadimplentes(bruto: unknown): Inadimplente[] {
   return Array.from(porCrianca.values()).sort(
     (a, b) => b.mesesEmAtraso - a.mesesEmAtraso,
   );
+}
+
+/**
+ * Normaliza `/financeiro/relatorio-anual` para um `RelatorioAnual` sempre
+ * renderizável. Garante os 12 meses mesmo quando a API devolve só os meses com
+ * movimento — a tabela é uma grade fixa de janeiro a dezembro.
+ */
+export function normalizarRelatorioAnual(
+  bruto: unknown,
+  anoFallback: number,
+): RelatorioAnual {
+  const raiz = (bruto ?? {}) as Record<string, unknown>;
+  const corpo = (raiz.data ?? raiz) as Record<string, unknown>;
+  const totaisBrutos = (corpo.totais ?? {}) as Record<string, unknown>;
+
+  const mesesBrutos = Array.isArray(corpo.meses) ? corpo.meses : [];
+  const mesesPorNumero = new Map<number, Record<string, unknown>>(
+    mesesBrutos.map((m) => {
+      const item = (m ?? {}) as Record<string, unknown>;
+      return [num(item.mes), item];
+    }),
+  );
+
+  const meses: RelatorioAnualMes[] = MESES_CURTO.map((_, indice) => {
+    const item = mesesPorNumero.get(indice + 1) ?? {};
+    const pagamentos = num(item.pagamentos);
+    const despesas = num(item.despesas);
+    return {
+      mes: indice + 1,
+      pagamentos,
+      despesas,
+      saldo: item.saldo === undefined ? pagamentos - despesas : num(item.saldo),
+      quantidadePagamentos: num(item.quantidadePagamentos),
+    };
+  });
+
+  const criancasBrutas = Array.isArray(corpo.criancas) ? corpo.criancas : [];
+  const criancas: RelatorioAnualCrianca[] = criancasBrutas.map((c) => {
+    const item = (c ?? {}) as Record<string, unknown>;
+    const mesesCrianca = Array.isArray(item.meses) ? item.meses : [];
+    return {
+      criancaId: String(item.criancaId ?? item._id ?? ""),
+      nome: (item.nome as string) || "—",
+      turmaNome: (item.turmaNome as string) ?? null,
+      total: num(item.total),
+      meses: mesesCrianca.map((m) => {
+        const mesItem = (m ?? {}) as Record<string, unknown>;
+        return {
+          mes: num(mesItem.mes),
+          valor: num(mesItem.valor),
+          quantidadePagamentos: num(mesItem.quantidadePagamentos),
+        };
+      }),
+    };
+  });
+
+  const anosDisponiveis = Array.isArray(corpo.anosDisponiveis)
+    ? corpo.anosDisponiveis.map(num).filter(Boolean)
+    : [];
+  const ano = num(corpo.ano) || anoFallback;
+
+  return {
+    ano,
+    consolidadoEm: (corpo.consolidadoEm as string) ?? "",
+    origem: corpo.origem === "consolidado" ? "consolidado" : "calculado",
+    anosDisponiveis: anosDisponiveis.length ? anosDisponiveis : [ano],
+    totais: {
+      pagamentos: num(totaisBrutos.pagamentos),
+      despesas: num(totaisBrutos.despesas),
+      saldo: num(totaisBrutos.saldo),
+      quantidadePagamentos: num(totaisBrutos.quantidadePagamentos),
+      criancasComPagamento:
+        num(totaisBrutos.criancasComPagamento) || criancas.length,
+      ticketMedio: num(totaisBrutos.ticketMedio),
+    },
+    meses,
+    criancas,
+  };
 }

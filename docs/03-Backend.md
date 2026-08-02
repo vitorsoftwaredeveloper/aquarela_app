@@ -351,6 +351,20 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 | POST/GET | `/despesas` | admin | Lançar/listar despesas |
 | PUT/DELETE | `/despesas/{id}` | admin | Editar/remover despesa |
 | GET | `/financeiro/inadimplentes` | admin | Lista de inadimplentes |
+| GET | `/financeiro/relatorio-anual?ano=` | admin | Relatório anual de pagamentos por criança × mês (aba Relatórios) |
+
+> **`/financeiro/relatorio-anual`** devolve `{ ano, consolidadoEm, origem,
+> anosDisponiveis, totais, meses, criancas }`. `meses` são sempre os 12
+> (mês sem movimento vem zerado) e cada criança traz `{ criancaId, nome,
+> turmaNome, total, meses: [{ mes, valor, quantidadePagamentos }] }`.
+>
+> **`origem` muda o que o número significa.** `"calculado"` = ano aberto,
+> somado ao vivo dos pagamentos. `"consolidado"` = ano já fechado pelo cron
+> anual do backend (`limparDadosAnoAnterior`), que apaga os `pagamentos`
+> daquele ano **depois** de gravar o fechamento — o histórico só existe nesse
+> snapshot. A tela marca esse caso com o badge "Ano fechado". Criança removida
+> do cadastro depois do fechamento aparece como `"Criança removida"`, com o
+> valor preservado.
 
 > **`/financeiro/inadimplentes` devolve uma linha por mensalidade em atraso**,
 > não uma lista já agregada por criança: `{ mensalidade: { valor, mes, ano,

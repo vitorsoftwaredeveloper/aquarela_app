@@ -33,6 +33,52 @@ export interface Inadimplente {
   inadimplenteDesde?: string;
 }
 
+export interface RelatorioAnualMes {
+  mes: number;
+  pagamentos: number;
+  despesas: number;
+  saldo: number;
+  quantidadePagamentos: number;
+}
+
+export interface RelatorioAnualCriancaMes {
+  mes: number;
+  valor: number;
+  quantidadePagamentos: number;
+}
+
+export interface RelatorioAnualCrianca {
+  criancaId: string;
+  nome: string;
+  turmaNome?: string | null;
+  total: number;
+  meses: RelatorioAnualCriancaMes[];
+}
+
+export interface RelatorioAnualTotais {
+  pagamentos: number;
+  despesas: number;
+  saldo: number;
+  quantidadePagamentos: number;
+  criancasComPagamento: number;
+  ticketMedio: number;
+}
+
+/**
+ * `GET /financeiro/relatorio-anual`. `origem: "consolidado"` = ano já fechado
+ * pelo cron anual (os pagamentos crus foram expurgados, este snapshot é o
+ * histórico); `"calculado"` = ano ainda aberto, somado ao vivo.
+ */
+export interface RelatorioAnual {
+  ano: number;
+  consolidadoEm: string;
+  origem: "consolidado" | "calculado";
+  anosDisponiveis: number[];
+  totais: RelatorioAnualTotais;
+  meses: RelatorioAnualMes[];
+  criancas: RelatorioAnualCrianca[];
+}
+
 /** Resultado de `POST /financeiro/cobrancas/disparar` (dryRun ou real). */
 export interface ResultadoDisparoCobrancas {
   dryRun: boolean;
