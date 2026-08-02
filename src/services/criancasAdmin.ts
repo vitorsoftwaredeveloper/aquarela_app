@@ -40,13 +40,24 @@ export const CriancasAdminService = {
   /** Retorna a criança + `acessosResponsaveis` (senhas temporárias para o admin). */
   async create(payload: NovaCriancaPayload): Promise<CriancaCriada> {
     if (IS_DEV_DATA) {
-      const { foto, consentimentoLgpd: _consentimentoLgpd, ...resto } = payload;
+      const {
+        foto,
+        consentimentoLgpd: _consentimentoLgpd,
+        consentimentoImagem,
+        ...resto
+      } = payload;
       void _consentimentoLgpd;
       return {
         crianca: {
           ...resto,
           _id: `dev-${Date.now()}`,
           fotoUrl: dataUrlDaFoto(foto),
+          ...(consentimentoImagem !== undefined && {
+            consentimentoImagem: {
+              aceito: consentimentoImagem,
+              aceitoEm: new Date().toISOString(),
+            },
+          }),
         },
         acessosResponsaveis: [],
       };

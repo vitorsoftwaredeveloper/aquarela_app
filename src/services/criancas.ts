@@ -46,13 +46,19 @@ export const CriancasService = {
   ): Promise<CriancaCadastro> {
     if (IS_DEV_DATA) {
       const found = devCriancasCadastro.find((c) => c._id === id);
-      const { foto, ...resto } = payload;
+      const { foto, consentimentoImagem, ...resto } = payload;
       return {
         ...(found as CriancaCadastro),
         ...resto,
         fotoUrl: foto
           ? `data:${foto.contentType};base64,${foto.base64}`
           : found?.fotoUrl,
+        ...(consentimentoImagem !== undefined && {
+          consentimentoImagem: {
+            aceito: consentimentoImagem,
+            aceitoEm: new Date().toISOString(),
+          },
+        }),
       };
     }
     const { data } = await api.put(`/criancas/${id}`, payload);

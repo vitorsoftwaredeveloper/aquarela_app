@@ -116,6 +116,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const [removendoFoto, setRemovendoFoto] = useState(false);
   const [consentimento, setConsentimento] = useState(false);
   const [consentimentoError, setConsentimentoError] = useState(false);
+  const [consentimentoImagem, setConsentimentoImagem] = useState(false);
 
   const turmas = useFetch(() => TurmasService.list());
   // Mesma fonte de planos do simulador — mensalidade da criança tem que bater
@@ -177,6 +178,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   useEffect(() => {
     const c = existente.data as CriancaCadastro | null;
     if (!c) return;
+    setConsentimentoImagem(!!c.consentimentoImagem?.aceito);
     reset({
       nome: c.nome,
       dataNascimento: isoParaDataBr(c.dataNascimento ?? ""),
@@ -324,6 +326,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
           ...resto,
           dataNascimento,
           responsaveis,
+          consentimentoImagem,
           ...(foto ? { foto } : {}),
         } as unknown as Omit<NovaCrianca, "cpf" | "turmaId">);
 
@@ -337,6 +340,7 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
           cpf: values.cpf.replace(/\D/g, ""),
           responsaveis,
           consentimentoLgpd: consentimento,
+          consentimentoImagem,
           ...(foto ? { foto } : {}),
         } as unknown as NovaCriancaPayload;
         const { acessosResponsaveis } =
@@ -917,6 +921,21 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
                         )}
                       </div>
                     )}
+                    <div className={styles.consentBox}>
+                      <label className={styles.check}>
+                        <input
+                          type="checkbox"
+                          checked={consentimentoImagem}
+                          onChange={(e) =>
+                            setConsentimentoImagem(e.target.checked)
+                          }
+                        />
+                        Os responsáveis autorizam a divulgação de imagens desta
+                        criança no mural de fotos, para outros responsáveis da
+                        turma. Separado do consentimento acima e revogável a
+                        qualquer momento.
+                      </label>
+                    </div>
                   </div>
                 </>
               )}

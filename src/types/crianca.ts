@@ -16,6 +16,8 @@ export interface Crianca {
     alergias?: string[];
     medicacoes?: string[];
   };
+  /** Separado do consentimento LGPD — controla se a criança pode aparecer no mural de fotos. */
+  consentimentoImagem?: { aceito: boolean; aceitoEm: string };
 }
 
 /** Iniciais para o avatar: 1ª letra do nome + 1ª do sobrenome, ou 2 primeiras se não houver sobrenome. */

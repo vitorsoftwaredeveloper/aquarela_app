@@ -8,6 +8,7 @@ import {
   CheckCheck,
   ChevronLeft,
   Clock,
+  Images,
   MessageCircle,
   ShieldAlert,
 } from "lucide-react";
@@ -50,6 +51,14 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
               : `${registradas} de ${alunos.length} agendas registradas hoje`}
           </div>
         </div>
+        <button
+          className={styles.backBtn}
+          onClick={() => router.push(`/professor/turmas/${turmaId}/mural`)}
+          aria-label="Mural de fotos"
+          title="Mural de fotos"
+        >
+          <Images size={19} />
+        </button>
         <button
           className={styles.backBtn}
           onClick={() =>

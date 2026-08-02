@@ -52,17 +52,25 @@ export interface CriancaCadastro {
   financeiro: FinanceiroCrianca;
   /** Imutável após a criação — não faz parte de nenhum payload de update. */
   consentimentoLgpd?: { aceito: boolean; aceitoEm: string };
+  /** Separado do LGPD e revogável a qualquer momento (`PUT /criancas/{id}`). */
+  consentimentoImagem?: { aceito: boolean; aceitoEm: string };
 }
 
 export type NovaCrianca = Omit<
   CriancaCadastro,
   "_id" | "turmaNome" | "foto" | "fotoUrl"
 > & { foto?: FotoUpload };
-export type NovaCriancaPayload = NovaCrianca & { consentimentoLgpd: boolean };
+export type NovaCriancaPayload = Omit<
+  NovaCrianca,
+  "consentimentoLgpd" | "consentimentoImagem"
+> & { consentimentoLgpd: boolean; consentimentoImagem?: boolean };
 
 export type CriancaEditavelResponsavel = Partial<
-  Omit<NovaCrianca, "cpf" | "turmaId" | "financeiro">
->;
+  Omit<
+    NovaCrianca,
+    "cpf" | "turmaId" | "financeiro" | "consentimentoImagem"
+  >
+> & { consentimentoImagem?: boolean };
 
 /** Acesso de responsável criado junto com a criança (senha entregue 1x). */
 export interface AcessoResponsavel {

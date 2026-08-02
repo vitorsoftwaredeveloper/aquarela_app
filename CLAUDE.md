@@ -319,13 +319,14 @@ vez de uma por plano.
 > telas enquanto a API não tem rotas. Controla `IS_DEV_DATA` (em `config/env.ts`).
 > Deixe `false`/ausente quando a API estiver no ar.
 
-## 7.1 Lote de 01/08/2026 — Épicos J, K, L, N ✅ concluídos · M pendente
+## 7.1 Lote de 01/08/2026 — Épicos J, K, L, M, N ✅ concluídos
 
 14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência, ✅),
 **K** (recados com anexo, ✅), **L** (agenda v2, ✅ — MVP fechado, AG2-09 adiado
-por decisão do usuário), **M** (mural de fotos, pendente — bloqueio jurídico de
-consentimento de imagem, ver `docs/06-Backlog.md` §Épico M) e **N** (ajustes,
-✅ — OPS-01…OPS-05 concluídos em 02/08/2026).
+por decisão do usuário), **M** (mural de fotos — ✅ concluído 03/08/2026,
+back-end em `aquarela_serverless` + front FOT-06/07 neste repo, ver
+`docs/06-Backlog.md` §Épico M) e **N** (ajustes, ✅ — OPS-01…OPS-05 concluídos
+em 02/08/2026).
 Telas e regras de UI em [`docs/02-Frontend.md`](./docs/02-Frontend.md) §6.1,
 contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 [`docs/06-Backlog.md`](./docs/06-Backlog.md). O que muda em código que já existe:
@@ -385,6 +386,41 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 > campo genérico `value?: string` (código cru, ex. `"feliz"`/`"falta"`) porque
 > string não carrega componente React — quem renderiza escolhe o ícone a
 > partir do valor via `HUMOR_ICON` (mapa exportado ao lado de `HUMORES`).
+
+> **✅ Épico M (Mural de fotos) — front implementado em 03/08/2026**
+> (FOT-06/07). **Professor** — ícone na tela "Alunos da turma" (ao lado de
+> Planos de aula) abre `/professor/turmas/[turmaId]/mural`
+> (`MuralTurmaScreen.tsx`): lista de eventos com banner fixo das crianças da
+> turma sem `consentimentoImagem` (`ProfessorService.listAlunos` já traz o
+> campo), botão "Novo evento" (`NovoEventoScreen.tsx`) e detalhe
+> (`EventoMuralDetalheScreen.tsx`) com `<UploadAnexo escopo="mural" …>` para
+> subir fotos (resize automático, reaproveitado do Épico K/L), reordenar por
+> setas ↑/↓ (sem lib de drag-and-drop) e legenda editável por foto (`onBlur`
+> salva), e botão "Publicar mural" (idempotente, some depois de publicado —
+> mesmo padrão binário do envio de agenda). **Responsável** — nova tab
+> "Mural" no `ResponsavelShell`, rota `/mural` (`MuralScreen.tsx`): grid por
+> evento/data e lightbox (`Lightbox`, componente interno do arquivo) com
+> `ArrowLeft`/`ArrowRight`/`Escape` e download da foto original via `<a
+> download>`. Consome `services/eventos.ts` (`EventosService`), com fallback
+> `IS_DEV_DATA` completo (estado mutável em memória) para prever as telas
+> sem depender do deploy do backend.
+>
+> **Reordenar/editar legenda depois do upload não tinha rota no contrato
+> original** — só existia `POST /eventos/{id}/fotos` (vincular fotos novas).
+> Foi necessário acrescentar `PUT /eventos/{id}/fotos` no
+> `aquarela_serverless` (exige a lista completa das `key` já vinculadas,
+> sem adicionar/remover — isso continua nas rotas dedicadas). Ver
+> `docs/03-Backend.md` §"Mural de fotos por evento" nesse repo irmão.
+>
+> **`consentimentoImagem` ganhou a UI dos dois lados**: checkbox separado do
+> LGPD em `CriancaStepper.tsx` (admin, criação **e** edição — ao contrário do
+> LGPD, que só aparece na criação) e checkbox revogável em
+> `EditarCriancaScreen.tsx` (responsável, seção "Mural de fotos" no fim do
+> formulário). Ambos mandam `consentimentoImagem: boolean` no `POST`/`PUT
+> /criancas`; a fixture `devCriancasCadastro` (Lorena) já nasce com o
+> consentimento aceito para a tela de edição não abrir desmarcada por
+> engano — atenção ao mexer nas fixtures de crianças: `devCriancas` e
+> `devCriancasCadastro` são dois arrays paralelos e ambos precisam do campo.
 
 ## 8. Documentação (pasta `docs/`)
 

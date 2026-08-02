@@ -411,9 +411,11 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 >   dela → `422 TIPO_ANEXO_INVALIDO`. Teto de **10MB** por arquivo →
 >   `422 ANEXO_MUITO_GRANDE`.
 > - Bucket é o **`FotosBucket` que já existe** (privado, SSE-AES256, TLS
->   obrigatório) — nenhum bucket novo. Prefixo por escopo:
->   `mensagens/{criancaId}/{uuid}.{ext}` · `agendas/{agendaId}/{uuid}.{ext}` ·
->   `eventos/{eventoId}/{uuid}.{ext}`.
+>   obrigatório) — nenhum bucket novo. Prefixo por escopo, **plano** (sem
+>   subpasta por id — no momento do upload a mensagem/agenda/evento ainda pode
+>   não existir): `mensagens/{uuid}.{ext}` · `agendas/{uuid}.{ext}` ·
+>   `eventos/{uuid}.{ext}` (`buildAnexoKey`, `src/services/anexos/criarUploadUrlAnexo.ts`
+>   no back-end).
 > - **O backend nunca vê o arquivo**, então valida no momento de vincular a
 >   `key` (ao criar a mensagem / anexar à agenda / anexar ao evento): `HeadObject`
 >   confere que o objeto existe e que `ContentType`/`ContentLength` batem com o
@@ -472,13 +474,18 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 
 ### Mural de fotos por evento — Épico M
 
+> **Status (02/08/2026): back-end implementado** em `aquarela_serverless`.
+> Falta só a UI (professor + responsável) neste repo. Decisão de produto: **sem
+> marcação de criança por foto** — não existe `fotos[].criancasIds`, nem
+> `422` de bloqueio por consentimento no `publicar`.
+
 | Método | Rota | Papel | Descrição |
 |---|---|---|---|
 | GET | `/eventos?turmaId=&ano=` | admin/professor/responsavel | Listar eventos (escopo por papel, ver abaixo) |
 | POST | `/eventos` | admin/professor | Criar evento (`titulo`, `descricao?`, `data`, `turmaId?`) |
 | PUT | `/eventos/{id}` | admin/professor* | Editar (*só evento de turma que leciona) |
-| POST | `/eventos/{id}/fotos` | admin/professor* | Vincular fotos já subidas via presigned (`{ fotos: [{ key, legenda?, criancasIds? }] }`) |
-| DELETE | `/eventos/{id}/fotos/{fotoKey}` | admin/professor* | Remover uma foto (apaga o objeto no S3) |
+| POST | `/eventos/{id}/fotos` | admin/professor* | Vincular fotos já subidas via presigned (`{ fotos: [{ key, nome, contentType, tamanho, legenda? }] }`, máx. 50 itens) |
+| DELETE | `/eventos/{id}/fotos/{fotoKey}` | admin/professor* | Remover uma foto (apaga o objeto no S3); `fotoKey` é a key completa (contém `/`) |
 | POST | `/eventos/{id}/publicar` | admin/professor* | Publica e notifica os responsáveis do escopo |
 | DELETE | `/eventos/{id}` | admin/professor* | Remover em definitivo (hard delete + apaga todas as fotos no S3) |
 
@@ -490,32 +497,29 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > é filtro de query): `admin` vê tudo, inclusive rascunho; `professor` vê os
 > globais + das turmas que leciona, inclusive os próprios rascunhos;
 > `responsavel` vê **só `publicado: true`**, globais + das turmas dos filhos.
-> `turmaId` ausente = evento da escola inteira.
+> `turmaId` ausente = evento da escola inteira, **exclusivo do admin** — um
+> professor sem `turmaId` no `POST /eventos` recebe `403`, e só gerencia
+> (`PUT`/fotos/publicar/`DELETE`) evento de turma onde leciona.
 >
 > **Rascunho × publicado.** O professor sobe as fotos ao longo do dia; nada
 > aparece para o responsável até `POST /eventos/{id}/publicar`. A publicação
 > grava `publicadoEm` e dispara **uma** notificação ("Novas fotos do evento
-> Festa Junina"); 2ª chamada é no-op silencioso (não renotifica) — mesmo padrão
-> de idempotência do envio de agenda. Máx. **50 fotos** por evento.
+> Festa Junina"); 2ª chamada é no-op silencioso (resposta inclui `notificado:
+> false`, não renotifica) — mesmo padrão de idempotência do envio de agenda.
+> Máx. **50 fotos** por evento (`422 LIMITE_FOTOS_EXCEDIDO` acima disso).
 >
-> **🔴 Consentimento de imagem (LGPD).** O mural expõe a imagem de uma criança a
-> **outros responsáveis** da turma — tratamento distinto do `consentimentoLgpd`
-> genérico, que cobre cadastro/saúde. Por isso existe
-> `criancas.consentimentoImagem` (ver doc de banco), coletado em checkbox
-> **separado** no cadastro e — ao contrário do `consentimentoLgpd`, que é
-> imutável — **revogável** pelo responsável a qualquer momento. Recusar não
-> impede a matrícula.
->
-> - `fotos[].criancasIds` é **opcional**. Quando preenchido,
->   `POST /eventos/{id}/publicar` responde **`422 SEM_CONSENTIMENTO_IMAGEM`** se
->   alguma criança marcada não tiver consentimento.
-> - Revogação do consentimento remove retroativamente as fotos em que a criança
->   foi marcada.
-> - O bloqueio duro só alcança o que foi marcado. **O controle real é o
->   consentimento registrado + o aviso fixo na tela de upload** listando as
->   crianças da turma que não podem aparecer. Tornar `criancasIds` obrigatório
->   é possível, mas é decisão de produto/jurídico ainda em aberto (ver
->   `docs/06-Backlog.md`, Épico M).
+> **Consentimento de imagem (LGPD) — decisão tomada (02/08/2026).** O mural
+> expõe a imagem de uma criança a **outros responsáveis** da turma —
+> tratamento distinto do `consentimentoLgpd` genérico, que cobre
+> cadastro/saúde. Por isso existe `criancas.consentimentoImagem` (ver doc de
+> banco), coletado em checkbox **separado** no cadastro e — ao contrário do
+> `consentimentoLgpd`, que é imutável — **revogável** pelo responsável a
+> qualquer momento via `PUT /criancas/{id}`. Recusar não impede a matrícula.
+> **Não há marcação de criança por foto nem bloqueio técnico de
+> publicação** — a escola optou por não exigir marcação (custo de UX maior
+> que o benefício); o consentimento é só registro, e a tela de upload do
+> professor (FOT-06) deve mostrar fixo no topo os nomes das crianças da turma
+> sem consentimento, como aviso informativo — não como trava do sistema.
 
 ### Cobrança automática e inadimplência — Épico J
 

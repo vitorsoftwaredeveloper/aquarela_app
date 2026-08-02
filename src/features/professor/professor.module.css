@@ -954,6 +954,190 @@
   margin-top: 4px;
 }
 
+/* ---------------- FOT-06 Mural de fotos ---------------- */
+.consentBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 16px 0;
+  background: var(--color-accent-soft);
+  border: 1px solid #ffd1be;
+  border-radius: 14px;
+  padding: 12px 13px;
+  color: #b8442a;
+}
+.consentBanner svg {
+  flex: none;
+  margin-top: 1px;
+}
+.consentBannerTitle {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.consentBannerText {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.eventoList {
+  padding: 14px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.eventoCard {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 18px;
+  padding: 13px 14px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eventoThumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  flex: none;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+.eventoThumbEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-mute);
+}
+.eventoTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+.eventoMeta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.badgeDraft {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border-radius: 20px;
+  padding: 3px 9px;
+}
+.badgePublished {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-secondary-strong);
+  background: var(--color-secondary-soft);
+  border-radius: 20px;
+  padding: 3px 9px;
+}
+.fotoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.fotoCard {
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.fotoImgWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface-2);
+}
+.fotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fotoOrdemAcoes {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fotoOrdemBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.fotoOrdemBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.fotoCardFoot {
+  padding: 8px 9px 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fotoLegendaInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-size: 11.5px;
+  color: var(--text-soft);
+  padding: 4px 0;
+}
+.fotoLegendaInput:focus {
+  outline: none;
+  color: var(--text);
+}
+.fotoDeleteBtn {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--color-danger-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.publicarBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--screen) 94%, transparent);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-06);
+}
+.publicarStatus {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
 /* Estados */
 .state {
   display: flex;

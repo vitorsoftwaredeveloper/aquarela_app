@@ -63,6 +63,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [salvo, setSalvo] = useState(false);
+  const [consentimentoImagem, setConsentimentoImagem] = useState(false);
 
   const {
     register,
@@ -90,6 +91,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
   useEffect(() => {
     const c = crianca.data as CriancaCadastro | null;
     if (!c) return;
+    setConsentimentoImagem(!!c.consentimentoImagem?.aceito);
     reset({
       nome: c.nome,
       dataNascimento: isoParaDataBr(c.dataNascimento ?? ""),
@@ -135,6 +137,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
         cpf: r.cpf.replace(/\D/g, ""),
         telefone: r.telefone.replace(/\D/g, ""),
       })),
+      consentimentoImagem,
       ...(foto ? { foto } : {}),
     };
     try {
@@ -483,6 +486,24 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
             placeholder="Outras informações de saúde"
             {...register("saude.observacoes")}
           />
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Mural de fotos</div>
+        <p className={styles.sectionHint}>
+          Controla se {c.nome} pode aparecer nas fotos publicadas pela
+          professora para os responsáveis da turma.
+        </p>
+        <div className={styles.card}>
+          <label className={styles.check}>
+            <input
+              type="checkbox"
+              checked={consentimentoImagem}
+              onChange={(e) => setConsentimentoImagem(e.target.checked)}
+            />
+            Autorizo a divulgação de imagens de {c.nome} no mural de fotos.
+          </label>
         </div>
       </div>
 

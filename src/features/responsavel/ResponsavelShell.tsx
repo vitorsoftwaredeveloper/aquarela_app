@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageCircle, User, Wallet, type LucideIcon } from "lucide-react";
+import { Home, Images, MessageCircle, User, Wallet, type LucideIcon } from "lucide-react";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import styles from "./responsavel.module.css";
 
@@ -31,6 +31,12 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
       icon: MessageCircle,
       isActive: (p) => p.startsWith("/recados/"),
       disabled: !activeId,
+    },
+    {
+      href: "/mural",
+      label: "Mural",
+      icon: Images,
+      isActive: (p) => p === "/mural",
     },
     {
       href: "/financeiro",

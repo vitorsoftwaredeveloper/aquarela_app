@@ -9,6 +9,7 @@ import type { Mensalidade } from "@/types/financeiro";
 import type { Turma } from "@/types/turma";
 import type { CriancaCadastro } from "@/types/criancaCadastro";
 import type { PlanoAula } from "@/types/planoAula";
+import type { Evento } from "@/types/evento";
 import type {
   Balanco,
   Despesa,
@@ -282,6 +283,7 @@ export const devCriancasCadastro: CriancaCadastro[] = [
     },
     financeiro: { valorMensalidade: 1490, diaVencimento: 5 },
     consentimentoLgpd: { aceito: true, aceitoEm: "2026-03-10T13:00:00Z" },
+    consentimentoImagem: { aceito: true, aceitoEm: "2026-03-10T13:00:00Z" },
   },
   {
     _id: "c-theo",
@@ -327,6 +329,7 @@ export const devCriancas: Crianca[] = [
       alergias: ["amendoim"],
       medicacoes: ["09h Dipirona (se febre)"],
     },
+    consentimentoImagem: { aceito: true, aceitoEm: "2026-03-10T13:00:00Z" },
   },
   {
     _id: "c-theo",
@@ -336,6 +339,52 @@ export const devCriancas: Crianca[] = [
     turmaNome: "Sol",
     idadeLabel: "5 anos",
     sub: "Turma Sol · 5 anos",
+  },
+];
+
+export const devEventos: Evento[] = [
+  {
+    _id: "ev-junina",
+    titulo: "Festa Junina",
+    descricao: "Quadrilha, comidas típicas e brincadeiras no pátio.",
+    data: "2026-06-20",
+    turmaId: "t-girassol",
+    autorId: "p-alice",
+    publicado: true,
+    publicadoEm: "2026-06-20T19:00:00Z",
+    fotos: [
+      {
+        key: "eventos/dev-1.jpg",
+        nome: "quadrilha.jpg",
+        contentType: "image/jpeg",
+        tamanho: 120000,
+        legenda: "Quadrilha da turma Girassol",
+        ordem: 0,
+        enviadoPor: "p-alice",
+        enviadoEm: "2026-06-20T18:00:00Z",
+        url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600",
+      },
+      {
+        key: "eventos/dev-2.jpg",
+        nome: "comidas.jpg",
+        contentType: "image/jpeg",
+        tamanho: 98000,
+        ordem: 1,
+        enviadoPor: "p-alice",
+        enviadoEm: "2026-06-20T18:05:00Z",
+        url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600",
+      },
+    ],
+  },
+  {
+    _id: "ev-passeio",
+    titulo: "Passeio ao parque",
+    descricao: "Manhã no parque com brincadeiras ao ar livre.",
+    data: "2026-07-15",
+    turmaId: "t-girassol",
+    autorId: "p-alice",
+    publicado: false,
+    fotos: [],
   },
 ];
 
