@@ -319,10 +319,13 @@ vez de uma por plano.
 > telas enquanto a API não tem rotas. Controla `IS_DEV_DATA` (em `config/env.ts`).
 > Deixe `false`/ausente quando a API estiver no ar.
 
-## 7.1 Lote de 01/08/2026 — Épicos J–N (planejado, ainda não implementado)
+## 7.1 Lote de 01/08/2026 — Épicos J, K, L, N ✅ concluídos · M pendente
 
-14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência), **K**
-(recados com anexo), **L** (agenda v2), **M** (mural de fotos) e **N** (ajustes).
+14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência, ✅),
+**K** (recados com anexo, ✅), **L** (agenda v2, ✅ — MVP fechado, AG2-09 adiado
+por decisão do usuário), **M** (mural de fotos, pendente — bloqueio jurídico de
+consentimento de imagem, ver `docs/06-Backlog.md` §Épico M) e **N** (ajustes,
+✅ — OPS-01…OPS-05 concluídos em 02/08/2026).
 Telas e regras de UI em [`docs/02-Frontend.md`](./docs/02-Frontend.md) §6.1,
 contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 [`docs/06-Backlog.md`](./docs/06-Backlog.md). O que muda em código que já existe:

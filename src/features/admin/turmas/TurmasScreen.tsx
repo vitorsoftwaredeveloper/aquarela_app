@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Pencil, Plus, School, Trash2 } from "lucide-react";
-import { Button, Input, Modal, Select, Tooltip } from "@/components";
+import { Button, Input, Modal, Tooltip } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { ProfessoresService } from "@/services/professores";
@@ -87,7 +87,7 @@ export function TurmasScreen() {
                 <tr>
                   <th>Turma</th>
                   <th>Faixa etária</th>
-                  <th>Professor(a)</th>
+                  <th>Professor(as)</th>
                   <th>Crianças</th>
                   <th aria-label="Ações" />
                 </tr>
@@ -102,7 +102,11 @@ export function TurmasScreen() {
                       )}
                     </td>
                     <td>{formatFaixa(t.faixaEtaria)}</td>
-                    <td>{t.professor?.nome ?? "—"}</td>
+                    <td>
+                      {t.professores && t.professores.length > 0
+                        ? t.professores.map((p) => p.nome).join(", ")
+                        : "—"}
+                    </td>
                     <td>{t.totalCriancas ?? 0}</td>
                     <td>
                       <div className={styles.rowActions}>
@@ -210,6 +214,8 @@ function TurmaForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<TurmaFormData>({
     resolver: yupResolver(turmaSchema),
@@ -219,17 +225,21 @@ function TurmaForm({
           descricao: editing.descricao ?? "",
           idadeMin: editing.faixaEtaria.min,
           idadeMax: editing.faixaEtaria.max,
-          professorId: editing.professorId,
+          professorIds: editing.professorIds,
         }
-      : { nome: "", descricao: "", professorId: "" },
+      : { nome: "", descricao: "", professorIds: [] },
   });
 
-  const professorOptions = (professores.data ?? []).map((p) => ({
-    value: p._id,
-    label: p.nome,
-  }));
+  const selectedProfessorIds = watch("professorIds") ?? [];
   const noProfessores =
-    !professores.loading && !professores.error && professorOptions.length === 0;
+    !professores.loading && !professores.error && (professores.data ?? []).length === 0;
+
+  function toggleProfessor(professorId: string) {
+    const next = selectedProfessorIds.includes(professorId)
+      ? selectedProfessorIds.filter((id) => id !== professorId)
+      : [...selectedProfessorIds, professorId];
+    setValue("professorIds", next, { shouldValidate: true });
+  }
 
   async function onSubmit(values: TurmaFormData) {
     setSubmitError(null);
@@ -237,7 +247,7 @@ function TurmaForm({
       nome: values.nome,
       descricao: values.descricao,
       faixaEtaria: { min: values.idadeMin, max: values.idadeMax },
-      professorId: values.professorId,
+      professorIds: values.professorIds,
     };
     try {
       if (editing) {
@@ -303,16 +313,37 @@ function TurmaForm({
           />
         </div>
       </div>
-      <Select
-        label="Professora responsável"
-        placeholder={
-          professores.loading ? "Carregando…" : "Selecione a professora"
-        }
-        options={professorOptions}
-        disabled={professores.loading || noProfessores}
-        error={errors.professorId?.message}
-        {...register("professorId")}
-      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <span
+          style={{ fontSize: 12, fontWeight: 600, color: "var(--text-dim)" }}
+        >
+          Professoras responsáveis
+        </span>
+        {professores.loading ? (
+          <p style={{ fontSize: 13, color: "var(--text-dim)" }}>Carregando…</p>
+        ) : (
+          <div
+            className={`${styles.checkList} ${errors.professorIds ? styles.checkListError : ""}`}
+          >
+            {(professores.data ?? []).map((p) => (
+              <label key={p._id} className={styles.checkItem}>
+                <input
+                  type="checkbox"
+                  className={styles.checkItemInput}
+                  checked={selectedProfessorIds.includes(p._id)}
+                  onChange={() => toggleProfessor(p._id)}
+                />
+                {p.nome}
+              </label>
+            ))}
+          </div>
+        )}
+        {errors.professorIds && (
+          <span style={{ fontSize: 12, color: "var(--color-danger)" }}>
+            {errors.professorIds.message}
+          </span>
+        )}
+      </div>
       {noProfessores && (
         <p style={{ fontSize: 12.5, color: "var(--text-dim)", marginTop: -6 }}>
           Cadastre um professor antes de criar a turma.

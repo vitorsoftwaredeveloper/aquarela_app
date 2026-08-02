@@ -19,6 +19,7 @@ import {
   Copy,
   KeyRound,
   Plus,
+  Printer,
   Trash2,
 } from "lucide-react";
 import {
@@ -385,6 +386,17 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
             equipe.
           </p>
         </div>
+        {editing && (
+          <div className={adminStyles.pageHeadActions}>
+            <Button
+              variant="secondary"
+              onClick={() => router.push(`/admin/criancas/${criancaId}/ficha`)}
+            >
+              <Printer size={16} />
+              Imprimir ficha
+            </Button>
+          </div>
+        )}
       </div>
 
       {editing && existente.loading ? (

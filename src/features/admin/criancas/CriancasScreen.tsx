@@ -8,6 +8,7 @@ import {
   Baby,
   Pencil,
   Plus,
+  Printer,
   Search,
   ShieldAlert,
   Trash2,
@@ -97,6 +98,13 @@ export function CriancasScreen() {
           </p>
         </div>
         <div className={styles.pageHeadActions}>
+          <Button
+            variant="secondary"
+            onClick={() => router.push("/admin/criancas/ficha-em-branco")}
+          >
+            <Printer size={18} />
+            Ficha
+          </Button>
           <Button onClick={() => router.push("/admin/criancas/nova")}>
             <Plus size={18} />
             Adicionar
@@ -215,6 +223,17 @@ export function CriancasScreen() {
                               aria-label={`Mover ${c.nome} de turma`}
                             >
                               <ArrowLeftRight size={16} />
+                            </button>
+                          </Tooltip>
+                          <Tooltip label="Imprimir ficha">
+                            <button
+                              className={styles.iconBtn}
+                              onClick={() =>
+                                router.push(`/admin/criancas/${c._id}/ficha`)
+                              }
+                              aria-label={`Imprimir ficha de ${c.nome}`}
+                            >
+                              <Printer size={16} />
                             </button>
                           </Tooltip>
                           <Tooltip label="Remover">

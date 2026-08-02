@@ -267,28 +267,49 @@ admin esperava ver.
 - Nada muda em `BalancoChart.tsx` além do rótulo: a forma da resposta de
   `GET /financeiro/balanco` é a mesma.
 
-### Múltiplos professores por turma (OPS-03)
+### ✅ Múltiplos professores por turma (OPS-03)
 
-- O formulário de turma vive dentro de `features/admin/turmas/TurmasScreen.tsx`
-  (não há `TurmaForm` separado): o `Select` de professora vira **multi-select**
-  (mínimo 1).
-- `TurmasScreen` e `AlunosScreen` listam os professores da turma (plural).
-- `GET /turmas` devolve `professores: [...]` **e** mantém `professor`
-  (= `professores[0]`) por um release — migrar o front para `professores` e não
-  criar código novo em cima do campo deprecado.
-- A mesma turma agora pode aparecer em "Minhas turmas" de mais de um professor.
+- Formulário de turma vive dentro de `features/admin/turmas/TurmasScreen.tsx`
+  (não há `TurmaForm` separado): o campo de professora virou uma **checklist de
+  checkboxes** (`.checkList`/`.checkItem` em `admin.module.css`), não um
+  `Select` nativo — `<select multiple>` não segue o mesmo visual do design
+  system (box + chevron) e teria UX pior que uma lista com chip de seleção.
+  Estado gerenciado via `watch`/`setValue` do `react-hook-form` (não há
+  `register` direto de array de checkboxes); yup exige `min(1)`.
+- `Turma.professorIds: string[]` substitui `professorId` no tipo do front —
+  **sem** campo derivado de compat aqui (o front não tem consumidor externo do
+  formato antigo; a compat de 1 release é só contrato de API pro caso de outro
+  cliente). `Turma.professores?: {...}[]` substitui `professor`.
+- `TurmasScreen` lista os nomes dos professores separados por vírgula na coluna
+  "Professor(as)".
+- `services/devData.ts` (`devTurmas`) atualizado para `professorIds`/`professores`.
 
-### Ficha de cadastro para impressão (OPS-04)
+### ✅ Ficha de cadastro para impressão (OPS-04)
 
-- Rota `/admin/criancas/[id]/ficha`, botão "Imprimir ficha" na lista e no detalhe.
-- **Sem endpoint novo** (`GET /criancas/{id}` já traz tudo) e **sem lib de PDF** —
-  impressão nativa do browser (`window.print()`), que já oferece "Salvar como
-  PDF". Evita mais uma dependência e mais um caminho de código.
-- CSS: `@page { size: A4; margin: 12mm }` + `@media print` escondendo nav,
-  bottom-tabs, botões e o próprio botão de imprimir.
-- Conteúdo: foto, identificação, responsáveis **com destaque de quem tem
-  `podeRetirar`**, saúde completa, turma, financeiro, consentimentos, rodapé com
-  data de emissão + aviso de documento confidencial (LGPD).
+`FichaCriancaScreen` (`features/admin/criancas/FichaCriancaScreen.tsx`), rota
+`/admin/criancas/[criancaId]/ficha`. Botão "Imprimir ficha" na lista
+(`CriancasScreen`, ícone `Printer` ao lado de editar/mover/remover) **e** no
+detalhe (header do `CriancaStepper` em modo edição). **Sem endpoint novo**
+(`CriancasAdminService.getById` já traz tudo) e **sem lib de PDF** — impressão
+nativa do browser (`window.print()`), que já oferece "Salvar como PDF".
+
+CSS dedicado (`ficha.module.css`): `@page { size: A4; margin: 12mm }` + a
+"folha" (`.paper`) sempre em cores fixas de papel (fundo branco, texto escuro),
+independente do tema claro/escuro ativo no admin — é um documento, não uma
+tela do app. `@media print` global em `admin.module.css` esconde `.sidebar`/
+`.topbar`/`.mobileNav*` do `AdminShell` (aplica em qualquer página impressa,
+não só na ficha — inofensivo, ninguém quer o menu no papel). A toolbar
+("Voltar"/"Imprimir ficha") também some no print via `.toolbar { display:none }`
+escopado ao próprio `ficha.module.css`.
+
+Conteúdo: foto (`Avatar`), identificação (nome, nascimento, CPF, turma),
+responsáveis **com badge "Pode retirar a criança" quando `podeRetirar: true`**,
+saúde (alergias/restrições em destaque vermelho, medicações contínuas,
+condições atípicas, cuidados especiais, observações — oculta a seção inteira
+se não houver nada relevante), financeiro (valor + dia de vencimento),
+consentimento LGPD (data do aceite) e rodapé com data/hora de emissão + aviso
+de documento confidencial. `CriancaCadastro.consentimentoLgpd?: { aceito,
+aceitoEm }` foi adicionado ao tipo (existia no backend, faltava no front).
 
 ### Responsável não adiciona nem autoriza retirada (✅ OPS-01)
 
@@ -304,14 +325,24 @@ pode remover uma entrada que já tem `podeRetirar: true`. No admin
 > O bloqueio no front é **UX**: o backend responde
 > `403 PODE_RETIRAR_EXCLUSIVO_ADMIN` de qualquer jeito, e é ele que vale.
 
-### Aniversário (OPS-05)
+### ✅ Aniversário (OPS-05) — card do admin implementado
 
-⚠️ `BirthdayContext` está listado em §4 como contexto planejado, mas **não existe
-em `src/contexts/`** (só `Auth`, `Notifications`, `Responsavel`, `Theme`). Nesta
-escala não vale criar um contexto só para isso: o card de aniversariante lê
-direto do `GET /criancas` já carregado na Início do responsável e na lista de
-alunos do professor. O push é disparado por cron no backend (08:00 GMT-3); o
-front só exibe.
+O push (responsáveis + professores) é disparado pelo cron do backend (08:00
+GMT-3, `notificarAniversariantes`) — o front não participa desse envio. O que
+o admin vê (`DashboardScreen.tsx`) é um card próprio: `ehAniversarioHoje`
+(`types/criancaCadastro.ts`, compara `"MM-DD"` por string — evita fuso na
+conversão de `Date`) filtra a lista de `CriancasAdminService.list()` **já
+carregada** pelo dashboard (sem chamada nova) e mostra "Hoje é aniversário de
+{nome}! 🎉" (ou a lista, se mais de uma criança fizer aniversário no mesmo
+dia). Só aparece quando há aniversariante — não ocupa espaço à toa.
+
+⚠️ `BirthdayContext` segue listado em §4 como contexto planejado, mas **não
+existe em `src/contexts/`** (só `Auth`, `Notifications`, `Responsavel`,
+`Theme`) — e o card de aniversariante na **Início do responsável** e na
+**lista de alunos do professor** (mencionados no backlog como "mais simples
+nesta escala: ler direto do `GET /criancas`") **ainda não foram
+implementados**. O push já chega para os dois papéis independente disso; falta
+só o reforço visual dentro do app.
 
 ---
 

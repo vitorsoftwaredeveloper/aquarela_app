@@ -193,8 +193,11 @@ export const devTurmas: Turma[] = [
     nome: "Girassol",
     descricao: "Berçário II — integral",
     faixaEtaria: { min: 2, max: 3 },
-    professorId: "p-alice",
-    professor: { _id: "p-alice", nome: "Alice Martins", email: "alice@aquarela.com" },
+    professorIds: ["p-alice", "p-bruno"],
+    professores: [
+      { _id: "p-alice", nome: "Alice Martins", email: "alice@aquarela.com" },
+      { _id: "p-bruno", nome: "Bruno Aguiar", email: "bruno@aquarela.com" },
+    ],
     totalCriancas: 2,
   },
   {
@@ -202,8 +205,10 @@ export const devTurmas: Turma[] = [
     nome: "Sol",
     descricao: "Pré-escola — meio período",
     faixaEtaria: { min: 4, max: 5 },
-    professorId: "p-bruno",
-    professor: { _id: "p-bruno", nome: "Bruno Aguiar", email: "bruno@aquarela.com" },
+    professorIds: ["p-bruno"],
+    professores: [
+      { _id: "p-bruno", nome: "Bruno Aguiar", email: "bruno@aquarela.com" },
+    ],
     totalCriancas: 1,
   },
 ];
@@ -276,6 +281,7 @@ export const devCriancasCadastro: CriancaCadastro[] = [
       observacoes: "",
     },
     financeiro: { valorMensalidade: 1490, diaVencimento: 5 },
+    consentimentoLgpd: { aceito: true, aceitoEm: "2026-03-10T13:00:00Z" },
   },
   {
     _id: "c-theo",
@@ -303,6 +309,7 @@ export const devCriancasCadastro: CriancaCadastro[] = [
       observacoes: "",
     },
     financeiro: { valorMensalidade: 1290, diaVencimento: 5 },
+    consentimentoLgpd: { aceito: true, aceitoEm: "2025-01-20T09:30:00Z" },
   },
 ];
 

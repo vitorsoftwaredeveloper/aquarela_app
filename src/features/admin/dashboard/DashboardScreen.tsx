@@ -1,6 +1,12 @@
 "use client";
 
-import { TrendingDown, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
+import {
+  Cake,
+  TrendingDown,
+  TrendingUp,
+  TriangleAlert,
+  Wallet,
+} from "lucide-react";
 import { Skeleton } from "@/components";
 import { useFetch } from "@/hooks/useFetch";
 import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
@@ -8,6 +14,7 @@ import { CriancasAdminService } from "@/services/criancasAdmin";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { TurmasService } from "@/services/turmas";
 import { formatBRL } from "@/types/financeiro";
+import { ehAniversarioHoje } from "@/types/criancaCadastro";
 import { ErrorState } from "../ListState";
 import { BalancoChart } from "./BalancoChart";
 import adminStyles from "../admin.module.css";
@@ -31,6 +38,9 @@ export function DashboardScreen() {
         criancasAtivas: criancas.length,
         turmas: turmas.length,
       },
+      aniversariantes: criancas
+        .filter((c) => ehAniversarioHoje(c.dataNascimento))
+        .map((c) => c.nome),
     };
   });
 
@@ -55,6 +65,19 @@ export function DashboardScreen() {
         </div>
       ) : (
         <>
+          {data.aniversariantes.length > 0 && (
+            <div className={styles.birthdayCard}>
+              <span className={styles.birthdayIcon}>
+                <Cake size={16} />
+              </span>
+              <span>
+                {data.aniversariantes.length === 1
+                  ? `Hoje é aniversário de ${data.aniversariantes[0]}! 🎉`
+                  : `Hoje é aniversário de ${data.aniversariantes.length} crianças: ${data.aniversariantes.join(", ")} 🎉`}
+              </span>
+            </div>
+          )}
+
           <div className={styles.kpiRow}>
             <Kpi
               label="Entradas do mês"

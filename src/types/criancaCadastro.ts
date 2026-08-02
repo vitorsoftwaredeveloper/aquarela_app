@@ -50,6 +50,8 @@ export interface CriancaCadastro {
   responsaveis: ResponsavelVinculo[];
   saude: SaudeCrianca;
   financeiro: FinanceiroCrianca;
+  /** Imutável após a criação — não faz parte de nenhum payload de update. */
+  consentimentoLgpd?: { aceito: boolean; aceitoEm: string };
 }
 
 export type NovaCrianca = Omit<
@@ -85,6 +87,14 @@ export const PARENTESCOS = [
   "Responsável legal",
   "Outro",
 ];
+
+/** Aniversário hoje? Compara "MM-DD" por string — evita fuso na conversão de `Date`. */
+export function ehAniversarioHoje(dataNascimento: string): boolean {
+  if (!dataNascimento) return false;
+  const hoje = new Date();
+  const mesDiaHoje = `${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  return dataNascimento.slice(5, 10) === mesDiaHoje;
+}
 
 /** Idade em anos a partir da data de nascimento (ISO). */
 export function idadeEmAnos(dataNascimento: string): number | null {

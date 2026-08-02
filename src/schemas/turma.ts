@@ -20,7 +20,11 @@ export const turmaSchema = yup.object({
     .integer("Use anos inteiros")
     .max(12, "Máximo 12")
     .min(yup.ref("idadeMin"), "Deve ser ≥ idade mínima"),
-  professorId: yup.string().required("Selecione a professora"),
+  professorIds: yup
+    .array()
+    .of(yup.string().required())
+    .min(1, "Selecione ao menos uma professora")
+    .required("Selecione ao menos uma professora"),
 });
 
 export type TurmaFormData = yup.InferType<typeof turmaSchema>;

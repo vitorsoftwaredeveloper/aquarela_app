@@ -1,12 +1,12 @@
-/** Turma — vincula uma professora e agrupa crianças por faixa etária. */
+/** Turma — vincula uma ou mais professoras e agrupa crianças por faixa etária. */
 export interface Turma {
   _id: string;
   nome: string;
   descricao?: string;
   faixaEtaria: { min: number; max: number };
-  professorId: string;
-  /** Resumo da professora vinculada (quando o backend popula). */
-  professor?: { _id: string; nome: string; email: string } | null;
+  professorIds: string[];
+  /** Resumo das professoras vinculadas (quando o backend popula). */
+  professores?: { _id: string; nome: string; email: string }[];
   /** Nº de crianças ativas — usado no aviso de remoção. */
   totalCriancas?: number;
   criadoEm?: string;
@@ -16,7 +16,7 @@ export interface NovaTurma {
   nome: string;
   descricao?: string;
   faixaEtaria: { min: number; max: number };
-  professorId: string;
+  professorIds: string[];
 }
 
 /** "3–4 anos" / "3 anos". */
