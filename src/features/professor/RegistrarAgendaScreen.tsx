@@ -272,7 +272,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
+      <div className={styles.topRow}>
         <button
           className={styles.backBtn}
           onClick={() => router.back()}

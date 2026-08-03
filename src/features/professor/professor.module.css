@@ -439,6 +439,11 @@
   font-size: 12px;
   color: var(--text-dim);
 }
+.topRow {
+  display: flex;
+  align-items: center;
+  padding: 14px 14px 0;
+}
 .pushAction {
   margin-left: auto;
   font-size: 12.5px;
