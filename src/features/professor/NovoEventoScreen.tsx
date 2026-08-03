@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AlertCircle, ChevronLeft } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { BackButton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { EventosService } from "@/services/eventos";
 import { getApiErrorMessage } from "@/services/apiError";
 import { eventoSchema, type EventoFormData } from "@/schemas/evento";
@@ -14,6 +16,7 @@ import styles from "./professor.module.css";
 const VAZIO: EventoFormData = { titulo: "", descricao: "", data: "" };
 
 export function NovoEventoScreen({ turmaId }: { turmaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -47,13 +50,9 @@ export function NovoEventoScreen({ turmaId }: { turmaId: string }) {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Novo evento</div>
-        </div>
+      <div className={styles.topRow}>
+        <BackButton onClick={voltar} />
+        <span className={styles.pushTitle}>Novo evento</span>
       </div>
 
       <form

@@ -4,6 +4,11 @@
   border-bottom: 1px solid var(--border-10);
   margin-bottom: 18px;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.list::-webkit-scrollbar {
+  display: none;
 }
 .tab {
   position: relative;

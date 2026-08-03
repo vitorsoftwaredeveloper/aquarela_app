@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ChevronLeft, Images, Plus } from "lucide-react";
-import { Skeleton } from "@/components";
+import { AlertTriangle, Images, Plus } from "lucide-react";
+import { BackButton, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import { ProfessorService } from "@/services/professorService";
@@ -19,6 +20,7 @@ function formatData(iso: string): string {
 }
 
 export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const eventos = useFetch(() => EventosService.list({ turmaId }), [turmaId]);
   const alunos = useFetch(
@@ -33,21 +35,15 @@ export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.push("/professor/mural")}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Mural de fotos</div>
-          <div className={styles.pushSub}>
-            {eventos.loading
+      <div className={styles.topRow}>
+        <BackButton onClick={() => router.push("/professor/mural")} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>Mural de fotos</span>
+          <span className={styles.pushSub}>
+            {alunos.loading
               ? "Carregando…"
-              : `${lista.length} evento${lista.length === 1 ? "" : "s"}`}
-          </div>
+              : `${alunos.data?.length ?? 0} alunos`}
+          </span>
         </div>
       </div>
 

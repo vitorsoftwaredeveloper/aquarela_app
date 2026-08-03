@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Bell, BellOff, ChevronLeft, Share } from "lucide-react";
-import { Badge } from "@/components";
+import { AlertCircle, Bell, BellOff, Share } from "lucide-react";
+import { BackButton, Badge } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import {
   instrucaoReativarNotificacoes,
@@ -24,6 +25,7 @@ const STATUS: Record<
 
 /** Tela de preferências de notificação (NOT-16) — reutilizada por responsável e professor. */
 export function NotificacoesScreen() {
+  useHideTopbar();
   const router = useRouter();
   const { permission, active, enabling, error, requestPermission, disable } =
     useNotifications();
@@ -46,23 +48,18 @@ export function NotificacoesScreen() {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.back()}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Notificações</div>
-          <div className={styles.pushSub}>
-            Avisos quando a agenda do dia estiver pronta
-          </div>
-        </div>
+      <div className={styles.topRow}>
+        <BackButton onClick={() => router.back()} />
+        <span className={styles.pushTitle}>Notificações</span>
       </div>
 
       <div className={styles.form}>
+        <p className={styles.intro}>
+          As notificações avisam na hora sobre recados novos, agenda do dia
+          e outras novidades da turma — assim você fica por dentro sem
+          precisar abrir o app o tempo todo pra conferir.
+        </p>
+
         <section className={styles.card}>
           <div
             className={styles.cardHead}

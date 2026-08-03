@@ -5,13 +5,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
+  CalendarCheck,
   ChevronLeft,
   ChevronRight,
   Images,
   LogOut,
   Menu,
   MessageCircle,
-  School,
   User,
   X,
   type LucideIcon,
@@ -40,8 +40,8 @@ const NAV: {
 }[] = [
   {
     href: "/professor/turmas",
-    label: "Turmas",
-    icon: School,
+    label: "Agenda",
+    icon: CalendarCheck,
     // Planos de aula e mural são sub-rotas de turmas na URL, mas pertencem aos
     // itens "Planos" e "Mural".
     isActive: (pathname) =>
@@ -82,7 +82,7 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { title, subtitle } = usePageTitleValue();
+  const { title, subtitle, hideTopbar } = usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -191,33 +191,35 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className={styles.main}>
-        <header className={styles.topbar}>
-          <button
-            type="button"
-            className={styles.menuBtn}
-            onClick={() => setMenuOpen(true)}
-            aria-label="Abrir menu"
-            aria-expanded={menuOpen}
-            aria-controls="professor-mobile-nav"
-          >
-            <Menu size={22} />
-          </button>
-          {title ? (
-            <div className={styles.topbarTitle}>
-              <span className={styles.topbarTitleText}>{title}</span>
-              {subtitle && (
-                <span className={styles.topbarSubtitle}>{subtitle}</span>
-              )}
+        {!hideTopbar && (
+          <header className={styles.topbar}>
+            <button
+              type="button"
+              className={styles.menuBtn}
+              onClick={() => setMenuOpen(true)}
+              aria-label="Abrir menu"
+              aria-expanded={menuOpen}
+              aria-controls="professor-mobile-nav"
+            >
+              <Menu size={22} />
+            </button>
+            {title ? (
+              <div className={styles.topbarTitle}>
+                <span className={styles.topbarTitleText}>{title}</span>
+                {subtitle && (
+                  <span className={styles.topbarSubtitle}>{subtitle}</span>
+                )}
+              </div>
+            ) : (
+              <div className={styles.topbarMobileBrand}>
+                <Logo size={30} />
+              </div>
+            )}
+            <div className={styles.topbarActions}>
+              <ThemeToggle />
             </div>
-          ) : (
-            <div className={styles.topbarMobileBrand}>
-              <Logo size={30} />
-            </div>
-          )}
-          <div className={styles.topbarActions}>
-            <ThemeToggle />
-          </div>
-        </header>
+          </header>
+        )}
         <main className={styles.content}>{children}</main>
       </div>
 

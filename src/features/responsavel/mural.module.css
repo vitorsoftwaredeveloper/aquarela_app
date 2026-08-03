@@ -136,3 +136,12 @@
 .lightboxCaption {
   margin-bottom: 4px;
 }
+
+/* Mesma lógica do .content em responsavel.module.css: em tela larga o grid
+   de 3 colunas fixas deixa cada foto enorme — passa a ganhar mais colunas
+   conforme sobra espaço. Fica no fim do arquivo pra vencer no cascade. */
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}

@@ -3,14 +3,15 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Check, CheckCheck, Clock, ShieldAlert } from "lucide-react";
-import { Avatar, Skeleton } from "@/components";
-import { usePageTitle } from "@/contexts/PageTitleContext";
+import { Avatar, BackButton, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
 import styles from "./professor.module.css";
 
 export function AlunosScreen({ turmaId }: { turmaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const { data, loading, error } = useFetch(
     () => ProfessorService.listAlunos(turmaId),
@@ -23,15 +24,20 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
     [alunos],
   );
 
-  usePageTitle(
-    "Alunos da turma",
-    loading
-      ? "Carregando…"
-      : `${registradas} de ${alunos.length} agendas registradas hoje`,
-  );
-
   return (
     <div>
+      <div className={styles.topRow}>
+        <BackButton onClick={() => router.push("/professor/turmas")} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>Alunos da turma</span>
+          <span className={styles.pushSub}>
+            {loading
+              ? "Carregando…"
+              : `${registradas} de ${alunos.length} agendas registradas hoje`}
+          </span>
+        </div>
+      </div>
+
       {loading ? (
         <div
           className={styles.alunoList}

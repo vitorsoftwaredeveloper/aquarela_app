@@ -322,6 +322,7 @@
   max-width: 620px;
   margin: 0 auto;
   padding-bottom: var(--content-pb);
+  transition: max-width 0.16s ease;
 }
 
 @media (max-width: 900px) {
@@ -336,6 +337,9 @@
   }
   .menuBtn {
     display: inline-flex;
+  }
+  .topbarActions {
+    display: none;
   }
 }
 
@@ -641,19 +645,6 @@
   align-items: center;
   gap: 10px;
 }
-.backBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  border: 1px solid var(--border-10);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text);
-  cursor: pointer;
-  flex: none;
-}
 .pushTitle {
   font-family: var(--font-heading);
   font-weight: 600;
@@ -917,6 +908,9 @@
 
 /* Histórico */
 .histList {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -1008,6 +1002,9 @@
 
 /* AG2-09 — resumo de frequência do período */
 .freqResumo {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
   display: flex;
   gap: 8px;
   padding: 0 16px 12px;
@@ -1604,4 +1601,27 @@
   background: var(--color-secondary-soft);
   border-radius: 20px;
   padding: 5px 11px;
+}
+
+/* A partir daqui a tela cresceu o bastante pra sobrar espaço ocioso ao lado
+   da sidebar num .content travado em 620px — a largura acompanha o viewport
+   e a grade de meses passa a fluir em colunas em vez de uma coluna solitária.
+   Fica no fim do arquivo de propósito: precisa vir depois da regra base de
+   .monthList pra vencer no cascade (mesma especificidade — quem aparece
+   depois no arquivo é quem vale). */
+@media (min-width: 901px) {
+  .content {
+    max-width: 780px;
+  }
+  .monthList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: start;
+  }
+}
+
+@media (min-width: 1300px) {
+  .content {
+    max-width: 1040px;
+  }
 }

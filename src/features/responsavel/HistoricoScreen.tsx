@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Paperclip, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components";
+import { Paperclip, ShieldAlert } from "lucide-react";
+import { BackButton, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -13,6 +14,7 @@ import styles from "./responsavel.module.css";
 const ObsIcon = AGENDA_VISUAL.observacao.icon;
 
 export function HistoricoScreen({ criancaId }: { criancaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const historico = useFetch(() => AgendaService.getHistorico(criancaId));
@@ -25,13 +27,7 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   return (
     <div>
       <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.back()}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
+        <BackButton onClick={() => router.back()} />
         <div style={{ flex: 1 }}>
           <div className={styles.pushTitle}>Histórico</div>
           <div className={styles.pushSub}>

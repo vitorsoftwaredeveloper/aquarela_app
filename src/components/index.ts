@@ -1,4 +1,5 @@
 export { Avatar } from "./Avatar/Avatar";
+export { BackButton } from "./BackButton/BackButton";
 export { Button } from "./Button/Button";
 export { FotoField } from "./FotoField/FotoField";
 export { Container } from "./Container/Container";

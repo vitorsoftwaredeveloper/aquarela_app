@@ -10,7 +10,6 @@ import {
   BookOpen,
   CalendarCheck,
   Check,
-  ChevronLeft,
   FileText,
   Minus,
   Moon,
@@ -24,7 +23,8 @@ import {
   Trash2,
   Utensils,
 } from "lucide-react";
-import { Button, Modal, Skeleton, UploadAnexo } from "@/components";
+import { BackButton, Button, Modal, Skeleton, UploadAnexo } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
@@ -57,6 +57,7 @@ const REFEICAO_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const crianca = useFetch(
     () => CriancasService.getById(criancaId),
@@ -273,13 +274,13 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   return (
     <div>
       <div className={styles.topRow}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.back()}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
+        <BackButton onClick={() => router.back()} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>
+            {carregando ? "Carregando…" : c?.nome ?? "Agenda do dia"}
+          </span>
+          <span className={styles.pushSub}>Agenda de hoje</span>
+        </div>
         <Link
           href={`/professor/historico/${criancaId}`}
           className={`${styles.pushAction} ${styles.pushActionStrong}`}

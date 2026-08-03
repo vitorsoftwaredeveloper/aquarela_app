@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AlertCircle, ChevronLeft } from "lucide-react";
-import { Skeleton } from "@/components";
+import { AlertCircle } from "lucide-react";
+import { BackButton, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { TagInput } from "@/features/admin/criancas/TagInput";
 import { PlanosAulaService } from "@/services/planosAula";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -28,6 +29,7 @@ export function PlanoAulaFormScreen({
   turmaId: string;
   planoId?: string;
 }) {
+  useHideTopbar();
   const router = useRouter();
   const isEdit = !!planoId;
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -92,15 +94,11 @@ export function PlanoAulaFormScreen({
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>
-            {isEdit ? "Editar plano de aula" : "Novo plano de aula"}
-          </div>
-        </div>
+      <div className={styles.topRow}>
+        <BackButton onClick={voltar} />
+        <span className={styles.pushTitle}>
+          {isEdit ? "Editar plano de aula" : "Novo plano de aula"}
+        </span>
       </div>
 
       {loading ? (

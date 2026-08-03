@@ -2,17 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Check,
-  CheckCheck,
-  ChevronLeft,
-  Paperclip,
-  Send,
-  Trash2,
-} from "lucide-react";
-import { Avatar, Skeleton, UploadAnexo } from "@/components";
+import { Check, CheckCheck, Paperclip, Send, Trash2 } from "lucide-react";
+import { Avatar, BackButton, Skeleton, UploadAnexo } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePageTitle } from "@/contexts/PageTitleContext";
+import { usePageTitle, useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { MensagensService } from "@/services/mensagens";
@@ -211,19 +204,14 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
               ? ` · ${carregandoCrianca}`
               : ""),
   );
+  useHideTopbar(ehProfessor);
 
   return (
     <div className={styles.tela}>
       <div className={styles.watermark} aria-hidden />
       {user?.role === "professor" ? (
         <div className={styles.pushHeader}>
-          <button
-            className={styles.backBtn}
-            onClick={() => router.back()}
-            aria-label="Voltar"
-          >
-            <ChevronLeft size={20} />
-          </button>
+          <BackButton onClick={() => router.back()} />
           {c && (
             <Avatar nome={c.nome} fotoUrl={c.fotoUrl} bg={avatarBg} size={34} />
           )}

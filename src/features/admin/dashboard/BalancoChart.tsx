@@ -127,15 +127,15 @@ export function BalancoChart() {
           <div className={styles.plot}>
             {/* Eixo Y + gridlines hairline recessivas */}
             <div className={styles.yAxis}>
-              {[...ticks].reverse().map((t) => (
-                <span key={t} className={styles.yTick}>
+              {[...ticks].reverse().map((t, i) => (
+                <span key={i} className={styles.yTick}>
                   {formatCompacto(t)}
                 </span>
               ))}
             </div>
             <div className={styles.grid}>
-              {[...ticks].reverse().map((t) => (
-                <span key={t} className={styles.gridline} aria-hidden />
+              {[...ticks].reverse().map((t, i) => (
+                <span key={i} className={styles.gridline} aria-hidden />
               ))}
 
               <div className={styles.groups}>

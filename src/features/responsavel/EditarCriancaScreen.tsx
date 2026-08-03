@@ -4,15 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { AlertCircle, CheckCircle2, Lock, Plus, Trash2 } from "lucide-react";
 import {
-  AlertCircle,
-  CheckCircle2,
-  ChevronLeft,
-  Lock,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import {
+  BackButton,
   Button,
   DateBRInput,
   FotoField,
@@ -21,6 +15,7 @@ import {
   Skeleton,
   Textarea,
 } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { CriancasService } from "@/services/criancas";
@@ -52,6 +47,7 @@ const RESP_VAZIO = {
 };
 
 export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const { reload: recarregarFilhos } = useResponsavel();
   const crianca = useFetch(
@@ -156,7 +152,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
     return (
       <div role="status" aria-label="Carregando…">
         <div className={shell.pushHeader}>
-          <Skeleton width={38} height={38} radius={12} />
+          <Skeleton width={38} height={38} radius="50%" />
           <Skeleton width={150} height={16} />
         </div>
         <div className={styles.section}>
@@ -174,13 +170,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
     return (
       <div>
         <div className={shell.pushHeader}>
-          <button
-            className={shell.backBtn}
-            onClick={() => router.back()}
-            aria-label="Voltar"
-          >
-            <ChevronLeft size={20} />
-          </button>
+          <BackButton onClick={() => router.back()} />
           <div className={shell.pushTitle}>Editar dados</div>
         </div>
         <div className={shell.state}>
@@ -198,14 +188,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
   return (
     <form className={styles.wrap} onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className={shell.pushHeader}>
-        <button
-          type="button"
-          className={shell.backBtn}
-          onClick={() => router.back()}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
+        <BackButton onClick={() => router.back()} />
         <div style={{ flex: 1 }}>
           <div className={shell.pushTitle}>Editar dados</div>
           <div className={shell.pushSub}>{c.nome}</div>

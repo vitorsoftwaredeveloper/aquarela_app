@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, MessageCircle, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components";
+import { MessageCircle, ShieldAlert } from "lucide-react";
+import { BackButton, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -13,6 +14,7 @@ import { AgendaStory } from "./AgendaStory";
 import styles from "./responsavel.module.css";
 
 export function AgendaScreen({ criancaId }: { criancaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const agenda = useFetch(() => AgendaService.getDia(criancaId));
@@ -25,13 +27,7 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
   return (
     <div>
       <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.back()}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
+        <BackButton onClick={() => router.back()} />
         <div style={{ flex: 1 }}>
           <div className={styles.pushTitle}>{c?.nome ?? "Agenda"}</div>
           <div className={styles.pushSub}>{dia?.dataLabel ?? "Hoje"}</div>

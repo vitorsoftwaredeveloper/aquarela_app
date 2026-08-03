@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
-  ChevronLeft,
   Check,
   Copy,
   Paperclip,
@@ -12,7 +11,8 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Modal, Select, Skeleton } from "@/components";
+import { BackButton, Modal, Select, Skeleton } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { PlanosAulaService } from "@/services/planosAula";
 import { ProfessorService } from "@/services/professorService";
@@ -30,6 +30,7 @@ function formatData(iso: string): string {
 
 /** PED-02 · Planos de aula (professor) — CRUD por turma. */
 export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
+  useHideTopbar();
   const router = useRouter();
   const { data, loading, error, reload } = useFetch(
     () => PlanosAulaService.list(turmaId),
@@ -52,6 +53,7 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
     () => (turmasData ?? []).filter((t) => t._id !== turmaId),
     [turmasData, turmaId],
   );
+  const turmaAtual = turmasData?.find((t) => t._id === turmaId);
 
   async function confirmDelete() {
     if (!deleting) return;
@@ -97,21 +99,13 @@ export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.push("/professor/planos-aula")}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Planos de aula</div>
-          <div className={styles.pushSub}>
-            {loading
-              ? "Carregando…"
-              : `${planos.length} plano${planos.length === 1 ? "" : "s"}`}
-          </div>
+      <div className={styles.topRow}>
+        <BackButton onClick={() => router.push("/professor/planos-aula")} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>Planos de aula</span>
+          <span className={styles.pushSub}>
+            {turmaAtual?.nome ?? "Turma"}
+          </span>
         </div>
       </div>
 

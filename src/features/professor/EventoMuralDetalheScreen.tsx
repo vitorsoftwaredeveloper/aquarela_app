@@ -2,15 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowDown,
-  ArrowUp,
-  ChevronLeft,
-  ImagePlus,
-  Send,
-  Trash2,
-} from "lucide-react";
-import { Skeleton, UploadAnexo } from "@/components";
+import { ArrowDown, ArrowUp, ImagePlus, Send, Trash2 } from "lucide-react";
+import { BackButton, Skeleton, UploadAnexo } from "@/components";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -35,6 +29,7 @@ export function EventoMuralDetalheScreen({
   turmaId: string;
   eventoId: string;
 }) {
+  useHideTopbar();
   const router = useRouter();
   const evento = useFetch(
     () => EventosService.getById(eventoId, turmaId),
@@ -143,9 +138,8 @@ export function EventoMuralDetalheScreen({
   if (evento.loading) {
     return (
       <div role="status" aria-label="Carregando…">
-        <div className={styles.pushHeader}>
-          <Skeleton width={38} height={38} radius={12} />
-          <Skeleton width={150} height={16} />
+        <div className={styles.topRow}>
+          <Skeleton width={38} height={38} radius="50%" />
         </div>
         <div className={styles.form}>
           <Skeleton width="100%" height={120} radius="var(--radius-md)" />
@@ -157,15 +151,9 @@ export function EventoMuralDetalheScreen({
   if (evento.error || !evento.data) {
     return (
       <div>
-        <div className={styles.pushHeader}>
-          <button
-            className={styles.backBtn}
-            onClick={voltar}
-            aria-label="Voltar"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className={styles.pushTitle}>Evento</div>
+        <div className={styles.topRow}>
+          <BackButton onClick={voltar} />
+          <span className={styles.pushTitle}>Evento</span>
         </div>
         <div className={styles.state}>
           <span className={styles.emptyBadge}>Erro</span>
@@ -180,19 +168,18 @@ export function EventoMuralDetalheScreen({
 
   return (
     <div className={styles.tela}>
-      <div className={styles.pushHeader}>
-        <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>{e.titulo}</div>
-          <div className={styles.pushSub}>
+      <div className={styles.topRow}>
+        <BackButton onClick={voltar} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>{e.titulo}</span>
+          <span className={styles.pushSub}>
             {formatData(e.data)} · {fotos.length} foto
             {fotos.length === 1 ? "" : "s"}
-          </div>
+          </span>
         </div>
         <span
           className={e.publicado ? styles.badgePublished : styles.badgeDraft}
+          style={{ marginLeft: "auto" }}
         >
           {e.publicado ? "Publicado" : "Rascunho"}
         </span>

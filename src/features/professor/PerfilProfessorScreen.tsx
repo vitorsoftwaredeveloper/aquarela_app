@@ -24,7 +24,6 @@ export function PerfilProfessorScreen() {
   return (
     <div>
       <div className={styles.form}>
-        <div className={styles.settingsTitle}>Configurações</div>
         <div className={styles.card} style={{ padding: 0, overflow: "hidden" }}>
           <button
             type="button"

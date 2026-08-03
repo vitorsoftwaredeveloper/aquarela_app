@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AlertCircle, Check, ChevronLeft, Lock } from "lucide-react";
-import { FotoField, Skeleton } from "@/components";
+import { AlertCircle, Check, Lock } from "lucide-react";
+import { BackButton, FotoField, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHideTopbar } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -20,6 +21,7 @@ import styles from "./professor.module.css";
 
 /** T-12: professor edita o próprio cadastro (nome, telefone, formação) — nunca o e-mail. */
 export function EditarDadosProfessorScreen() {
+  useHideTopbar();
   const router = useRouter();
   const { user } = useAuth();
   const professorId = user?.professorId;
@@ -90,12 +92,13 @@ export function EditarDadosProfessorScreen() {
 
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Editar dados pessoais</div>
+      <div className={styles.topRow}>
+        <BackButton onClick={voltar} />
+        <div className={styles.pushTitleWrap}>
+          <span className={styles.pushTitle}>Editar dados</span>
+          <span className={styles.pushSub}>
+            {loading ? "Carregando…" : professor?.nome ?? "Professor"}
+          </span>
         </div>
       </div>
 

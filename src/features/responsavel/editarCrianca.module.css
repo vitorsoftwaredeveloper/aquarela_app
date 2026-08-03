@@ -1,4 +1,7 @@
 .wrap {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
   padding-bottom: 8px;
 }
 
