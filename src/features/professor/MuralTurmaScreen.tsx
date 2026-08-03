@@ -36,7 +36,7 @@ export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
       <div className={styles.pushHeader}>
         <button
           className={styles.backBtn}
-          onClick={() => router.push(`/professor/turmas/${turmaId}`)}
+          onClick={() => router.push("/professor/mural")}
           aria-label="Voltar"
         >
           <ChevronLeft size={20} />

@@ -223,6 +223,10 @@ Regras:
 
 ### Mural de fotos (Épico M)
 
+- **Professor** — entrada pela tab **Mural** do `ProfessorShell` →
+  `/professor/mural` (`MuralTurmasScreen`, seletor de turma no mesmo padrão da
+  tab "Planos"), que leva a `/professor/turmas/[turmaId]/mural`. O atalho por
+  ícone na tela de Alunos da turma saiu junto com o header duplicado dela.
 - **Professor** — `/professor/turmas/[turmaId]/mural`: criar evento, seleção
   múltipla de fotos com resize + progresso, reordenar, legenda, alternar
   rascunho × publicado. **Aviso fixo no topo com os nomes das crianças da turma

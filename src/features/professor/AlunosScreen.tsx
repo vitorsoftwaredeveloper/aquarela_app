@@ -2,19 +2,10 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  BookOpen,
-  Check,
-  CheckCheck,
-  ChevronLeft,
-  Clock,
-  Images,
-  MessageCircle,
-  ShieldAlert,
-} from "lucide-react";
+import { Check, CheckCheck, Clock, ShieldAlert } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
-import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
 import styles from "./professor.module.css";
@@ -25,7 +16,6 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
     () => ProfessorService.listAlunos(turmaId),
     [turmaId],
   );
-  const naoLidos = useRecadosNaoLidos();
   const alunos = data ?? [];
   const registradas = alunos.filter((a) => a.agendaRegistrada).length;
   const avatarColors = useMemo(
@@ -33,44 +23,15 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
     [alunos],
   );
 
+  usePageTitle(
+    "Alunos da turma",
+    loading
+      ? "Carregando…"
+      : `${registradas} de ${alunos.length} agendas registradas hoje`,
+  );
+
   return (
     <div>
-      <div className={styles.pushHeader}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.push("/professor/turmas")}
-          aria-label="Voltar"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>Alunos da turma</div>
-          <div className={styles.pushSub}>
-            {loading
-              ? "Carregando…"
-              : `${registradas} de ${alunos.length} agendas registradas hoje`}
-          </div>
-        </div>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.push(`/professor/turmas/${turmaId}/mural`)}
-          aria-label="Mural de fotos"
-          title="Mural de fotos"
-        >
-          <Images size={19} />
-        </button>
-        <button
-          className={styles.backBtn}
-          onClick={() =>
-            router.push(`/professor/turmas/${turmaId}/planos-aula`)
-          }
-          aria-label="Planos de aula"
-          title="Planos de aula"
-        >
-          <BookOpen size={19} />
-        </button>
-      </div>
-
       {loading ? (
         <div
           className={styles.alunoList}
@@ -102,95 +63,80 @@ export function AlunosScreen({ turmaId }: { turmaId: string }) {
         <div className={styles.alunoList}>
           {alunos.map((a) => {
             const alerta = temCuidados(a);
-            const temNaoLido = naoLidos.has(a._id);
             return (
-              <div key={a._id} className={styles.alunoCardWrap}>
-                <button
-                  className={styles.alunoCard}
-                  onClick={() => router.push(`/professor/agenda/${a._id}`)}
-                >
-                  <span className={styles.alunoAvatarWrap}>
-                    <Avatar
-                      nome={a.nome}
-                      fotoUrl={a.fotoUrl}
-                      bg={avatarColors[a._id]}
-                      className={styles.alunoAvatar}
-                    />
-                    {alerta && (
-                      <span
-                        className={styles.allergyDot}
-                        title="Tem alergia/medicação"
-                      >
-                        <ShieldAlert size={12} />
-                      </span>
-                    )}
-                  </span>
-                  <span style={{ flex: 1 }}>
+              <button
+                key={a._id}
+                className={styles.alunoCard}
+                onClick={() => router.push(`/professor/agenda/${a._id}`)}
+              >
+                <span className={styles.alunoAvatarWrap}>
+                  <Avatar
+                    nome={a.nome}
+                    fotoUrl={a.fotoUrl}
+                    bg={avatarColors[a._id]}
+                    className={styles.alunoAvatar}
+                  />
+                  {alerta && (
                     <span
-                      className={styles.alunoName}
-                      style={{ display: "block" }}
+                      className={styles.allergyDot}
+                      title="Tem alergia/medicação"
                     >
-                      {a.nome}
+                      <ShieldAlert size={12} />
                     </span>
-                    <span
-                      className={styles.alunoSub}
-                      style={{ display: "block" }}
-                    >
-                      {a.idadeLabel ?? a.sub}
-                    </span>
+                  )}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span
+                    className={styles.alunoName}
+                    style={{ display: "block" }}
+                  >
+                    {a.nome}
                   </span>
                   <span
-                    className={styles.status}
-                    title={
-                      a.agendaEnviada
-                        ? "Registrada e enviada aos pais"
-                        : undefined
-                    }
-                    style={
-                      a.agendaEnviada
-                        ? {
-                            color: "var(--color-secondary-strong)",
-                            background: "var(--color-secondary-soft)",
-                          }
-                        : a.agendaRegistrada
-                          ? {
-                              color: "var(--color-primary-link)",
-                              background: "var(--color-primary-soft)",
-                            }
-                          : {
-                              color: "#C7522B",
-                              background: "var(--color-accent-soft)",
-                            }
-                    }
+                    className={styles.alunoSub}
+                    style={{ display: "block" }}
                   >
-                    {a.agendaEnviada ? (
-                      <CheckCheck size={13} />
-                    ) : a.agendaRegistrada ? (
-                      <Check size={13} />
-                    ) : (
-                      <Clock size={13} />
-                    )}
-                    {a.agendaEnviada
-                      ? "Enviada"
-                      : a.agendaRegistrada
-                        ? "Registrada"
-                        : "Pendente"}
+                    {a.idadeLabel ?? a.sub}
                   </span>
-                </button>
-                <button
-                  type="button"
-                  className={styles.recadosBtn}
-                  onClick={() => router.push(`/professor/recados/${a._id}`)}
-                  aria-label={
-                    temNaoLido
-                      ? `Recados não lidos de ${a.nome}`
-                      : `Recados de ${a.nome}`
+                </span>
+                <span
+                  className={styles.status}
+                  title={
+                    a.agendaEnviada
+                      ? "Registrada e enviada aos pais"
+                      : undefined
+                  }
+                  style={
+                    a.agendaEnviada
+                      ? {
+                          color: "var(--color-secondary-strong)",
+                          background: "var(--color-secondary-soft)",
+                        }
+                      : a.agendaRegistrada
+                        ? {
+                            color: "var(--color-primary-link)",
+                            background: "var(--color-primary-soft)",
+                          }
+                        : {
+                            color: "#C7522B",
+                            background: "var(--color-accent-soft)",
+                          }
                   }
                 >
-                  <MessageCircle size={16} />
-                  {temNaoLido && <span className={styles.recadosBadge} />}
-                </button>
-              </div>
+                  {a.agendaEnviada ? (
+                    <CheckCheck size={13} />
+                  ) : a.agendaRegistrada ? (
+                    <Check size={13} />
+                  ) : (
+                    <Clock size={13} />
+                  )}
+                  {a.agendaEnviada
+                    ? "Enviada"
+                    : a.agendaRegistrada
+                      ? "Registrada"
+                      : "Pendente"}
+                </span>
+              </button>
             );
           })}
         </div>

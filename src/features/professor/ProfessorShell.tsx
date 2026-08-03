@@ -7,6 +7,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  Images,
   LogOut,
   Menu,
   MessageCircle,
@@ -41,9 +42,11 @@ const NAV: {
     href: "/professor/turmas",
     label: "Turmas",
     icon: School,
-    // Planos de aula é sub-rota de turmas na URL, mas pertence ao item "Planos".
+    // Planos de aula e mural são sub-rotas de turmas na URL, mas pertencem aos
+    // itens "Planos" e "Mural".
     isActive: (pathname) =>
       !pathname.includes("/planos-aula") &&
+      !pathname.includes("/mural") &&
       (pathname === "/professor/turmas" ||
         pathname.startsWith("/professor/turmas/")),
   },
@@ -52,6 +55,12 @@ const NAV: {
     label: "Recados",
     icon: MessageCircle,
     isActive: (pathname) => pathname.startsWith("/professor/recados"),
+  },
+  {
+    href: "/professor/mural",
+    label: "Mural",
+    icon: Images,
+    isActive: (pathname) => pathname.includes("/mural"),
   },
   {
     href: "/professor/planos-aula",
