@@ -68,3 +68,11 @@ export interface HistoricoDia {
   observacoes?: string;
   anexos?: AnexoAgenda[];
 }
+
+/** Resumo de presença (AG2-09) num período — chip de frequência no histórico. */
+export interface FrequenciaResumo {
+  presente: number;
+  falta: number;
+  atrasado: number;
+  total: number;
+}

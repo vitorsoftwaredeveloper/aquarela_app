@@ -1,9 +1,14 @@
 import { api } from "./api";
 import { IS_DEV_DATA } from "@/config/env";
-import { devAgendaByChild, devAvisos, devHistoricoByChild } from "./devData";
+import {
+  devAgendaByChild,
+  devAvisos,
+  devFrequenciaByChild,
+  devHistoricoByChild,
+} from "./devData";
 import { unwrapItem, unwrapList } from "./unwrap";
 import { getApiErrorStatus } from "./apiError";
-import { hojeISO } from "@/utils/date";
+import { diasAtrasISO, hojeISO } from "@/utils/date";
 import {
   ACEITACAO_OPTS,
   HUMORES,
@@ -17,6 +22,7 @@ import type {
   AgendaEntry,
   AnexoAgenda,
   Aviso,
+  FrequenciaResumo,
   HistoricoDia,
 } from "@/types/agenda";
 
@@ -73,6 +79,17 @@ function formatDataLabel(iso: string): string {
   if (dataOnly === hojeISO()) return "Hoje";
   const [, mes, dia] = dataOnly.split("-");
   return `${dia}/${mes}`;
+}
+
+/** Documento cru devolvido por GET /agenda/frequencia (docs §6, AG2-09). */
+interface FrequenciaRaw {
+  criancaId: string;
+  de: string;
+  ate: string;
+  presente: number;
+  falta: number;
+  atrasado: number;
+  total: number;
 }
 
 /** Documento cru devolvido por GET/POST/PUT /avisos (docs §5 "Avisos"). */
@@ -300,6 +317,38 @@ export const AgendaService = {
       params: { criancaId },
     });
     return unwrapList<AgendaRaw>(data).map(toHistoricoDia);
+  },
+
+  /**
+   * Contagem de presença (presente/falta/atrasado) num período — AG2-09.
+   * `de`/`ate` são obrigatórios na API; default de 30 dias para casar com o
+   * "últimas semanas" já mostrado no cabeçalho do Histórico.
+   */
+  async getFrequencia(
+    criancaId: string,
+    de: string = diasAtrasISO(30),
+    ate: string = hojeISO(),
+  ): Promise<FrequenciaResumo> {
+    if (IS_DEV_DATA) {
+      return (
+        devFrequenciaByChild[criancaId] ?? {
+          presente: 0,
+          falta: 0,
+          atrasado: 0,
+          total: 0,
+        }
+      );
+    }
+    const { data } = await api.get("/agenda/frequencia", {
+      params: { criancaId, de, ate },
+    });
+    const raw = unwrapItem<FrequenciaRaw>(data);
+    return {
+      presente: raw?.presente ?? 0,
+      falta: raw?.falta ?? 0,
+      atrasado: raw?.atrasado ?? 0,
+      total: raw?.total ?? 0,
+    };
   },
 
   /**

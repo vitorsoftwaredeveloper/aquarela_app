@@ -4,7 +4,12 @@
  * Nada aqui vai para produção assim que a API for configurada.
  */
 import type { Crianca } from "@/types/crianca";
-import type { AgendaDia, Aviso, HistoricoDia } from "@/types/agenda";
+import type {
+  AgendaDia,
+  Aviso,
+  FrequenciaResumo,
+  HistoricoDia,
+} from "@/types/agenda";
 import type { Mensalidade } from "@/types/financeiro";
 import type { Turma } from "@/types/turma";
 import type { CriancaCadastro } from "@/types/criancaCadastro";
@@ -536,6 +541,11 @@ export const devHistoricoByChild: Record<string, HistoricoDia[]> = {
       chips: ["Comeu bem", "Blocos", "História"],
     },
   ],
+};
+
+export const devFrequenciaByChild: Record<string, FrequenciaResumo> = {
+  "c-lorena": { presente: 18, falta: 1, atrasado: 2, total: 21 },
+  "c-theo": { presente: 15, falta: 0, atrasado: 1, total: 16 },
 };
 
 const MESES = [
