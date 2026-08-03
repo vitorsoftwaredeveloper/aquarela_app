@@ -42,7 +42,7 @@ Há também um **simulador público** de mensalidade para interessados (sem logi
 | Ícones | `lucide-react` |
 | PIX/QR | `qrcode.react` |
 | Planilhas | `xlsx` (SheetJS) — exportação de relatórios |
-| Estado | Context API (Auth, Theme, Dashboard, Charge, Topbar, Birthday, Coach) |
+| Estado | Context API (Auth, Theme, Notifications, Responsavel — são só esses 4) |
 | Persistência local | `localStorage` (`@/storage/localStorage`) — só preferências/rascunhos, **nunca** dados de saúde |
 
 ## 4. Estrutura (App Router) — alvo
@@ -56,7 +56,7 @@ src/
 │  └─ (admin)/         guard role=admin         (dashboard, criancas, turmas, professores, usuarios, financeiro)
 ├─ components/  # design system (Button, Input, Card, Modal, QRCode…)
 ├─ features/    # componentes por domínio (agenda, financeiro…)
-├─ contexts/    # Auth, Theme, Dashboard, Charge, Topbar, Birthday, Coach
+├─ contexts/    # Auth, Theme, Notifications, Responsavel
 ├─ services/    # api.ts (axios) + um arquivo por domínio
 ├─ hooks/  schemas/ (yup)  storage/  types/  styles/ (tokens.css)
 ```
@@ -236,8 +236,8 @@ de alunos da turma ao concluir. Consomem `services/professorService.ts`.
 `PlanoAulaFormScreen`) acessível pelo ícone de livro na tela de Alunos da turma;
 título/descrição/data + chips de objetivos/materiais (`TagInput` reaproveitado
 de `features/admin/criancas`). Consome `services/planosAula.ts`. **PED-01
-implementado** no `aquarela_serverless` (ainda não commitado/deployado lá) —
-rota real é `/planosAula` (não sub-recurso de turma): `GET ?turmaId=`,
+implementado e commitado** no `aquarela_serverless` (`src/services/planosAula/`)
+— rota real é `/planosAula` (não sub-recurso de turma): `GET ?turmaId=`,
 `POST`/`PUT` com `turmaId` no body, sem GET por id (`getById` do front filtra
 a lista em memória). Contrato atualizado em `docs/03-Backend.md`. A tela
 também funciona via `NEXT_PUBLIC_USE_MOCKS=true` para preview sem depender do
@@ -323,7 +323,7 @@ vez de uma por plano.
 
 14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência, ✅),
 **K** (recados com anexo, ✅), **L** (agenda v2, ✅ — MVP fechado, AG2-09 adiado
-por decisão do usuário), **M** (mural de fotos — ✅ concluído 03/08/2026,
+por decisão do usuário), **M** (mural de fotos — ✅ concluído 02/08/2026,
 back-end em `aquarela_serverless` + front FOT-06/07 neste repo, ver
 `docs/06-Backlog.md` §Épico M) e **N** (ajustes, ✅ — OPS-01…OPS-05 concluídos
 em 02/08/2026).
@@ -387,7 +387,7 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 > string não carrega componente React — quem renderiza escolhe o ícone a
 > partir do valor via `HUMOR_ICON` (mapa exportado ao lado de `HUMORES`).
 
-> **✅ Épico M (Mural de fotos) — front implementado em 03/08/2026**
+> **✅ Épico M (Mural de fotos) — front implementado em 02/08/2026**
 > (FOT-06/07). **Professor** — ícone na tela "Alunos da turma" (ao lado de
 > Planos de aula) abre `/professor/turmas/[turmaId]/mural`
 > (`MuralTurmaScreen.tsx`): lista de eventos com banner fixo das crianças da
@@ -421,6 +421,20 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 > consentimento aceito para a tela de edição não abrir desmarcada por
 > engano — atenção ao mexer nas fixtures de crianças: `devCriancas` e
 > `devCriancasCadastro` são dois arrays paralelos e ambos precisam do campo.
+
+## 7.2 O que falta (02/08/2026)
+
+Épicos 0–N ✅. Em aberto que toca este repo:
+
+- **QA-03 (resto)** — revisão de acesso por papel e política de retenção; a parte
+  de front é conferir que nenhuma tela expõe dado fora do papel.
+- **INF-11 CI/CD** — não existe `.github/workflows`; deploy é manual.
+- **Cobertura RTL das telas novas** (Recados, Mural de fotos) fora do QA-02 ✅ —
+  entra no QA-09 se a sessão de testes ampliar o escopo pro front.
+- **AG2-09** (relatório de frequência) e **Épico O** (manuais em PDF DOC-01…04 +
+  E2E Cypress E2E-01…04) adiados por decisão do usuário.
+
+Quadro completo em [`docs/06-Backlog.md`](./docs/06-Backlog.md) §"Situação atual".
 
 ## 8. Documentação (pasta `docs/`)
 

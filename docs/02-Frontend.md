@@ -53,7 +53,7 @@ src/
 │  └─ layout.tsx                  # providers globais
 ├─ components/                    # design system (Button, Input, Card, QRCode…)
 ├─ features/                      # componentes por domínio (agenda, financeiro…)
-├─ contexts/                      # Auth, Theme, Dashboard, Charge, Birthday, Topbar, Coach
+├─ contexts/                      # Auth, Theme, Notifications, Responsavel
 ├─ services/                      # api.ts (axios), criancas.ts, agenda.ts, financeiro.ts…
 ├─ hooks/                         # useAuth, useCriancas, useAgenda…
 ├─ schemas/                       # yup schemas
@@ -97,13 +97,18 @@ api.interceptors.request.use(async (config) => {
 |---|---|
 | `AuthContext` | usuário, papel, sessão Cognito |
 | `ThemeContext` | tema claro/escuro, tokens |
-| `DashboardContext` | dados agregados do admin (entradas, despesas, KPIs) |
-| `ChargeContext` | cobranças/mensalidades e status de pagamento PIX |
-| `TopbarContext` | título/ações da barra superior por página |
-| `BirthdayContext` | aniversariantes do dia (widget lúdico) |
-| `CoachContext` | dicas/onboarding contextual |
+| `NotificationsContext` | permissão de push, token FCM, toast de `onMessage` (épico I) |
+| `ResponsavelContext` | filho ativo do responsável (troca entre múltiplos filhos) |
 
 Regra: Context para estado compartilhado entre telas; estado local (`useState`) para o que é da própria tela. Dados de servidor passam por `services/*` e são cacheados no context quando fizer sentido.
+
+> **Esses quatro são os únicos contextos que existem** (`src/contexts/`). As
+> versões antigas deste guia listavam `Dashboard`, `Charge`, `Topbar`,
+> `Birthday` e `Coach` como planejados — nenhum foi criado, e as telas
+> correspondentes resolveram sem eles: dashboard e financeiro carregam direto
+> pelos `services/*`, o título da barra vem de `pushHeader`, e o card de
+> aniversariante lê o `GET /criancas` que a tela já carregou. Não escreva
+> código novo assumindo que existem.
 
 ---
 
@@ -133,12 +138,12 @@ export const criancaSchema = yup.object({
 - **Agenda diária (professor):** formulário otimista — salva rápido, chips para valores comuns, faixa fixa de alergias/medicações vinda do cadastro da criança.
 - **Portal do pai:** somente leitura da agenda + histórico paginado por data. **Exceção:** o responsável edita o cadastro do próprio filho em `/crianca/{id}/editar` (`EditarCriancaScreen`) — nome, nascimento, responsáveis, saúde e foto. Sem `financeiro`, `turma` e `cpf`: o backend responde `403`/rejeita o `PUT`, e a tela nem oferece os campos (faixa explicativa apontando a secretaria). **E-mail de responsável com `usuarioId` é `readOnly`** — o `PUT` não propaga para o Cognito nem para `usuarios`, então editar ali só criaria divergência entre o e-mail exibido e o de login (ver aviso em docs/03-Backend §5).
 - **Foto da criança:** `components/FotoField` (admin no passo "Identificação" do stepper, responsável na tela de edição). O upload vai em **base64 no corpo** do `POST`/`PUT /criancas` e o front **sempre** redimensiona antes (`utils/imagem.ts` — 800px de lado maior, JPEG 0.8, teto de 2MB decodificados; a API corta em `422` acima disso). O preview é **controlado pelo pai** (`previewUrl`), para que um salvamento bem-sucedido volte a exibir a imagem gravada em vez do rascunho local. Exibição via `components/Avatar` (foto com fallback de iniciais + cor).
-- **Financeiro (pai):** grade de meses (`ChargeContext`); botão "Pagar via PIX" abre modal com `qrcode.react` (QR) e copia-e-cola; faz polling do status até "pago".
+- **Financeiro (pai):** grade de meses (`services/financeiroService.ts`, estado local da tela); botão "Pagar via PIX" abre modal com `qrcode.react` (QR) e copia-e-cola; faz polling do status até "pago".
 - **Etapa financeiro do cadastro de criança (`CriancaStepper.tsx`):** toggle **Plano fixo** × **Valor personalizado**. "Plano fixo" mantém o seletor de `GET /config/precos/planos` (preenche `valorMensalidade` a partir do plano e manda `financeiro.planoId` junto). "Valor personalizado" troca o seletor por um campo numérico livre (acordo fechado com os responsáveis, fora dos planos) e **omite `planoId`** do payload — o backend nunca recalcula `valorMensalidade` a partir de plano (`docs/03-Backend.md` §5), então o valor enviado é o que fica gravado, e os dois nunca são mandados como se fossem consistentes entre si.
 - **Financeiro (admin) — pagamento manual em dinheiro:** ícone de carteira na lista de crianças (`CriancasScreen.tsx`) abre `FinanceiroCriancaModal.tsx` com a grade de meses da criança (mesma rota `GET /mensalidades?criancaId=&ano=` do portal do pai). Clicar num mês `aberto`/`atrasado` troca o modal para um formulário de valor recebido; confirmar chama `POST /pagamentos/manual` (`docs/03-Backend.md` §7.1) e a mensalidade passa a aparecer `pago`, igual a uma paga por PIX.
 - **Simulador:** cálculo no cliente a partir dos valores configurados; gráfico de barras comparando períodos.
 - **Remover turma (`turmas/[turmaId]/page.tsx`):** `DELETE /turmas/{id}` apaga em cascata **avisos** e **planos de aula** (`planos-aula/page.tsx`) daquela turma — hard delete, sem confirmação extra do backend. O front deve avisar o admin disso antes de confirmar a remoção, e invalidar/recarregar a listagem de planos de aula em cache após o `DELETE` (`docs/03-Backend.md` §5).
-- **Relatórios (admin):** exportação `.xlsx` com `xlsx` (SheetJS) a partir dos dados do `DashboardContext`.
+- **Relatórios (admin):** exportação `.xlsx` com `xlsx` (SheetJS) e `.pdf` (`utils/exportPdfTable.ts`) a partir dos dados de `services/financeiroAdminService.ts`.
 - **Redefinir senha (admin):** ícone `KeyRound` na lista de usuários (`UsuariosScreen.tsx`, ao lado de Editar/Remover) abre `RedefinirSenhaForm` — o admin digita e confirma a nova senha (`schemas/usuario.ts` → `redefinirSenhaSchema`, mín. 8 caracteres) e o front chama `UsuariosService.redefinirSenha` (`PUT /usuarios/{id}/senha`, `docs/03-Backend.md` §5). Sucesso fecha o form e abre `SenhaRedefinidaModal` — mesmo padrão copia-e-cola do `CredencialModal` do cadastro (e-mail + senha em destaque, botão "Copiar tudo"), avisando que ela só aparece nessa hora. Assim como no cadastro, o usuário é obrigado a trocá-la no próximo login — o front não coleta a senha atual nem oferece esse fluxo para o próprio usuário se autoatender.
 
 ---
@@ -336,9 +341,9 @@ carregada** pelo dashboard (sem chamada nova) e mostra "Hoje é aniversário de
 {nome}! 🎉" (ou a lista, se mais de uma criança fizer aniversário no mesmo
 dia). Só aparece quando há aniversariante — não ocupa espaço à toa.
 
-⚠️ `BirthdayContext` segue listado em §4 como contexto planejado, mas **não
-existe em `src/contexts/`** (só `Auth`, `Notifications`, `Responsavel`,
-`Theme`) — e o card de aniversariante na **Início do responsável** e na
+⚠️ `BirthdayContext` **não existe e não vai existir** — §4 já foi corrigida
+(`src/contexts/` tem só `Auth`, `Notifications`, `Responsavel`, `Theme`). O
+card de aniversariante na **Início do responsável** e na
 **lista de alunos do professor** (mencionados no backlog como "mais simples
 nesta escala: ler direto do `GET /criancas`") **ainda não foram
 implementados**. O push já chega para os dois papéis independente disso; falta

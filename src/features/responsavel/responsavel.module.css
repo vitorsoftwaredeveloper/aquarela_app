@@ -43,14 +43,20 @@
 }
 .scroll {
   flex: 1;
-  padding-bottom: var(--tabbar-h);
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Bottom tab bar */
 .tabbar {
-  position: sticky;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 0;
-  height: var(--tabbar-h);
+  width: 100%;
+  max-width: 460px;
+  z-index: 20;
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
   display: flex;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
