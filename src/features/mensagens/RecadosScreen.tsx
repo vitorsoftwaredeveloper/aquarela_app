@@ -57,8 +57,6 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const [anexos, setAnexos] = useState<AnexoReferencia[]>([]);
   const [mostrarAnexo, setMostrarAnexo] = useState(false);
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
-  const [compositorHeight, setCompositorHeight] = useState(96);
-  const compositorRef = useRef<HTMLDivElement>(null);
   const ultimoCreatedAtRef = useRef<string | null>(null);
   const avatarBg = useMemo(
     () => sortearCoresAvatar([criancaId])[criancaId],
@@ -87,19 +85,9 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   }, [mensagens]);
 
   useEffect(() => {
-    const el = compositorRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => {
-      setCompositorHeight(el.offsetHeight);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     if (mensagens.length === 0) return;
     window.scrollTo({ top: document.documentElement.scrollHeight });
-  }, [mensagens.length, compositorHeight]);
+  }, [mensagens.length]);
 
   useEffect(() => {
     if (mensagens.length > 0) {
@@ -210,7 +198,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
       : "";
 
   return (
-    <div>
+    <div className={styles.tela}>
       <div className={styles.watermark} aria-hidden />
       {user?.role === "professor" ? (
         <div className={styles.pushHeader}>
@@ -245,10 +233,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
         </div>
       )}
 
-      <div
-        className={styles.lista}
-        style={{ paddingBottom: compositorHeight + 16 }}
-      >
+      <div className={styles.lista}>
         {base.loading ? (
           <div
             className={styles.listaCarregando}
@@ -344,7 +329,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
         </div>
       )}
 
-      <div className={styles.compositor} ref={compositorRef}>
+      <div className={styles.compositor}>
         {mostrarAnexo && (
           <UploadAnexo
             escopo="mensagem"

@@ -1,11 +1,208 @@
 /* ============================================================
-   Portal do responsável — mobile-first (protótipo Claude Design)
+   Portal do responsável — sidebar desktop / hamburguer mobile (paridade admin)
    ============================================================ */
 
-.app {
+.shell {
+  --sidebar-bg: linear-gradient(180deg, #3a1f68 0%, #2e1656 55%, #281047 100%);
+  --sidebar-text: rgba(255, 255, 255, 0.74);
+  --sidebar-text-strong: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-active: rgba(255, 255, 255, 0.16);
+  --content-pb: calc(28px + env(safe-area-inset-bottom, 0px));
+
   min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 244px 1fr;
+  background: var(--screen);
+  transition: grid-template-columns 0.16s ease;
+}
+:root[data-theme="dark"] .shell {
+  --sidebar-bg: linear-gradient(180deg, #241a3d 0%, #1e1533 55%, #191029 100%);
+}
+.shellCollapsed {
+  grid-template-columns: 76px 1fr;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 14px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  transition: padding 0.16s ease;
+}
+.sidebarCollapsed {
+  padding: 20px 10px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 16px;
+}
+.sidebarCollapsed .brand {
+  flex-direction: column;
   justify-content: center;
+  padding: 6px 0 16px;
+}
+.sidebarCollapsed .nav {
+  align-items: center;
+}
+.collapseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--sidebar-border);
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.collapseBtn:hover {
+  color: var(--sidebar-text-strong);
+  background: var(--sidebar-active);
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: var(--radius-md);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.sidebarCollapsed .navItem {
+  width: 42px;
+  justify-content: center;
+  padding: 11px;
+}
+.navItem:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-strong);
+}
+.navActive,
+.navActive:hover {
+  background: var(--sidebar-active);
+  color: var(--sidebar-text-strong);
+  font-weight: 600;
+}
+.navIconWrap {
+  position: relative;
+  display: inline-flex;
+}
+.navDot {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger-strong);
+  border: 2px solid var(--sidebar-bg);
+}
+
+/* ===================== SIDEBAR FOOTER (usuário + sair) ===================== */
+.sidebarFooter {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--sidebar-text);
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.sidebarCollapsed .who {
+  justify-content: center;
+}
+.whoAvatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--sidebar-active);
+  color: var(--sidebar-text-strong);
+}
+.whoText {
+  min-width: 0;
+}
+.whoName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sidebar-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.whoRole {
+  font-size: 12px;
+  color: var(--sidebar-text);
+}
+.signOutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--sidebar-border);
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.sidebarCollapsed .signOutBtn {
+  width: 42px;
+  padding: 9px;
+}
+.signOutBtn:hover {
+  color: #ffd9d7;
+  border-color: rgba(255, 138, 133, 0.55);
+  background: rgba(229, 72, 77, 0.24);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   background:
     radial-gradient(
       70% 55% at 0% 0%,
@@ -20,80 +217,109 @@
       var(--screen) 100%
     );
 }
-.viewport {
-  --tabbar-h: 62px;
-  width: 100%;
-  max-width: 460px;
-  min-height: 100dvh;
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 26px;
+  background: color-mix(in srgb, var(--wash-1) 72%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-08);
+}
+.topbarMobileBrand {
+  display: none;
+}
+.menuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-10);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.menuBtn:hover {
+  color: var(--color-primary-link);
+  border-color: var(--color-primary-soft-border);
+}
+.mobileNavOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, black 45%, transparent);
+  display: flex;
+}
+.mobileNav {
+  width: min(280px, 82vw);
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(
-    180deg,
-    var(--wash-1) 0%,
-    var(--wash-2) 45%,
-    var(--wash-3) 70%,
-    var(--screen) 100%
-  );
-  position: relative;
+  padding: 16px 14px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
 }
-@media (min-width: 480px) {
-  .viewport {
-    box-shadow: 0 20px 60px -30px rgba(18, 59, 99, 0.35);
-  }
+.mobileNav .menuBtn {
+  border-color: var(--sidebar-border);
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
 }
-.scroll {
+.mobileNav .menuBtn:hover {
+  border-color: var(--sidebar-border);
+  background: var(--sidebar-active);
+  color: var(--sidebar-text-strong);
+}
+.mobileNavHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 16px;
+}
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+}
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+.content {
   flex: 1;
-  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding-bottom: var(--content-pb);
 }
 
-/* Bottom tab bar */
-.tabbar {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  width: 100%;
-  max-width: 460px;
-  z-index: 20;
-  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  box-sizing: border-box;
-  display: flex;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border-08);
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none;
+  }
+  .topbarMobileBrand {
+    display: block;
+  }
+  .menuBtn {
+    display: inline-flex;
+  }
 }
-.tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 10px 0 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-mute);
-}
-.tab:hover {
-  color: var(--text-soft);
-}
-.tabActive,
-.tabActive:hover {
-  color: var(--color-primary-link);
-}
-.tabIconWrap {
-  position: relative;
-  display: inline-flex;
-}
-.tabDot {
-  position: absolute;
-  top: -2px;
-  right: -3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-danger-strong);
-  border: 2px solid var(--surface);
+
+@media (min-width: 901px) {
+  .mobileNavOverlay {
+    display: none;
+  }
 }
 
 /* ---------- Cabeçalho gradiente (início/financeiro/perfil) ---------- */

@@ -67,12 +67,19 @@
   margin-top: 2px;
 }
 
+.tela {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin-bottom: calc(-1 * var(--content-pb, 0px));
+}
+
 .lista {
-  padding: 16px 14px 116px;
+  flex: 1;
+  padding: 16px 14px 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 40vh;
 }
 
 .listaCarregando {
@@ -187,17 +194,15 @@
 }
 
 .compositor {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(var(--tabbar-h, 62px) + env(safe-area-inset-bottom, 0px));
-  width: 100%;
-  max-width: 460px;
+  position: sticky;
+  bottom: 0;
   z-index: 15;
   background: color-mix(in srgb, var(--screen) 96%, transparent);
   backdrop-filter: blur(8px);
   border-top: 1px solid var(--border-06);
-  padding: 10px 14px;
+  border-radius: 14px 14px 0 0;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;

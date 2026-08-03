@@ -171,7 +171,7 @@ export function EventoMuralDetalheScreen({
   const espacoDisponivel = Math.max(0, 50 - fotos.length);
 
   return (
-    <div>
+    <div className={styles.tela}>
       <div className={styles.pushHeader}>
         <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
           <ChevronLeft size={20} />
