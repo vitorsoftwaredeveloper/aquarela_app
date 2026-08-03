@@ -49,17 +49,13 @@ export const configPrecosSchema = yup.object({
     .required(),
   inadimplencia: yup
     .object({
-      diaCorte: yup
+      diasCarencia: yup
         .number()
-        .typeError("Informe o dia")
-        .required("Informe o dia do corte")
-        .min(1, "Mínimo 1")
-        .max(28, "Máximo 28"),
-      mesesCarencia: yup
-        .number()
-        .typeError("Informe os meses")
-        .required("Informe os meses de carência")
-        .min(0, "Não pode ser negativo"),
+        .typeError("Informe os dias")
+        .required("Informe os dias de carência")
+        .integer("Use dias inteiros")
+        .min(0, "Não pode ser negativo")
+        .max(365, "Máximo 365"),
     })
     .required(),
 });

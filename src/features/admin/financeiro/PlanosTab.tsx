@@ -198,30 +198,23 @@ function ConfigForm({
         </div>
         <div className={styles.grid}>
           <Input
-            label="Dia do corte"
-            type="number"
-            min="1"
-            max="28"
-            placeholder="10"
-            error={errors.inadimplencia?.diaCorte?.message}
-            {...register("inadimplencia.diaCorte", { valueAsNumber: true })}
-          />
-          <Input
-            label="Meses de carência"
+            label="Dias de carência"
             type="number"
             min="0"
-            placeholder="1"
-            error={errors.inadimplencia?.mesesCarencia?.message}
-            {...register("inadimplencia.mesesCarencia", {
+            max="365"
+            placeholder="10"
+            error={errors.inadimplencia?.diasCarencia?.message}
+            {...register("inadimplencia.diasCarencia", {
               valueAsNumber: true,
             })}
           />
         </div>
         <p className={styles.help}>
-          A mensalidade não paga vira &quot;inadimplente&quot; no dia do corte
-          do mês seguinte à competência, contando os meses de carência. Ex.:
-          corte 10 e carência 1 mês — uma mensalidade de agosto vira
-          inadimplente em 10/09.
+          A mensalidade não paga vira &quot;inadimplente&quot; depois desses
+          dias contados a partir do vencimento da própria criança. Ex.: 10 dias
+          — uma mensalidade que vence em 05/08 vira inadimplente em 15/08.
+          Entre o vencimento e esse prazo ela continua apenas &quot;em
+          atraso&quot;.
         </p>
       </div>
 

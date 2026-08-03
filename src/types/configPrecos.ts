@@ -16,8 +16,7 @@ export interface PlanoConfig {
 }
 
 export interface InadimplenciaConfig {
-  diaCorte: number; // 1-28
-  mesesCarencia: number;
+  diasCarencia: number; // 0-365, contados a partir do vencimento da mensalidade
 }
 
 export interface ConfigPrecos {
@@ -33,10 +32,9 @@ export const TIPO_LABEL: Record<PlanoTipo, string> = {
   meioPeriodo: "Meio período",
 };
 
-/** Corte de inadimplência sugerido quando o `configPrecos` ainda não foi populado. */
+/** Carência sugerida quando o `configPrecos` ainda não foi populado. */
 export const INADIMPLENCIA_PADRAO: InadimplenciaConfig = {
-  diaCorte: 10,
-  mesesCarencia: 1,
+  diasCarencia: 10,
 };
 
 /** Planos-base sugeridos quando o `configPrecos` ainda não foi populado. */
