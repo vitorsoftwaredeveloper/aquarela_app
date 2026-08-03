@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Hammer } from "lucide-react";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import styles from "./admin.module.css";
 
 /** Placeholder de tela admin ainda não implementada (nav sem 404). */
@@ -12,14 +15,10 @@ export function ComingSoon({
   epic: string;
   icon?: ReactNode;
 }) {
+  usePageTitle(title, epic);
+
   return (
     <div className={styles.page}>
-      <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>{title}</h1>
-          <p className={styles.pageSub}>{epic}</p>
-        </div>
-      </div>
       <div className={styles.card}>
         <div className={styles.state}>
           <span className={styles.stateIcon}>

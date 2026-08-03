@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Avatar, Skeleton, UploadAnexo } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { MensagensService } from "@/services/mensagens";
@@ -197,6 +198,20 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
       ? "Não foi possível carregar"
       : "";
 
+  const ehProfessor = user?.role === "professor";
+
+  usePageTitle(
+    ehProfessor ? "" : "Recados",
+    ehProfessor
+      ? undefined
+      : `Converse com ${professorNomeHeader ?? "os professores"}` +
+          (c?.nome
+            ? ` sobre ${c.nome}`
+            : carregandoCrianca
+              ? ` · ${carregandoCrianca}`
+              : ""),
+  );
+
   return (
     <div className={styles.tela}>
       <div className={styles.watermark} aria-hidden />
@@ -219,19 +234,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
             </div>
           </div>
         </div>
-      ) : (
-        <div className={`${styles.gradHeader} ${styles.finHeaderPad}`}>
-          <div className={styles.finTitle}>Chat</div>
-          <div className={styles.finSub}>
-            {`Converse com ${professorNomeHeader ?? "os professores"}`}
-            {c?.nome
-              ? ` sobre ${c.nome}`
-              : carregandoCrianca
-                ? ` · ${carregandoCrianca}`
-                : ""}
-          </div>
-        </div>
-      )}
+      ) : null}
 
       <div className={styles.lista}>
         {base.loading ? (

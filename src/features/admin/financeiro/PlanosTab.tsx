@@ -212,9 +212,8 @@ function ConfigForm({
         <p className={styles.help}>
           A mensalidade não paga vira &quot;inadimplente&quot; depois desses
           dias contados a partir do vencimento da própria criança. Ex.: 10 dias
-          — uma mensalidade que vence em 05/08 vira inadimplente em 15/08.
-          Entre o vencimento e esse prazo ela continua apenas &quot;em
-          atraso&quot;.
+          — uma mensalidade que vence em 05/08 vira inadimplente em 15/08. Entre
+          o vencimento e esse prazo ela continua apenas &quot;em atraso&quot;.
         </p>
       </div>
 

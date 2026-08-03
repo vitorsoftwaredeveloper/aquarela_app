@@ -99,10 +99,25 @@ api.interceptors.request.use(async (config) => {
 | `ThemeContext` | tema claro/escuro, tokens |
 | `NotificationsContext` | permissão de push, token FCM, toast de `onMessage` (épico I) |
 | `ResponsavelContext` | filho ativo do responsável (troca entre múltiplos filhos) |
+| `PageTitleContext` | título/subtítulo da tela atual na topbar dos três shells (admin, professor, responsável) |
 
 Regra: Context para estado compartilhado entre telas; estado local (`useState`) para o que é da própria tela. Dados de servidor passam por `services/*` e são cacheados no context quando fizer sentido.
 
-> **Esses quatro são os únicos contextos que existem** (`src/contexts/`). As
+> **Cabeçalho unificado nas três visões (03/08/2026):** o título da tela mora
+> na **topbar** (a barra do hambúrguer e do `ThemeToggle`), em mobile **e**
+> desktop, para admin, professor e responsável. Cada tela declara
+> `usePageTitle(titulo, subtitulo?)` (`contexts/PageTitleContext.tsx`, provider
+> nos três layouts de papel) — nenhuma tela renderiza o próprio título. Saíram
+> do conteúdo: os headers gradientes (`.header` do professor, `.gradHeader` do
+> responsável) e o bloco `h1` + `.pageSub` do `pageHead` do admin, que agora só
+> carrega `pageHeadActions` (botões "Adicionar", "Imprimir ficha") e nem é
+> renderizado quando não há ação. Título vazio (`usePageTitle("")`) volta a
+> mostrar a logo na topbar — é o que a tela de chat faz no papel professor, que
+> já tem `pushHeader` próprio. O `.gradHeader` sobreviveu só no comprovante de
+> pagamento (`reciboHeader`); `.pageSub` continua no CSS do admin porque a aba
+> Planos usa a classe como texto auxiliar.
+>
+> **Esses contextos são os únicos que existem** (`src/contexts/`). As
 > versões antigas deste guia listavam `Dashboard`, `Charge`, `Topbar`,
 > `Birthday` e `Coach` como planejados — nenhum foi criado, e as telas
 > correspondentes resolveram sem eles: dashboard e financeiro carregam direto

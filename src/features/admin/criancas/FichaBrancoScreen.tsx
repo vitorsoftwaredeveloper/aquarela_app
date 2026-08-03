@@ -73,9 +73,7 @@ export function FichaBrancoScreen() {
           {[1, 2].map((n) => (
             <div key={n} className={styles.responsavelCard}>
               <div className={styles.responsavelHead}>
-                <span className={styles.responsavelNome}>
-                  Responsável {n}
-                </span>
+                <span className={styles.responsavelNome}>Responsável {n}</span>
               </div>
               <div className={styles.fieldGrid}>
                 <div className={styles.field}>
@@ -99,7 +97,9 @@ export function FichaBrancoScreen() {
                   <span className={styles.blankLine} />
                 </div>
                 <div className={styles.field}>
-                  <span className={styles.fieldLabel}>Pode retirar a criança</span>
+                  <span className={styles.fieldLabel}>
+                    Pode retirar a criança
+                  </span>
                   <span className={styles.checkboxMark} aria-hidden /> Sim
                   &nbsp;&nbsp;
                   <span className={styles.checkboxMark} aria-hidden /> Não

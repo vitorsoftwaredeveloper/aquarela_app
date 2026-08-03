@@ -48,25 +48,6 @@
   color: var(--text-dim);
 }
 
-.gradHeader {
-  background: linear-gradient(150deg, #7c5ae6 0%, #5fc9a6 100%);
-  color: #fff;
-  border-radius: 0 0 28px 28px;
-}
-.finHeaderPad {
-  padding: 16px 22px 26px;
-}
-.finTitle {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 21px;
-}
-.finSub {
-  font-size: 13px;
-  opacity: 0.92;
-  margin-top: 2px;
-}
-
 .tela {
   display: flex;
   flex-direction: column;

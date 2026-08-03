@@ -13,6 +13,10 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const historico = useFetch(() => AgendaService.getHistorico(criancaId));
+  const frequencia = useFetch(
+    () => AgendaService.getFrequencia(criancaId),
+    [criancaId],
+  );
   const dias = historico.data ?? [];
 
   return (
@@ -32,6 +36,35 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
           </div>
         </div>
       </div>
+
+      {frequencia.data && frequencia.data.total > 0 && (
+        <div className={styles.freqResumo}>
+          <div className={styles.freqItem}>
+            <span className={styles.freqValue}>{frequencia.data.presente}</span>
+            <span className={styles.freqLabel}>Presenças</span>
+          </div>
+          <div
+            className={
+              frequencia.data.falta > 0
+                ? `${styles.freqItem} ${styles.freqItemAlerta}`
+                : styles.freqItem
+            }
+          >
+            <span className={styles.freqValue}>{frequencia.data.falta}</span>
+            <span className={styles.freqLabel}>Faltas</span>
+          </div>
+          <div
+            className={
+              frequencia.data.atrasado > 0
+                ? `${styles.freqItem} ${styles.freqItemAlerta}`
+                : styles.freqItem
+            }
+          >
+            <span className={styles.freqValue}>{frequencia.data.atrasado}</span>
+            <span className={styles.freqLabel}>Atrasos</span>
+          </div>
+        </div>
+      )}
 
       {historico.loading ? (
         <div className={styles.histList} role="status" aria-label="Carregando…">
@@ -57,7 +90,9 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
       ) : (
         <div className={styles.histList}>
           {dias.map((h) => {
-            const HumorIcon = h.humorValue ? HUMOR_ICON[h.humorValue] : undefined;
+            const HumorIcon = h.humorValue
+              ? HUMOR_ICON[h.humorValue]
+              : undefined;
             return (
               <div key={h.data} className={styles.histCard}>
                 <div className={styles.histHead}>

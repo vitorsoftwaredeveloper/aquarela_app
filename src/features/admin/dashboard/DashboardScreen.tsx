@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Skeleton } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { CriancasAdminService } from "@/services/criancasAdmin";
@@ -21,6 +22,8 @@ import adminStyles from "../admin.module.css";
 import styles from "./dashboard.module.css";
 
 export function DashboardScreen() {
+  usePageTitle("Dashboard", "Visão geral do mês e dos últimos 12 meses.");
+
   // `/financeiro/balanco` não devolve inadimplentes/crianças ativas/turmas —
   // esses contadores vêm de endpoints dedicados, não do resumo do balanço.
   const { data, loading, error, reload } = useFetch(async () => {
@@ -46,15 +49,6 @@ export function DashboardScreen() {
 
   return (
     <div className={adminStyles.page}>
-      <div className={adminStyles.pageHead}>
-        <div>
-          <h1 className={adminStyles.pageTitle}>Dashboard</h1>
-          <p className={adminStyles.pageSub}>
-            Visão geral do mês e dos últimos 12 meses.
-          </p>
-        </div>
-      </div>
-
       <NotificationOnboarding spacious />
 
       {loading ? (

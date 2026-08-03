@@ -11,13 +11,20 @@ import styles from "./professor.module.css";
 function formatData(iso: string): string {
   const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
   const router = useRouter();
   const eventos = useFetch(() => EventosService.list({ turmaId }), [turmaId]);
-  const alunos = useFetch(() => ProfessorService.listAlunos(turmaId), [turmaId]);
+  const alunos = useFetch(
+    () => ProfessorService.listAlunos(turmaId),
+    [turmaId],
+  );
 
   const semConsentimento = (alunos.data ?? []).filter(
     (a) => !a.consentimentoImagem?.aceito,
@@ -68,7 +75,11 @@ export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
       </button>
 
       {eventos.loading ? (
-        <div className={styles.eventoList} role="status" aria-label="Carregando…">
+        <div
+          className={styles.eventoList}
+          role="status"
+          aria-label="Carregando…"
+        >
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={styles.eventoCard}>
               <Skeleton width={54} height={54} radius={14} />
@@ -100,21 +111,32 @@ export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
               }
             >
               {e.fotos[0]?.url ? (
-                <img src={e.fotos[0].url} alt="" className={styles.eventoThumb} />
+                <img
+                  src={e.fotos[0].url}
+                  alt=""
+                  className={styles.eventoThumb}
+                />
               ) : (
-                <span className={`${styles.eventoThumb} ${styles.eventoThumbEmpty}`}>
+                <span
+                  className={`${styles.eventoThumb} ${styles.eventoThumbEmpty}`}
+                >
                   <Images size={20} />
                 </span>
               )}
               <span style={{ flex: 1 }}>
-                <span className={styles.eventoTitle} style={{ display: "block" }}>
+                <span
+                  className={styles.eventoTitle}
+                  style={{ display: "block" }}
+                >
                   {e.titulo}
                 </span>
                 <span className={styles.eventoMeta}>
                   {formatData(e.data)} · {e.fotos.length} foto
                   {e.fotos.length === 1 ? "" : "s"}
                   <span
-                    className={e.publicado ? styles.badgePublished : styles.badgeDraft}
+                    className={
+                      e.publicado ? styles.badgePublished : styles.badgeDraft
+                    }
                   >
                     {e.publicado ? "Publicado" : "Rascunho"}
                   </span>

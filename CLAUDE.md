@@ -42,7 +42,7 @@ Há também um **simulador público** de mensalidade para interessados (sem logi
 | Ícones | `lucide-react` |
 | PIX/QR | `qrcode.react` |
 | Planilhas | `xlsx` (SheetJS) — exportação de relatórios |
-| Estado | Context API (Auth, Theme, Notifications, Responsavel — são só esses 4) |
+| Estado | Context API (Auth, Theme, Notifications, Responsavel, PageTitle — são só esses 5) |
 | Persistência local | `localStorage` (`@/storage/localStorage`) — só preferências/rascunhos, **nunca** dados de saúde |
 
 ## 4. Estrutura (App Router) — alvo
@@ -322,8 +322,8 @@ vez de uma por plano.
 ## 7.1 Lote de 01/08/2026 — Épicos J, K, L, M, N ✅ concluídos
 
 14 pedidos da operação viraram os épicos **J** (cobrança/inadimplência, ✅),
-**K** (recados com anexo, ✅), **L** (agenda v2, ✅ — MVP fechado, AG2-09 adiado
-por decisão do usuário), **M** (mural de fotos — ✅ concluído 02/08/2026,
+**K** (recados com anexo, ✅), **L** (agenda v2, ✅ — MVP fechado 02/08/2026,
+AG2-09 implementado 03/08/2026), **M** (mural de fotos — ✅ concluído 02/08/2026,
 back-end em `aquarela_serverless` + front FOT-06/07 neste repo, ver
 `docs/06-Backlog.md` §Épico M) e **N** (ajustes, ✅ — OPS-01…OPS-05 concluídos
 em 02/08/2026).
@@ -366,8 +366,7 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
   sem lib de PDF — `window.print()` + `@media print`).
 
 > **✅ Épico L (Agenda v2) — MVP implementado em 02/08/2026** (AG2-01…AG2-08,
-> AG2-10; **AG2-09**, relatório de frequência, **adiado** por decisão do
-> usuário — sem tela consumidora ainda). `RegistrarAgendaScreen.tsx` ganhou
+> AG2-10). `RegistrarAgendaScreen.tsx` ganhou
 > as seções **Presença** (presente/falta/atrasado — `atrasado` exige hora de
 > chegada, validado no front espelhando o `if/then` do ajv no back) e
 > **Tarefa de casa** (feito/não feito/incompleto), além de **Anexo** via
@@ -386,6 +385,16 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 > campo genérico `value?: string` (código cru, ex. `"feliz"`/`"falta"`) porque
 > string não carrega componente React — quem renderiza escolhe o ícone a
 > partir do valor via `HUMOR_ICON` (mapa exportado ao lado de `HUMORES`).
+
+> **✅ AG2-09 (Frequência) — implementado em 03/08/2026.** `GET
+> /agenda/frequencia?criancaId=&de=&ate=` (`de`/`ate` obrigatórios) devolve
+> `{ presente, falta, atrasado, total }` do período — consumido por
+> `AgendaService.getFrequencia` (`src/services/agendaService.ts`, default de
+> 30 dias) e exibido como chip de resumo (3 caixas: Presenças/Faltas/Atrasos)
+> no topo de `HistoricoScreen.tsx`, tanto do professor quanto do responsável
+> (`.freqResumo`/`.freqItem`/`.freqValue`/`.freqLabel` nos respectivos
+> `*.module.css`). Some da tela quando não há nenhum dia com `presenca`
+> registrada no período (`total === 0`).
 
 > **✅ Épico M (Mural de fotos) — front implementado em 02/08/2026**
 > (FOT-06/07). **Professor** — ícone na tela "Alunos da turma" (ao lado de
@@ -422,17 +431,18 @@ contrato em [`docs/03-Backend.md`](./docs/03-Backend.md), tarefas e AC em
 > engano — atenção ao mexer nas fixtures de crianças: `devCriancas` e
 > `devCriancasCadastro` são dois arrays paralelos e ambos precisam do campo.
 
-## 7.2 O que falta (02/08/2026)
+## 7.2 O que falta (03/08/2026)
 
 Épicos 0–N ✅. Em aberto que toca este repo:
 
 - **QA-03 (resto)** — revisão de acesso por papel e política de retenção; a parte
   de front é conferir que nenhuma tela expõe dado fora do papel.
 - **INF-11 CI/CD** — não existe `.github/workflows`; deploy é manual.
-- **Cobertura RTL das telas novas** (Recados, Mural de fotos) fora do QA-02 ✅ —
-  entra no QA-09 se a sessão de testes ampliar o escopo pro front.
-- **AG2-09** (relatório de frequência) e **Épico O** (manuais em PDF DOC-01…04 +
-  E2E Cypress E2E-01…04) adiados por decisão do usuário.
+- **Cobertura RTL das telas novas** (Recados, Mural de fotos, chip de
+  Frequência) fora do QA-02 ✅ — entra no QA-09 se a sessão de testes ampliar
+  o escopo pro front.
+- **Épico O** (manuais em PDF DOC-01…04 + E2E Cypress E2E-01…04) adiado por
+  decisão do usuário.
 
 Quadro completo em [`docs/06-Backlog.md`](./docs/06-Backlog.md) §"Situação atual".
 

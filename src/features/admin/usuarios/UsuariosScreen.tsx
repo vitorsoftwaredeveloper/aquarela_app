@@ -14,6 +14,7 @@ import {
   UserCog,
 } from "lucide-react";
 import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { UsuariosService } from "@/services/usuarios";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -41,6 +42,8 @@ const ROLE_TONE: Record<Role, "info" | "success" | "neutral"> = {
 };
 
 export function UsuariosScreen() {
+  usePageTitle("Usuários", "Gerencie quem acessa o sistema e seus papéis.");
+
   const { data, loading, error, reload } = useFetch(() =>
     UsuariosService.list(),
   );
@@ -81,12 +84,6 @@ export function UsuariosScreen() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Usuários</h1>
-          <p className={styles.pageSub}>
-            Gerencie quem acessa o sistema e seus papéis.
-          </p>
-        </div>
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />

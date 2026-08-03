@@ -34,10 +34,12 @@ function formatReais(valor: number): string {
 
 export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
-  const { data: crianca, loading, error, reload } = useFetch(
-    () => CriancasAdminService.getById(criancaId),
-    [criancaId],
-  );
+  const {
+    data: crianca,
+    loading,
+    error,
+    reload,
+  } = useFetch(() => CriancasAdminService.getById(criancaId), [criancaId]);
 
   const emitidoEm = useMemo(() => formatDataHora(new Date().toISOString()), []);
 
@@ -52,7 +54,10 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
   if (error || !crianca) {
     return (
       <div className={styles.page}>
-        <ErrorState message={error ?? "Criança não encontrada."} onRetry={reload} />
+        <ErrorState
+          message={error ?? "Criança não encontrada."}
+          onRetry={reload}
+        />
       </div>
     );
   }
@@ -169,9 +174,7 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
                   </div>
                   <div className={styles.field}>
                     <span className={styles.fieldLabel}>E-mail</span>
-                    <span className={styles.fieldValue}>
-                      {r.email || "—"}
-                    </span>
+                    <span className={styles.fieldValue}>{r.email || "—"}</span>
                   </div>
                   <div className={styles.field}>
                     <span className={styles.fieldLabel}>CPF</span>
@@ -222,9 +225,7 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
               )}
               {temCondicao && (
                 <div className={styles.field} style={{ marginBottom: 10 }}>
-                  <span className={styles.fieldLabel}>
-                    Condições atípicas
-                  </span>
+                  <span className={styles.fieldLabel}>Condições atípicas</span>
                   <span className={styles.fieldValue}>
                     {saude.condicoesAtipicas!.join(", ")}
                   </span>
@@ -232,9 +233,7 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
               )}
               {saude.cuidadosEspeciais && (
                 <div className={styles.field} style={{ marginBottom: 10 }}>
-                  <span className={styles.fieldLabel}>
-                    Cuidados especiais
-                  </span>
+                  <span className={styles.fieldLabel}>Cuidados especiais</span>
                   <span className={styles.fieldValue}>
                     {saude.cuidadosEspeciais}
                   </span>
@@ -243,9 +242,7 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
               {saude.observacoes && (
                 <div className={styles.field}>
                   <span className={styles.fieldLabel}>Observações</span>
-                  <span className={styles.fieldValue}>
-                    {saude.observacoes}
-                  </span>
+                  <span className={styles.fieldValue}>{saude.observacoes}</span>
                 </div>
               )}
             </>
@@ -289,8 +286,8 @@ export function FichaCriancaScreen({ criancaId }: { criancaId: string }) {
         </div>
 
         <div className={styles.footer}>
-          Documento confidencial — contém dados sensíveis protegidos pela
-          LGPD. Uso restrito à equipe da unidade.
+          Documento confidencial — contém dados sensíveis protegidos pela LGPD.
+          Uso restrito à equipe da unidade.
         </div>
       </div>
     </div>

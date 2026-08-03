@@ -110,9 +110,7 @@ describe("EditarCriancaScreen", () => {
       name: /pode retirar/i,
     });
     expect(podeRetirar).toBeDisabled();
-    expect(
-      screen.getByText(/só a secretaria autoriza/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/só a secretaria autoriza/i)).toBeInTheDocument();
   });
 
   it("mantém o podeRetirar carregado mesmo com o toggle travado", async () => {

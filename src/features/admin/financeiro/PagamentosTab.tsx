@@ -61,7 +61,11 @@ export function PagamentosTab() {
           <EmptyState
             icon={<Baby size={24} />}
             title={busca ? "Nenhum resultado" : "Nenhuma criança cadastrada"}
-            text={busca ? "Tente outro nome." : "Cadastre crianças para registrar pagamentos."}
+            text={
+              busca
+                ? "Tente outro nome."
+                : "Cadastre crianças para registrar pagamentos."
+            }
           />
         ) : (
           <div className={styles.tableWrap}>
@@ -84,7 +88,9 @@ export function PagamentosTab() {
                       <td>
                         <div>{resp?.nome ?? "—"}</div>
                         {resp?.parentesco && (
-                          <div className={styles.cellSub}>{resp.parentesco}</div>
+                          <div className={styles.cellSub}>
+                            {resp.parentesco}
+                          </div>
                         )}
                       </td>
                       <td>

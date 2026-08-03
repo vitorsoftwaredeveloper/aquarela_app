@@ -69,7 +69,11 @@ export function EventoMuralDetalheScreen({
     try {
       await EventosService.atualizarFotos(
         eventoId,
-        proxima.map((f) => ({ key: f.key, legenda: f.legenda, ordem: f.ordem })),
+        proxima.map((f) => ({
+          key: f.key,
+          legenda: f.legenda,
+          ordem: f.ordem,
+        })),
       );
     } catch (err) {
       setOrdemErro(getApiErrorMessage(err));
@@ -154,7 +158,11 @@ export function EventoMuralDetalheScreen({
     return (
       <div>
         <div className={styles.pushHeader}>
-          <button className={styles.backBtn} onClick={voltar} aria-label="Voltar">
+          <button
+            className={styles.backBtn}
+            onClick={voltar}
+            aria-label="Voltar"
+          >
             <ChevronLeft size={20} />
           </button>
           <div className={styles.pushTitle}>Evento</div>
@@ -179,10 +187,13 @@ export function EventoMuralDetalheScreen({
         <div style={{ flex: 1 }}>
           <div className={styles.pushTitle}>{e.titulo}</div>
           <div className={styles.pushSub}>
-            {formatData(e.data)} · {fotos.length} foto{fotos.length === 1 ? "" : "s"}
+            {formatData(e.data)} · {fotos.length} foto
+            {fotos.length === 1 ? "" : "s"}
           </div>
         </div>
-        <span className={e.publicado ? styles.badgePublished : styles.badgeDraft}>
+        <span
+          className={e.publicado ? styles.badgePublished : styles.badgeDraft}
+        >
           {e.publicado ? "Publicado" : "Rascunho"}
         </span>
       </div>
@@ -263,7 +274,9 @@ export function EventoMuralDetalheScreen({
                     className={styles.fotoLegendaInput}
                     placeholder="Legenda (opcional)"
                     value={foto.legenda ?? ""}
-                    onChange={(ev) => editarLegendaLocal(foto.key, ev.target.value)}
+                    onChange={(ev) =>
+                      editarLegendaLocal(foto.key, ev.target.value)
+                    }
                     onBlur={salvarLegenda}
                   />
                   <button
@@ -302,7 +315,11 @@ export function EventoMuralDetalheScreen({
         )}
       </div>
       {publicarErro && (
-        <div className={styles.saveError} role="alert" style={{ margin: "0 16px 16px" }}>
+        <div
+          className={styles.saveError}
+          role="alert"
+          style={{ margin: "0 16px 16px" }}
+        >
           {publicarErro}
         </div>
       )}

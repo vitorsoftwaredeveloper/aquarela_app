@@ -81,9 +81,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   const [fraldas, setFraldas] = useState(0);
   const [intercorrencias, setIntercorrencias] = useState<string[]>([]);
   const [observacoes, setObservacoes] = useState("");
-  const [tarefaCasaStatus, setTarefaCasaStatus] = useState<string | null>(
-    null,
-  );
+  const [tarefaCasaStatus, setTarefaCasaStatus] = useState<string | null>(null);
   const [tarefaCasaObs, setTarefaCasaObs] = useState("");
   const [presencaStatus, setPresencaStatus] = useState<string | null>(null);
   const [presencaHora, setPresencaHora] = useState("");
@@ -541,9 +539,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
               </div>
               {tarefaCasaStatus && (
                 <div className={styles.mealRow}>
-                  <div className={styles.mealLabel}>
-                    Observação (opcional)
-                  </div>
+                  <div className={styles.mealLabel}>Observação (opcional)</div>
                   <input
                     type="text"
                     className={styles.textInput}
@@ -576,11 +572,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                         <Check size={11} />
                       </span>
                     )}
-                    <h.icon
-                      size={20}
-                      className={styles.moodIcon}
-                      aria-hidden
-                    />
+                    <h.icon size={20} className={styles.moodIcon} aria-hidden />
                     <span className={styles.moodLabel}>{h.label}</span>
                   </button>
                 ))}
@@ -690,7 +682,9 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
               type="button"
               className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ""}`}
               onClick={salvar}
-              disabled={saving || saved || !temInformacaoMinima || presencaInvalida}
+              disabled={
+                saving || saved || !temInformacaoMinima || presencaInvalida
+              }
             >
               {saved ? (
                 <>
@@ -758,8 +752,7 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover a agenda de hoje de <b>{c?.nome}</b>? Não é possível
-          desfazer.
+          Remover a agenda de hoje de <b>{c?.nome}</b>? Não é possível desfazer.
         </p>
         {removerError && (
           <div

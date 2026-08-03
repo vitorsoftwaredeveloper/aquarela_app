@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Download, Images, X } from "lucide-react";
 import { Skeleton } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import type { Evento } from "@/types/evento";
@@ -87,7 +88,11 @@ function Lightbox({
 
       <div className={styles.lightboxImgWrap}>
         {foto.url && (
-          <img src={foto.url} alt={foto.legenda ?? ""} className={styles.lightboxImg} />
+          <img
+            src={foto.url}
+            alt={foto.legenda ?? ""}
+            className={styles.lightboxImg}
+          />
         )}
       </div>
 
@@ -101,7 +106,9 @@ function Lightbox({
       </button>
 
       <div className={styles.lightboxFooter}>
-        {foto.legenda && <div className={styles.lightboxCaption}>{foto.legenda}</div>}
+        {foto.legenda && (
+          <div className={styles.lightboxCaption}>{foto.legenda}</div>
+        )}
         <div>
           {evento.titulo} · {index + 1}/{evento.fotos.length}
         </div>
@@ -111,7 +118,9 @@ function Lightbox({
 }
 
 export function MuralScreen() {
-  const eventos = useFetch(() => EventosService.list({ apenasPublicados: true }));
+  const eventos = useFetch(() =>
+    EventosService.list({ apenasPublicados: true }),
+  );
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   const grupos = useMemo(() => {
@@ -120,13 +129,10 @@ export function MuralScreen() {
       .sort((a, b) => b.data.localeCompare(a.data));
   }, [eventos.data]);
 
+  usePageTitle("Mural de fotos", "Fotos publicadas pela escola");
+
   return (
     <div>
-      <div className={`${shell.gradHeader} ${shell.finHeaderPad}`}>
-        <div className={shell.finTitle}>Mural de fotos</div>
-        <div className={shell.finSub}>Fotos publicadas pela escola</div>
-      </div>
-
       {eventos.loading ? (
         <div className={styles.lista} role="status" aria-label="Carregando…">
           {Array.from({ length: 2 }).map((_, i) => (
@@ -134,7 +140,13 @@ export function MuralScreen() {
               <Skeleton width="45%" height={15} />
               <div className={styles.grid}>
                 {Array.from({ length: 6 }).map((_, j) => (
-                  <Skeleton key={j} width="100%" height={0} radius={12} style={{ aspectRatio: "1", height: "auto" }} />
+                  <Skeleton
+                    key={j}
+                    width="100%"
+                    height={0}
+                    radius={12}
+                    style={{ aspectRatio: "1", height: "auto" }}
+                  />
                 ))}
               </div>
             </div>
@@ -156,7 +168,9 @@ export function MuralScreen() {
             <div key={evento._id} className={styles.grupo}>
               <div className={styles.grupoHead}>
                 <span className={styles.grupoTitulo}>{evento.titulo}</span>
-                <span className={styles.grupoData}>{formatData(evento.data)}</span>
+                <span className={styles.grupoData}>
+                  {formatData(evento.data)}
+                </span>
               </div>
               {evento.descricao && (
                 <p className={styles.grupoDesc}>{evento.descricao}</p>
@@ -184,7 +198,9 @@ export function MuralScreen() {
         <Lightbox
           estado={lightbox}
           onClose={() => setLightbox(null)}
-          onNavegar={(index) => setLightbox((atual) => (atual ? { ...atual, index } : atual))}
+          onNavegar={(index) =>
+            setLightbox((atual) => (atual ? { ...atual, index } : atual))
+          }
         />
       )}
     </div>

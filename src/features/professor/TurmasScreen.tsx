@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { School } from "lucide-react";
 import { Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { NotificationOnboarding } from "@/features/notificacoes/NotificationOnboarding";
 import { ProfessorService } from "@/services/professorService";
@@ -25,15 +26,10 @@ export function TurmasScreen() {
   const turmas = data ?? [];
   const nome = user?.name ?? user?.email ?? "Professor(a)";
 
+  usePageTitle("Minhas turmas", nome);
+
   return (
     <div>
-      <div className={styles.header}>
-        <div>
-          <div className={styles.headerWho}>{nome}</div>
-          <div className={styles.headerTitle}>Minhas turmas</div>
-        </div>
-      </div>
-
       <NotificationOnboarding />
 
       {loading ? (

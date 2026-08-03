@@ -13,6 +13,7 @@ import {
   Textarea,
   Tooltip,
 } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AvisosAdminService } from "@/services/avisosAdminService";
 import { TurmasService } from "@/services/turmas";
@@ -23,6 +24,11 @@ import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function AvisosScreen() {
+  usePageTitle(
+    "Avisos",
+    "Mural de recados para os responsáveis — geral ou por turma.",
+  );
+
   const { data, loading, error, reload } = useFetch(() =>
     AvisosAdminService.list(),
   );
@@ -67,12 +73,6 @@ export function AvisosScreen() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Avisos</h1>
-          <p className={styles.pageSub}>
-            Mural de recados para os responsáveis — geral ou por turma.
-          </p>
-        </div>
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />

@@ -97,7 +97,9 @@ describe("AgendaScreen", () => {
 
     render(<AgendaScreen criancaId="c1" />);
 
-    expect(await screen.findByText("Oi, família da(o) Ana!")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Oi, família da(o) Ana!"),
+    ).toBeInTheDocument();
     expect(screen.getAllByText("Professora").length).toBeGreaterThan(0);
     expect(screen.getByText("Com carinho,")).toBeInTheDocument();
   });

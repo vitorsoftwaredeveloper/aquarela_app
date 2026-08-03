@@ -1,4 +1,5 @@
 import { RoleGuard } from "@/components";
+import { PageTitleProvider } from "@/contexts/PageTitleContext";
 import { ResponsavelProvider } from "@/contexts/ResponsavelContext";
 import { ResponsavelShell } from "@/features/responsavel/ResponsavelShell";
 
@@ -10,7 +11,9 @@ export default function ResponsavelLayout({
   return (
     <RoleGuard role="responsavel">
       <ResponsavelProvider>
-        <ResponsavelShell>{children}</ResponsavelShell>
+        <PageTitleProvider>
+          <ResponsavelShell>{children}</ResponsavelShell>
+        </PageTitleProvider>
       </ResponsavelProvider>
     </RoleGuard>
   );

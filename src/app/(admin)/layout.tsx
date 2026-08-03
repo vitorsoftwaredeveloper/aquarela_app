@@ -1,4 +1,5 @@
 import { RoleGuard } from "@/components";
+import { PageTitleProvider } from "@/contexts/PageTitleContext";
 import { AdminShell } from "@/features/admin/AdminShell";
 
 export default function AdminLayout({
@@ -8,7 +9,9 @@ export default function AdminLayout({
 }) {
   return (
     <RoleGuard role="admin">
-      <AdminShell>{children}</AdminShell>
+      <PageTitleProvider>
+        <AdminShell>{children}</AdminShell>
+      </PageTitleProvider>
     </RoleGuard>
   );
 }

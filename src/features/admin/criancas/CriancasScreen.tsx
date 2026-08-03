@@ -15,6 +15,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Badge, Button, Input, Modal, Select, Tooltip } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasAdminService } from "@/services/criancasAdmin";
 import { TurmasService } from "@/services/turmas";
@@ -25,6 +26,11 @@ import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function CriancasScreen() {
+  usePageTitle(
+    "Crianças",
+    "Cadastro completo: identificação, responsáveis, saúde e financeiro.",
+  );
+
   const router = useRouter();
   const { data, loading, error, reload } = useFetch(() =>
     CriancasAdminService.list(),
@@ -91,12 +97,6 @@ export function CriancasScreen() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Crianças</h1>
-          <p className={styles.pageSub}>
-            Cadastro completo: identificação, responsáveis, saúde e financeiro.
-          </p>
-        </div>
         <div className={styles.pageHeadActions}>
           <Button
             variant="secondary"
@@ -333,8 +333,8 @@ export function CriancasScreen() {
         }
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-          Remover <b>{deleting?.nome}</b> em definitivo? Apaga o histórico
-          junto (agenda, mensalidades, pagamentos) e não dá para desfazer.
+          Remover <b>{deleting?.nome}</b> em definitivo? Apaga o histórico junto
+          (agenda, mensalidades, pagamentos) e não dá para desfazer.
         </p>
         {deleteError && (
           <div

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Logo, ThemeToggle } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitleValue } from "@/contexts/PageTitleContext";
 import { storage } from "@/storage/localStorage";
 import styles from "./professor.module.css";
 
@@ -72,6 +73,7 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { title, subtitle } = usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -191,9 +193,18 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
           >
             <Menu size={22} />
           </button>
-          <div className={styles.topbarMobileBrand}>
-            <Logo size={30} />
-          </div>
+          {title ? (
+            <div className={styles.topbarTitle}>
+              <span className={styles.topbarTitleText}>{title}</span>
+              {subtitle && (
+                <span className={styles.topbarSubtitle}>{subtitle}</span>
+              )}
+            </div>
+          ) : (
+            <div className={styles.topbarMobileBrand}>
+              <Logo size={30} />
+            </div>
+          )}
           <div className={styles.topbarActions}>
             <ThemeToggle />
           </div>

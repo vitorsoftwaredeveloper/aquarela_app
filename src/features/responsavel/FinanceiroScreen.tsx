@@ -11,6 +11,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Button, Modal, Skeleton } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
@@ -66,12 +67,25 @@ export function FinanceiroScreen() {
     .reduce((sum, m) => sum + m.valor, 0);
   const inadimplentes = meses.filter((m) => m.inadimplenteDesde);
   const inadimplenteDesde = inadimplentes.reduce<string | undefined>(
-    (min, m) => (!min || m.inadimplenteDesde! < min ? m.inadimplenteDesde : min),
+    (min, m) =>
+      !min || m.inadimplenteDesde! < min ? m.inadimplenteDesde : min,
     undefined,
   );
   const valorInadimplente = inadimplentes.reduce(
     (soma, m) => soma + m.valor,
     0,
+  );
+
+  usePageTitle(
+    "Financeiro",
+    active
+      ? active.nome +
+          (active.turmaNome
+            ? ` · Turma ${active.turmaNome}`
+            : active.sub
+              ? ` · ${active.sub}`
+              : "")
+      : undefined,
   );
 
   // Só o carregamento inicial (sem dados) bloqueia a tela. Um reload em
@@ -81,36 +95,13 @@ export function FinanceiroScreen() {
   if (ctxLoading || (loading && !data)) {
     return (
       <div role="status" aria-label="Carregando…">
-        <div className={`${styles.gradHeader} ${styles.finHeaderPad}`}>
-          <Skeleton
-            width={110}
-            height={21}
-            style={{ background: "rgba(255,255,255,0.3)", marginBottom: 6 }}
-          />
-          <Skeleton
-            width={70}
-            height={13}
-            style={{ background: "rgba(255,255,255,0.25)" }}
-          />
-          <div className={styles.finCards}>
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className={styles.finCard}>
-                <Skeleton
-                  width="60%"
-                  height={11}
-                  style={{
-                    background: "rgba(255,255,255,0.3)",
-                    marginBottom: 6,
-                  }}
-                />
-                <Skeleton
-                  width="45%"
-                  height={18}
-                  style={{ background: "rgba(255,255,255,0.3)" }}
-                />
-              </div>
-            ))}
-          </div>
+        <div className={styles.finCards}>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className={styles.finCard}>
+              <Skeleton width="60%" height={11} style={{ marginBottom: 6 }} />
+              <Skeleton width="45%" height={18} />
+            </div>
+          ))}
         </div>
         <div className={styles.monthList}>
           {Array.from({ length: 4 }).map((_, i) => (
@@ -139,27 +130,14 @@ export function FinanceiroScreen() {
 
   return (
     <div>
-      <div className={`${styles.gradHeader} ${styles.finHeaderPad}`}>
-        <div className={styles.finTop}>
-          <div className={styles.finTitle}>Financeiro</div>
+      <div className={styles.finCards}>
+        <div className={styles.finCard}>
+          <div className={styles.finCardLabel}>Em aberto</div>
+          <div className={styles.finCardValue}>{formatBRL(emAberto)}</div>
         </div>
-        <div className={styles.finSub}>
-          {active.nome}
-          {active.turmaNome
-            ? ` · Turma ${active.turmaNome}`
-            : active.sub
-              ? ` · ${active.sub}`
-              : ""}
-        </div>
-        <div className={styles.finCards}>
-          <div className={styles.finCard}>
-            <div className={styles.finCardLabel}>Em aberto</div>
-            <div className={styles.finCardValue}>{formatBRL(emAberto)}</div>
-          </div>
-          <div className={styles.finCard}>
-            <div className={styles.finCardLabel}>Ano</div>
-            <div className={styles.finCardValue}>2026</div>
-          </div>
+        <div className={styles.finCard}>
+          <div className={styles.finCardLabel}>Ano</div>
+          <div className={styles.finCardValue}>2026</div>
         </div>
       </div>
 

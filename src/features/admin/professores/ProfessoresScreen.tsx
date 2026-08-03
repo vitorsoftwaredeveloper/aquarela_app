@@ -14,6 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button, FotoField, Input, Modal, Tooltip } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessoresService } from "@/services/professores";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -30,6 +31,11 @@ import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function ProfessoresScreen() {
+  usePageTitle(
+    "Professores",
+    "Cadastro das educadoras e vínculo com as turmas.",
+  );
+
   const { data, loading, error, reload } = useFetch(() =>
     ProfessoresService.list(),
   );
@@ -67,12 +73,6 @@ export function ProfessoresScreen() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Professores</h1>
-          <p className={styles.pageSub}>
-            Cadastro das educadoras e vínculo com as turmas.
-          </p>
-        </div>
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
@@ -194,8 +194,8 @@ export function ProfessoresScreen() {
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
           Remover <b>{deleting?.nome}</b> em definitivo? Se houver turma
-          vinculada, troque a professora da turma antes — o backend bloqueia
-          a remoção.
+          vinculada, troque a professora da turma antes — o backend bloqueia a
+          remoção.
         </p>
         {deleteError && (
           <div

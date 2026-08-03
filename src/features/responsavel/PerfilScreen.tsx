@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Bell, ChevronRight, LogOut, Moon, Pencil, Sun } from "lucide-react";
 import { Avatar } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import styles from "./responsavel.module.css";
@@ -15,7 +16,8 @@ export function PerfilScreen() {
   const { mode, toggleTheme } = useTheme();
   const router = useRouter();
 
-  const initial = (user?.name ?? "M").charAt(0).toUpperCase();
+  usePageTitle(user?.name ?? "Responsável", user?.email);
+
   const isDark = mode === "dark";
 
   async function handleSignOut() {
@@ -25,14 +27,6 @@ export function PerfilScreen() {
 
   return (
     <div>
-      <div className={`${styles.gradHeader} ${styles.profHeader}`}>
-        <span className={styles.profAvatar}>{initial}</span>
-        <div style={{ flex: 1 }}>
-          <div className={styles.profName}>{user?.name ?? "Responsável"}</div>
-          <div className={styles.profEmail}>{user?.email}</div>
-        </div>
-      </div>
-
       <div className={styles.block}>
         <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
           Meus filhos

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Pencil, Plus, School, Trash2 } from "lucide-react";
 import { Button, Input, Modal, Tooltip } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { ProfessoresService } from "@/services/professores";
@@ -15,6 +16,11 @@ import { EmptyState, ErrorState, TableSkeleton } from "../ListState";
 import styles from "../admin.module.css";
 
 export function TurmasScreen() {
+  usePageTitle(
+    "Turmas",
+    "Organize as turmas por faixa etária e professora responsável.",
+  );
+
   const { data, loading, error, reload } = useFetch(() => TurmasService.list());
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Turma | null>(null);
@@ -49,12 +55,6 @@ export function TurmasScreen() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Turmas</h1>
-          <p className={styles.pageSub}>
-            Organize as turmas por faixa etária e professora responsável.
-          </p>
-        </div>
         <div className={styles.pageHeadActions}>
           <Button onClick={openCreate}>
             <Plus size={18} />
@@ -178,8 +178,8 @@ export function TurmasScreen() {
       >
         <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
           Remover <b>{deleting?.nome}</b>? Se houver crianças vinculadas,
-          realoque-as antes (o backend bloqueia a remoção). Os avisos da
-          turma são apagados junto.
+          realoque-as antes (o backend bloqueia a remoção). Os avisos da turma
+          são apagados junto.
         </p>
         {deleteError && (
           <div
@@ -232,7 +232,9 @@ function TurmaForm({
 
   const selectedProfessorIds = watch("professorIds") ?? [];
   const noProfessores =
-    !professores.loading && !professores.error && (professores.data ?? []).length === 0;
+    !professores.loading &&
+    !professores.error &&
+    (professores.data ?? []).length === 0;
 
   function toggleProfessor(professorId: string) {
     const next = selectedProfessorIds.includes(professorId)

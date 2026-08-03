@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
@@ -38,6 +39,11 @@ export function InicioScreen() {
   const firstName = (user?.name ?? "").split(" ")[0] || "responsável";
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
+  usePageTitle(
+    `Olá, ${firstName}`,
+    active ? `Acompanhando ${active.nome}` : undefined,
+  );
+
   function abrirTrocaFilho() {
     if (criancas.length < 2) return;
     setSwitcherOpen(true);
@@ -46,44 +52,12 @@ export function InicioScreen() {
   if (loading) {
     return (
       <div role="status" aria-label="Carregando…">
-        <div className={styles.gradHeader}>
-          <div className={styles.homeTop}>
-            <Skeleton
-              width={110}
-              height={12}
-              style={{ background: "rgba(255,255,255,0.3)" }}
-            />
-            <Skeleton
-              width={34}
-              height={34}
-              radius={10}
-              style={{ background: "rgba(255,255,255,0.3)" }}
-            />
-          </div>
-          <div className={styles.childCard}>
-            <Skeleton
-              width={48}
-              height={48}
-              radius={14}
-              style={{ background: "rgba(255,255,255,0.3)" }}
-            />
-            <span style={{ flex: 1 }}>
-              <Skeleton
-                width="50%"
-                height={17}
-                style={{
-                  marginBottom: 6,
-                  background: "rgba(255,255,255,0.3)",
-                }}
-              />
-              <Skeleton
-                width="35%"
-                height={12}
-                style={{ background: "rgba(255,255,255,0.25)" }}
-              />
-            </span>
-          </div>
-          <div style={{ height: 20 }} />
+        <div className={styles.childCard}>
+          <Skeleton width={48} height={48} radius={14} />
+          <span style={{ flex: 1 }}>
+            <Skeleton width="50%" height={17} style={{ marginBottom: 6 }} />
+            <Skeleton width="35%" height={12} />
+          </span>
         </div>
 
         <div className={styles.block}>
@@ -123,35 +97,28 @@ export function InicioScreen() {
 
   return (
     <div>
-      <div className={styles.gradHeader}>
-        <div className={styles.homeTop}>
-          <span className={styles.greeting}>Olá, {firstName}</span>
-        </div>
-        <button className={styles.childCard} onClick={abrirTrocaFilho}>
-          <Avatar
-            nome={active.nome}
-            fotoUrl={active.fotoUrl}
-            bg={avatarColors[active._id]}
-            size={48}
-          />
-          <span style={{ flex: 1 }}>
-            <span className={styles.childName} style={{ display: "block" }}>
-              {active.nome}
-            </span>
-            <span className={styles.childSub} style={{ display: "block" }}>
-              {active.sub}
-            </span>
+      <button className={styles.childCard} onClick={abrirTrocaFilho}>
+        <Avatar
+          nome={active.nome}
+          fotoUrl={active.fotoUrl}
+          bg={avatarColors[active._id]}
+          size={48}
+        />
+        <span style={{ flex: 1 }}>
+          <span className={styles.childName} style={{ display: "block" }}>
+            {active.nome}
           </span>
-          {criancas.length > 1 && (
-            <RefreshCw size={18} style={{ opacity: 0.9 }} />
-          )}
-        </button>
-        <div className={styles.childHint}>
-          {criancas.length > 1
-            ? `Acompanhando ${active.nome} · toque para trocar de filho`
-            : `Acompanhando ${active.nome}`}
-        </div>
-      </div>
+          <span className={styles.childSub} style={{ display: "block" }}>
+            {active.sub}
+          </span>
+        </span>
+        {criancas.length > 1 && (
+          <RefreshCw size={18} style={{ opacity: 0.9 }} />
+        )}
+      </button>
+      {criancas.length > 1 && (
+        <div className={styles.childHint}>Trocar de filho</div>
+      )}
 
       <NotificationOnboarding />
       {inadimplencia.inadimplente && (
@@ -352,9 +319,7 @@ function AgendaHoje({ criancaId }: { criancaId: string }) {
   );
   const allEntries = data?.entries ?? [];
   const entries = allEntries.slice(0, 3);
-  const intercorrencias = allEntries.filter(
-    (e) => e.tipo === "intercorrencia",
-  );
+  const intercorrencias = allEntries.filter((e) => e.tipo === "intercorrencia");
   const semRegistro = !loading && allEntries.length === 0;
 
   if (loading) {

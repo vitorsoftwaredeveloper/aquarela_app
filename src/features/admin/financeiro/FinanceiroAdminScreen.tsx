@@ -25,6 +25,7 @@ import {
   Tabs,
   Tooltip,
 } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroAdminService } from "@/services/financeiroAdminService";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -45,11 +46,7 @@ import { RelatoriosTab } from "./RelatoriosTab";
 import styles from "../admin.module.css";
 
 type Aba =
-  | "despesas"
-  | "inadimplentes"
-  | "pagamentos"
-  | "relatorios"
-  | "planos";
+  "despesas" | "inadimplentes" | "pagamentos" | "relatorios" | "planos";
 
 const ABAS: { value: Aba; label: string }[] = [
   { value: "despesas", label: "Despesas" },
@@ -66,19 +63,15 @@ function formatData(iso: string): string {
 }
 
 export function FinanceiroAdminScreen() {
+  usePageTitle(
+    "Financeiro",
+    "Despesas, inadimplência, relatórios e planos de mensalidade.",
+  );
+
   const [aba, setAba] = useState<Aba>("despesas");
 
   return (
     <div className={styles.page}>
-      <div className={styles.pageHead}>
-        <div>
-          <h1 className={styles.pageTitle}>Financeiro</h1>
-          <p className={styles.pageSub}>
-            Despesas, inadimplência, relatórios e planos de mensalidade.
-          </p>
-        </div>
-      </div>
-
       <Tabs tabs={ABAS} value={aba} onChange={setAba} />
 
       {aba === "despesas" ? (
@@ -448,11 +441,7 @@ function DespesaForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? "Salvando…"
-            : despesa
-              ? "Salvar"
-              : "Lançar"}
+          {isSubmitting ? "Salvando…" : despesa ? "Salvar" : "Lançar"}
         </Button>
       </div>
     </form>
@@ -653,9 +642,15 @@ function Inadimplentes() {
 
         {preview && !resultado && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
-              Mensalidades em aberto até o fim do mês, agrupadas por
-              responsável (1 push por pessoa).
+            <p
+              style={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: "var(--text-soft)",
+              }}
+            >
+              Mensalidades em aberto até o fim do mês, agrupadas por responsável
+              (1 push por pessoa).
             </p>
             <div
               style={{

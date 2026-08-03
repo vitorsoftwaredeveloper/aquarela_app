@@ -1,4 +1,5 @@
 import { RoleGuard } from "@/components";
+import { PageTitleProvider } from "@/contexts/PageTitleContext";
 import { ProfessorShell } from "@/features/professor/ProfessorShell";
 
 export default function ProfessorLayout({
@@ -8,7 +9,9 @@ export default function ProfessorLayout({
 }) {
   return (
     <RoleGuard role="professor">
-      <ProfessorShell>{children}</ProfessorShell>
+      <PageTitleProvider>
+        <ProfessorShell>{children}</ProfessorShell>
+      </PageTitleProvider>
     </RoleGuard>
   );
 }

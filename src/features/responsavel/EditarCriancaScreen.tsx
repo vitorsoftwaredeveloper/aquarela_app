@@ -362,8 +362,8 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
                   Pode retirar a criança na escola
                 </label>
                 <span className={styles.campoNota}>
-                  <Lock size={12} /> Só a secretaria autoriza quem pode
-                  retirar a criança.
+                  <Lock size={12} /> Só a secretaria autoriza quem pode retirar
+                  a criança.
                 </span>
               </div>
             </div>

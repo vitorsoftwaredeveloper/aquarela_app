@@ -154,8 +154,8 @@ function RegistrarPagamento({
     <div style={{ display: "grid", gap: 14 }}>
       <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--text-soft)" }}>
         Dinheiro recebido pela secretaria referente a{" "}
-        <b>{mensalidade.mesLabel}</b>. A mensalidade é baixada como paga e
-        fica registrado que foi você quem recebeu.
+        <b>{mensalidade.mesLabel}</b>. A mensalidade é baixada como paga e fica
+        registrado que foi você quem recebeu.
       </p>
       <Input
         label="Valor recebido (R$)"

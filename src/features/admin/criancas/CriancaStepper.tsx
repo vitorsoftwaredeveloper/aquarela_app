@@ -32,6 +32,7 @@ import {
   Skeleton,
   Stepper,
 } from "@/components";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { TurmasService } from "@/services/turmas";
 import { UsuariosService } from "@/services/usuarios";
@@ -108,6 +109,12 @@ const RESP_VAZIO = {
 export function CriancaStepper({ criancaId }: { criancaId?: string }) {
   const router = useRouter();
   const editing = !!criancaId;
+
+  usePageTitle(
+    editing ? "Editar criança" : "Nova criança",
+    "Preencha as etapas — os dados de saúde ficam em destaque para a equipe.",
+  );
+
   const [step, setStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [acessos, setAcessos] = useState<AcessoResponsavel[] | null>(null);
@@ -380,17 +387,8 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
 
   return (
     <div className={styles.wizard}>
-      <div className={adminStyles.pageHead}>
-        <div>
-          <h1 className={adminStyles.pageTitle}>
-            {editing ? "Editar criança" : "Nova criança"}
-          </h1>
-          <p className={adminStyles.pageSub}>
-            Preencha as etapas — os dados de saúde ficam em destaque para a
-            equipe.
-          </p>
-        </div>
-        {editing && (
+      {editing && (
+        <div className={adminStyles.pageHead}>
           <div className={adminStyles.pageHeadActions}>
             <Button
               variant="secondary"
@@ -400,8 +398,8 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
               Imprimir ficha
             </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {editing && existente.loading ? (
         <div className={styles.stepperWrap} style={{ marginBottom: 0 }}>

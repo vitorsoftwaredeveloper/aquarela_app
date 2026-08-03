@@ -56,7 +56,11 @@ export function NovoEventoScreen({ turmaId }: { turmaId: string }) {
         </div>
       </div>
 
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        className={styles.form}
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         {submitError && (
           <div className={styles.saveError} role="alert">
             <AlertCircle size={17} /> <span>{submitError}</span>
@@ -120,7 +124,11 @@ export function NovoEventoScreen({ turmaId }: { turmaId: string }) {
           )}
         </div>
 
-        <button type="submit" className={styles.saveBtn} disabled={isSubmitting}>
+        <button
+          type="submit"
+          className={styles.saveBtn}
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Criando…" : "Criar evento"}
         </button>
       </form>

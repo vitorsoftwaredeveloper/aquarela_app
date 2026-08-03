@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { ProfessorService } from "@/services/professorService";
@@ -57,20 +58,19 @@ export function RecadosListScreen() {
 
   const carregando = turmas.loading || alunos === null;
 
+  usePageTitle(
+    "Recados",
+    carregando ? "Carregando…" : `${nome} · ${ordenados.length} alunos`,
+  );
+
   return (
     <div>
-      <div className={styles.header}>
-        <div>
-          <div className={styles.headerWho}>{nome}</div>
-          <div className={styles.headerTitle}>Recados</div>
-          <div className={styles.pushSub} style={{ color: "rgba(255,255,255,0.85)" }}>
-            {carregando ? "Carregando…" : `${ordenados.length} alunos`}
-          </div>
-        </div>
-      </div>
-
       {carregando ? (
-        <div className={styles.alunoList} role="status" aria-label="Carregando…">
+        <div
+          className={styles.alunoList}
+          role="status"
+          aria-label="Carregando…"
+        >
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className={styles.alunoCard}>
               <Skeleton width={46} height={46} radius={14} />
@@ -103,10 +103,16 @@ export function RecadosListScreen() {
                   className={styles.alunoAvatar}
                 />
                 <span style={{ flex: 1 }}>
-                  <span className={styles.alunoName} style={{ display: "block" }}>
+                  <span
+                    className={styles.alunoName}
+                    style={{ display: "block" }}
+                  >
                     {aluno.nome}
                   </span>
-                  <span className={styles.alunoSub} style={{ display: "block" }}>
+                  <span
+                    className={styles.alunoSub}
+                    style={{ display: "block" }}
+                  >
                     {aluno.turmaNome}
                   </span>
                 </span>
@@ -121,7 +127,10 @@ export function RecadosListScreen() {
                     Novo
                   </span>
                 ) : (
-                  <MessageCircle size={18} style={{ color: "var(--text-mute)" }} />
+                  <MessageCircle
+                    size={18}
+                    style={{ color: "var(--text-mute)" }}
+                  />
                 )}
               </button>
             );

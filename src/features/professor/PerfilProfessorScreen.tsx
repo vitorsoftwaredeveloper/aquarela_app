@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Bell, ChevronRight, LogOut, Moon, Sun, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import styles from "./professor.module.css";
 
@@ -13,6 +14,8 @@ export function PerfilProfessorScreen() {
   const nome = user?.name ?? user?.email ?? "Professor(a)";
   const isDark = mode === "dark";
 
+  usePageTitle(nome, user?.email);
+
   async function sair() {
     await logout();
     router.replace("/login");
@@ -20,17 +23,14 @@ export function PerfilProfessorScreen() {
 
   return (
     <div>
-      <div className={styles.header}>
-        <div>
-          <div className={styles.headerWho}>{user?.email}</div>
-          <div className={styles.headerTitle}>{nome}</div>
-        </div>
-      </div>
-
       <div className={styles.form}>
         <div className={styles.settingsTitle}>Configurações</div>
         <div className={styles.card} style={{ padding: 0, overflow: "hidden" }}>
-          <button type="button" className={styles.settingsRow} onClick={toggleTheme}>
+          <button
+            type="button"
+            className={styles.settingsRow}
+            onClick={toggleTheme}
+          >
             <span className={styles.settingsRowIcon}>
               {isDark ? <Moon size={17} /> : <Sun size={17} />}
             </span>

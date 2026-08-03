@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { TurmaListSkeleton } from "./TurmasScreen";
@@ -25,18 +26,10 @@ export function PlanosAulaTurmasScreen() {
   );
   const turmas = data ?? [];
 
+  usePageTitle("Planos de aula", `${nome} · escolha a turma`);
+
   return (
     <div>
-      <div className={styles.header}>
-        <div>
-          <div className={styles.headerWho}>{nome}</div>
-          <div className={styles.headerTitle}>Planos de aula</div>
-          <div className={styles.pushSub} style={{ color: "rgba(255,255,255,0.85)" }}>
-            Escolha a turma
-          </div>
-        </div>
-      </div>
-
       {loading ? (
         <TurmaListSkeleton />
       ) : error ? (

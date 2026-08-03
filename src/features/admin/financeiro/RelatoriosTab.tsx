@@ -132,8 +132,14 @@ export function RelatoriosTab() {
 
       {data && criancas.length > 0 && (
         <div className={relatorios.kpis}>
-          <Kpi label="Recebido no ano" valor={formatBRL(data.totais.pagamentos)} />
-          <Kpi label="Despesas no ano" valor={formatBRL(data.totais.despesas)} />
+          <Kpi
+            label="Recebido no ano"
+            valor={formatBRL(data.totais.pagamentos)}
+          />
+          <Kpi
+            label="Despesas no ano"
+            valor={formatBRL(data.totais.despesas)}
+          />
           <Kpi
             label="Saldo"
             valor={formatBRL(data.totais.saldo)}
@@ -143,7 +149,10 @@ export function RelatoriosTab() {
             label="Crianças com pagamento"
             valor={String(data.totais.criancasComPagamento)}
           />
-          <Kpi label="Ticket médio" valor={formatBRL(data.totais.ticketMedio)} />
+          <Kpi
+            label="Ticket médio"
+            valor={formatBRL(data.totais.ticketMedio)}
+          />
         </div>
       )}
 
