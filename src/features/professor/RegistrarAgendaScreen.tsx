@@ -280,30 +280,9 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
         >
           <ChevronLeft size={20} />
         </button>
-        <div style={{ flex: 1 }}>
-          <div className={styles.pushTitle}>
-            {c?.nome ?? "Registrar agenda"}
-            {c?.idadeLabel && (
-              <span
-                style={{
-                  fontWeight: 500,
-                  fontSize: 12,
-                  color: "var(--text-dim)",
-                }}
-              >
-                {" "}
-                · {c.idadeLabel}
-              </span>
-            )}
-          </div>
-          <div className={styles.pushSub}>
-            {c?.turmaNome ? `Turma ${c.turmaNome} · hoje` : "hoje"}
-            {agendaId && " · editando registro já salvo"}
-          </div>
-        </div>
         <Link
           href={`/professor/historico/${criancaId}`}
-          className={styles.pushAction}
+          className={`${styles.pushAction} ${styles.pushActionStrong}`}
         >
           Histórico
         </Link>
@@ -475,8 +454,9 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                         type="button"
                         className={styles.removeBtn}
                         onClick={() => removeSoneca(i)}
+                        aria-label={`Remover soneca ${i + 1}`}
                       >
-                        remover
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -567,11 +547,6 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
                       setHumor((prev) => (prev === h.value ? null : h.value))
                     }
                   >
-                    {humor === h.value && (
-                      <span className={styles.moodCheck} aria-hidden>
-                        <Check size={11} />
-                      </span>
-                    )}
                     <h.icon size={20} className={styles.moodIcon} aria-hidden />
                     <span className={styles.moodLabel}>{h.label}</span>
                   </button>
@@ -688,12 +663,12 @@ export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
             >
               {saved ? (
                 <>
-                  <Check size={18} /> Agenda salva
+                  <Check size={18} /> Salvo
                 </>
               ) : saving ? (
                 "Salvando…"
               ) : (
-                "Salvar agenda"
+                "Salvar"
               )}
             </button>
 

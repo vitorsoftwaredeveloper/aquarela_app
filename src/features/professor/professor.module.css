@@ -450,6 +450,12 @@
   padding: 8px 11px;
   cursor: pointer;
 }
+.pushActionStrong {
+  color: #fff;
+  background: var(--grad-primary);
+  border-color: transparent;
+  box-shadow: 0 4px 12px -4px rgba(109, 69, 196, 0.55);
+}
 
 /* ---------------- AGD-09 Histórico ---------------- */
 .histList {
@@ -1038,12 +1044,20 @@
   font-weight: 700;
 }
 .removeBtn {
-  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
   color: #c7522b;
   background: none;
   border: none;
+  border-radius: 9px;
   cursor: pointer;
-  font-weight: 600;
+}
+.removeBtn:hover {
+  background: rgba(199, 82, 43, 0.1);
 }
 
 /* Humor */
@@ -1074,21 +1088,6 @@
   background: var(--color-secondary-soft);
   color: var(--color-secondary-strong);
 }
-.moodCheck {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--color-secondary-strong);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--surface);
-}
-
 /* Higiene (contador) */
 .counterCard {
   display: flex;
