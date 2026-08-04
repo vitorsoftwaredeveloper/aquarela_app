@@ -16,6 +16,7 @@ interface PageTitleValue {
   hideTopbar?: boolean;
   hideTopbarDesktop?: boolean;
   wide?: boolean;
+  fixedHeight?: boolean;
 }
 
 interface PageTitleStore extends PageTitleValue {
@@ -60,6 +61,7 @@ export function usePageTitleValue(): PageTitleValue {
     hideTopbar: ctx?.hideTopbar,
     hideTopbarDesktop: ctx?.hideTopbarDesktop,
     wide: ctx?.wide,
+    fixedHeight: ctx?.fixedHeight,
   };
 }
 
@@ -94,6 +96,16 @@ export function useHideTopbarOnDesktop(enabled = true) {
   useEffect(() => {
     patchPageTitle?.({ hideTopbarDesktop: enabled });
     return () => patchPageTitle?.({ hideTopbarDesktop: false });
+  }, [patchPageTitle, enabled]);
+}
+
+export function useFixedHeightContent(enabled = true) {
+  const ctx = useContext(PageTitleContext);
+  const patchPageTitle = ctx?.patchPageTitle;
+
+  useEffect(() => {
+    patchPageTitle?.({ fixedHeight: enabled });
+    return () => patchPageTitle?.({ fixedHeight: false });
   }, [patchPageTitle, enabled]);
 }
 

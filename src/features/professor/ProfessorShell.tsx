@@ -82,7 +82,7 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { title, subtitle, hideTopbar } = usePageTitleValue();
+  const { title, subtitle, hideTopbar, fixedHeight } = usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -167,7 +167,7 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""}`}
+      className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""} ${fixedHeight ? styles.shellFixed : ""}`}
     >
       <aside
         className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ""}`}
@@ -220,7 +220,11 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
         )}
-        <main className={styles.content}>{children}</main>
+        <main
+          className={`${styles.content} ${fixedHeight ? styles.contentFixed : ""}`}
+        >
+          {children}
+        </main>
       </div>
 
       {menuOpen && (

@@ -23,6 +23,13 @@
 .shellCollapsed {
   grid-template-columns: 76px 1fr;
 }
+.shellFixed {
+  height: 100dvh;
+  overflow: hidden;
+}
+.shellFixed .main {
+  min-height: 0;
+}
 
 .sidebar {
   position: sticky;
@@ -323,6 +330,11 @@
   margin: 0 auto;
   padding-bottom: var(--content-pb);
   transition: max-width 0.16s ease;
+}
+.contentFixed {
+  --content-pb: 0px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {

@@ -9,6 +9,7 @@ import {
   usePageTitle,
   useHideTopbar,
   useWideContent,
+  useFixedHeightContent,
 } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
@@ -70,6 +71,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const [mostrarAnexo, setMostrarAnexo] = useState(false);
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   const ultimoCreatedAtRef = useRef<string | null>(null);
+  const listaRef = useRef<HTMLDivElement>(null);
   const avatarBg = useMemo(
     () => sortearCoresAvatar([criancaId])[criancaId],
     [criancaId],
@@ -88,8 +90,9 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   }, [base.data, recebidasNovas, enviadas, removidasIds]);
 
   useEffect(() => {
-    if (mensagens.length === 0) return;
-    window.scrollTo({ top: document.documentElement.scrollHeight });
+    const lista = listaRef.current;
+    if (!lista || mensagens.length === 0) return;
+    lista.scrollTop = lista.scrollHeight;
   }, [mensagens.length]);
 
   useEffect(() => {
@@ -215,6 +218,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
   );
   useHideTopbar(ehProfessor);
   useWideContent(!ehProfessor);
+  useFixedHeightContent();
 
   return (
     <div className={styles.tela}>
@@ -234,7 +238,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
         </div>
       ) : null}
 
-      <div className={styles.lista}>
+      <div className={styles.lista} ref={listaRef}>
         {base.loading ? (
           <div
             className={styles.listaCarregando}

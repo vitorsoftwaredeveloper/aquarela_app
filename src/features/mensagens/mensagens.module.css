@@ -39,12 +39,16 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: calc(100% + var(--content-pb, 0px));
+  min-height: calc(100% + var(--content-pb, 0px));
   margin-bottom: calc(-1 * var(--content-pb, 0px));
 }
 
 .lista {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 20px 16px 8px;
   display: flex;
   flex-direction: column;

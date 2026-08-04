@@ -48,7 +48,7 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { activeId, inadimplencia } = useResponsavel();
-  const { title, subtitle, hideTopbar, hideTopbarDesktop, wide } =
+  const { title, subtitle, hideTopbar, hideTopbarDesktop, wide, fixedHeight } =
     usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -179,7 +179,7 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""}`}
+      className={`${styles.shell} ${collapsed ? styles.shellCollapsed : ""} ${fixedHeight ? styles.shellFixed : ""}`}
     >
       <aside
         className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ""}`}
@@ -237,7 +237,9 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
         )}
-        <main className={`${styles.content} ${wide ? styles.contentWide : ""}`}>
+        <main
+          className={`${styles.content} ${wide ? styles.contentWide : ""} ${fixedHeight ? styles.contentFixed : ""}`}
+        >
           {children}
         </main>
       </div>
