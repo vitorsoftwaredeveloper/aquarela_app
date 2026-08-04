@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Avatar, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePageTitle } from "@/contexts/PageTitleContext";
+import { usePageHeaderExtra, usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
@@ -44,10 +44,42 @@ export function InicioScreen() {
     active ? `Acompanhando ${active.nome}` : undefined,
   );
 
-  function abrirTrocaFilho() {
-    if (criancas.length < 2) return;
+  const criancasCount = criancas.length;
+  const abrirTrocaFilho = useCallback(() => {
+    if (criancasCount < 2) return;
     setSwitcherOpen(true);
-  }
+  }, [criancasCount]);
+
+  const headerPill = useMemo(
+    () =>
+      active ? (
+        <button
+          type="button"
+          className={styles.headerChildPill}
+          onClick={abrirTrocaFilho}
+        >
+          <Avatar
+            nome={active.nome}
+            fotoUrl={active.fotoUrl}
+            bg={avatarColors[active._id]}
+            size={36}
+          />
+          <span className={styles.headerChildPillText}>
+            <span className={styles.headerChildPillName}>{active.nome}</span>
+            {criancasCount > 1 && (
+              <span className={styles.headerChildPillHint}>
+                Trocar de filho
+              </span>
+            )}
+          </span>
+          {criancasCount > 1 && (
+            <RefreshCw size={15} className={styles.headerChildPillIcon} />
+          )}
+        </button>
+      ) : null,
+    [active, avatarColors, criancasCount, abrirTrocaFilho],
+  );
+  usePageHeaderExtra(headerPill);
 
   if (loading) {
     return (
@@ -97,7 +129,10 @@ export function InicioScreen() {
 
   return (
     <div>
-      <button className={styles.childCard} onClick={abrirTrocaFilho}>
+      <button
+        className={`${styles.childCard} ${styles.childCardMobileOnly}`}
+        onClick={abrirTrocaFilho}
+      >
         <Avatar
           nome={active.nome}
           fotoUrl={active.fotoUrl}
@@ -117,7 +152,11 @@ export function InicioScreen() {
         )}
       </button>
       {criancas.length > 1 && (
-        <div className={styles.childHint}>Trocar de filho</div>
+        <div
+          className={`${styles.childHint} ${styles.childCardMobileOnly}`}
+        >
+          Trocar de filho
+        </div>
       )}
 
       <NotificationOnboarding />
@@ -138,8 +177,10 @@ export function InicioScreen() {
           </div>
         </Link>
       )}
-      <Avisos />
-      <AgendaHoje criancaId={active._id} />
+      <div className={styles.homeGrid}>
+        <Avisos />
+        <AgendaHoje criancaId={active._id} />
+      </div>
       <ChildSwitcherSheet
         open={switcherOpen}
         onClose={() => setSwitcherOpen(false)}

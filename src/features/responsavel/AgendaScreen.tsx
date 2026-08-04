@@ -2,27 +2,25 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MessageCircle, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
-import { useRecadosNaoLidos } from "@/hooks/useRecadosNaoLidos";
 import { linhaCuidados, temCuidados } from "@/types/crianca";
 import { AgendaStory } from "./AgendaStory";
 import styles from "./responsavel.module.css";
 
 export function AgendaScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const agenda = useFetch(() => AgendaService.getDia(criancaId));
-  const naoLidos = useRecadosNaoLidos();
 
   const c = crianca.data;
   const dia = agenda.data;
-  const temRecadoNaoLido = naoLidos.has(criancaId);
 
   return (
     <div>
@@ -33,23 +31,9 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
           <div className={styles.pushSub}>{dia?.dataLabel ?? "Hoje"}</div>
         </div>
         <Link
-          href={`/recados/${criancaId}`}
-          className={styles.pushAction}
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-          }}
-        >
-          <MessageCircle size={14} />
-          Recados
-          {temRecadoNaoLido && <span className={styles.pushActionBadge} />}
-        </Link>
-        <Link
           href={`/historico/${criancaId}`}
           className={styles.pushAction}
-          style={{ marginLeft: 0 }}
+          style={{ marginLeft: "auto" }}
         >
           Histórico
         </Link>

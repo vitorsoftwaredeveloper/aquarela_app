@@ -1,10 +1,10 @@
 .watermark {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 0;
   background-image: url("../../components/Logo/aquarela-logo.png");
   background-repeat: no-repeat;
-  background-position: center 46%;
+  background-position: center center;
   background-size: min(62vw, 320px) auto;
   opacity: 0.06;
   pointer-events: none;
@@ -35,7 +35,55 @@
   color: var(--text-dim);
 }
 
+.chatHeaderDesktop {
+  display: none;
+}
+@media (min-width: 901px) {
+  .chatHeaderDesktop {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 26px;
+    background: color-mix(in srgb, var(--wash-1) 72%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-08);
+  }
+}
+.chatHeaderAvatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 17px;
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary-strong);
+}
+.chatHeaderText {
+  flex: 1;
+  min-width: 0;
+}
+.chatHeaderName {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+.chatHeaderSub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
 .tela {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -44,10 +92,16 @@
 
 .lista {
   flex: 1;
-  padding: 16px 14px 8px;
+  padding: 20px 16px 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+}
+@media (min-width: 901px) {
+  .lista {
+    padding: 24px 28px 16px;
+    gap: 28px;
+  }
 }
 
 .listaCarregando {
@@ -74,39 +128,36 @@
 }
 
 .bolha {
-  max-width: 78%;
-  border-radius: 16px;
-  padding: 9px 12px;
-  font-size: 13.5px;
-  line-height: 1.4;
+  max-width: min(74%, 640px);
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-size: 14.5px;
+  line-height: 1.5;
 }
 .bolhaDelas {
   align-self: flex-start;
   background: var(--surface);
   border: 1px solid var(--border-07);
-  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
 }
 .bolhaMinha {
   align-self: flex-end;
-  background: var(--color-primary-soft);
-  border: 1px solid var(--color-primary-soft-border);
-  border-bottom-right-radius: 4px;
+  background: var(--grad-primary);
+  color: var(--text-on-brand);
 }
 .remetente {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--color-primary-link);
-  margin-bottom: 2px;
-}
-.bolhaDelas .remetente {
   color: var(--color-secondary-strong);
+  margin-bottom: 4px;
 }
 .bolhaTexto {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  color: var(--text);
+  color: inherit;
 }
 .bolhaAnexos {
   display: flex;
@@ -123,6 +174,10 @@
   color: var(--color-primary-link);
   text-decoration: none;
 }
+.bolhaMinha .anexoLink {
+  color: var(--text-on-brand);
+  text-decoration: underline;
+}
 .anexoLink:hover {
   text-decoration: underline;
 }
@@ -131,14 +186,28 @@
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 10.5px;
   color: var(--text-mute);
+}
+.bolhaMinha .bolhaRodape {
+  color: rgba(255, 255, 255, 0.75);
+}
+.bolhaAcoes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.bolha:hover .bolhaAcoes,
+.bolha:focus-within .bolhaAcoes {
+  opacity: 1;
 }
 .removerBtn {
   border: none;
   background: none;
-  color: var(--text-mute);
+  color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -146,6 +215,9 @@
 }
 .removerBtn:hover {
   color: var(--color-danger-strong);
+}
+.bolhaMinha .removerBtn:hover {
+  color: #fff;
 }
 .removerBtn:disabled {
   cursor: default;
@@ -165,40 +237,45 @@
   position: sticky;
   bottom: 0;
   z-index: 15;
-  background: color-mix(in srgb, var(--screen) 96%, transparent);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid var(--border-06);
-  border-radius: 14px 14px 0 0;
-  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--screen);
+  border-top: 1px solid var(--border-07);
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   box-sizing: border-box;
 }
+@media (min-width: 901px) {
+  .compositor {
+    padding: 18px 28px calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+}
 .compositorLinha {
   display: flex;
-  align-items: flex-end;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
 }
 .anexarBtn,
 .enviarBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  border: 1px solid var(--border-10);
-  background: var(--surface);
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-dim);
   cursor: pointer;
   flex: none;
 }
+.anexarBtn {
+  border: 1px solid var(--border-10);
+  background: none;
+  color: var(--text-dim);
+}
 .enviarBtn {
-  color: #fff;
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  border: none;
+  color: var(--text-on-brand);
+  background: var(--grad-primary);
 }
 .enviarBtn:disabled {
   opacity: 0.5;
@@ -209,15 +286,14 @@
   resize: none;
   border: 1px solid var(--border-10);
   border-radius: 14px;
-  padding: 9px 12px;
+  background: var(--surface-2);
+  padding: 12px 16px;
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--text);
-  background: var(--surface);
   max-height: 96px;
 }
 .compositorInput:focus {
   outline: none;
   border-color: var(--color-primary-soft-border);
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }

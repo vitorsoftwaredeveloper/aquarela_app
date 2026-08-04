@@ -47,7 +47,8 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { activeId, inadimplencia } = useResponsavel();
-  const { title, subtitle, hideTopbar } = usePageTitleValue();
+  const { title, subtitle, hideTopbar, hideTopbarDesktop, wide, headerExtra } =
+    usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -110,7 +111,7 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
       href: "/financeiro",
       label: "Financeiro",
       icon: Wallet,
-      isActive: (p) => p === "/financeiro",
+      isActive: (p) => p.startsWith("/financeiro"),
       showDot: inadimplencia.inadimplente,
     },
     {
@@ -202,7 +203,9 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
 
       <div className={styles.main}>
         {!hideTopbar && (
-          <header className={styles.topbar}>
+          <header
+            className={`${styles.topbar} ${hideTopbarDesktop ? styles.topbarHideDesktop : ""}`}
+          >
             <button
               type="button"
               className={styles.menuBtn}
@@ -226,11 +229,16 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
               </div>
             )}
             <div className={styles.topbarActions}>
+              {headerExtra}
               <ThemeToggle />
             </div>
           </header>
         )}
-        <main className={styles.content}>{children}</main>
+        <main
+          className={`${styles.content} ${wide ? styles.contentWide : ""}`}
+        >
+          {children}
+        </main>
       </div>
 
       {menuOpen && (

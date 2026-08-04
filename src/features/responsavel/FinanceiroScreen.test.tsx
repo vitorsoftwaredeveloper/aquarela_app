@@ -9,6 +9,10 @@ import { FinanceiroService } from "@/services/financeiroService";
 import type { Crianca } from "@/types/crianca";
 import type { Mensalidade, Pagamento } from "@/types/financeiro";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
+}));
+
 vi.mock("@/contexts/ResponsavelContext", () => ({
   useResponsavel: vi.fn(),
 }));

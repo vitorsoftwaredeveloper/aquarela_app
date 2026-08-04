@@ -69,3 +69,8 @@ export function instrucaoReativarNotificacoes(
 function safeUserAgent(): string {
   return typeof navigator === "undefined" ? "" : navigator.userAgent;
 }
+
+export function isDesktopViewport(breakpointPx = 901): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia(`(min-width: ${breakpointPx}px)`).matches;
+}

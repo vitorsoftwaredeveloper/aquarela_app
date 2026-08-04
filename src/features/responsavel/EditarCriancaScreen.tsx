@@ -15,7 +15,7 @@ import {
   Skeleton,
   Textarea,
 } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { CriancasService } from "@/services/criancas";
@@ -48,6 +48,7 @@ const RESP_VAZIO = {
 
 export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const { reload: recarregarFilhos } = useResponsavel();
   const crianca = useFetch(
@@ -186,7 +187,7 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
   const c = crianca.data as CriancaCadastro;
 
   return (
-    <form className={styles.wrap} onSubmit={handleSubmit(onSubmit)} noValidate>
+    <div>
       <div className={shell.pushHeader}>
         <BackButton onClick={() => router.back()} />
         <div style={{ flex: 1 }}>
@@ -195,309 +196,321 @@ export function EditarCriancaScreen({ criancaId }: { criancaId: string }) {
         </div>
       </div>
 
-      {erro && (
-        <div className={styles.alert} role="alert">
-          <AlertCircle size={17} />
-          <span>{erro}</span>
-        </div>
-      )}
-      {salvo && (
-        <div className={styles.ok} role="status">
-          <CheckCircle2 size={16} /> Dados atualizados.
-        </div>
-      )}
+      <form
+        className={styles.wrap}
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
+        {erro && (
+          <div className={styles.alert} role="alert">
+            <AlertCircle size={17} />
+            <span>{erro}</span>
+          </div>
+        )}
+        {salvo && (
+          <div className={styles.ok} role="status">
+            <CheckCircle2 size={16} /> Dados atualizados.
+          </div>
+        )}
 
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Foto</div>
-        <p className={styles.sectionHint}>
-          Aparece para você e para a equipe da escola.
-        </p>
-        <div className={styles.card}>
-          <FotoField
-            nome={nomeAtual || c.nome}
-            fotoUrl={c.fotoUrl}
-            previewUrl={fotoPreview}
-            bg="var(--color-primary-soft)"
-            label="Foto da criança"
-            hint="A imagem é reduzida no aparelho antes do envio. Salve para aplicar."
-            onSelect={(f, p) => {
-              setFoto(f);
-              setFotoPreview(p);
-            }}
-          />
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Criança</div>
-        <div className={styles.card}>
-          <Input
-            label="Nome completo"
-            error={errors.nome?.message}
-            {...register("nome")}
-          />
-          <DateBRInput
-            label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
-            error={errors.dataNascimento?.message}
-            {...register("dataNascimento")}
-          />
-          <div className={styles.readonly}>
-            <Lock size={15} className={styles.readonlyIcon} />
-            <span>
-              CPF, turma e mensalidade só a secretaria altera. Fale com a escola
-              se algum deles estiver errado.
-            </span>
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Foto</div>
+          <p className={styles.sectionHint}>
+            Aparece para você e para a equipe da escola.
+          </p>
+          <div className={styles.card}>
+            <FotoField
+              nome={nomeAtual || c.nome}
+              fotoUrl={c.fotoUrl}
+              previewUrl={fotoPreview}
+              bg="var(--color-primary-soft)"
+              label="Foto da criança"
+              hint="A imagem é reduzida no aparelho antes do envio. Salve para aplicar."
+              onSelect={(f, p) => {
+                setFoto(f);
+                setFotoPreview(p);
+              }}
+            />
           </div>
         </div>
-      </div>
 
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Responsáveis</div>
-        <p className={styles.sectionHint}>
-          Quem acompanha {c.nome} no app e quem pode retirá-la na escola.
-        </p>
-        <div className={styles.card}>
-          {responsaveis.fields.map((f, i) => (
-            <div key={f.id} className={styles.repeat}>
-              <div className={styles.repeatHead}>
-                <span className={styles.repeatTitle}>Responsável {i + 1}</span>
-                {responsaveis.fields.length > 1 && (
-                  <button
-                    type="button"
-                    className={styles.linkDanger}
-                    onClick={() => responsaveis.remove(i)}
-                  >
-                    <Trash2 size={14} /> remover
-                  </button>
-                )}
-              </div>
-              <Input
-                label="Nome"
-                error={errors.responsaveis?.[i]?.nome?.message}
-                {...register(`responsaveis.${i}.nome`)}
-              />
-              <Controller
-                control={control}
-                name={`responsaveis.${i}.cpf`}
-                render={({ field }) => (
-                  <Input
-                    label="CPF"
-                    placeholder="000.000.000-00"
-                    inputMode="numeric"
-                    error={errors.responsaveis?.[i]?.cpf?.message}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(maskCPF(e.target.value))}
-                    onBlur={field.onBlur}
-                  />
-                )}
-              />
-              <Select
-                label="Parentesco"
-                placeholder="Selecione"
-                options={PARENTESCOS.map((p) => ({ value: p, label: p }))}
-                error={errors.responsaveis?.[i]?.parentesco?.message}
-                {...register(`responsaveis.${i}.parentesco`)}
-              />
-              <Controller
-                control={control}
-                name={`responsaveis.${i}.telefone`}
-                render={({ field }) => (
-                  <Input
-                    label="Telefone"
-                    placeholder="(11) 90000-0000"
-                    inputMode="numeric"
-                    error={errors.responsaveis?.[i]?.telefone?.message}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(maskPhone(e.target.value))}
-                    onBlur={field.onBlur}
-                  />
-                )}
-              />
-              {f.usuarioId ? (
-                <div>
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Criança</div>
+          <div className={styles.card}>
+            <Input
+              label="Nome completo"
+              error={errors.nome?.message}
+              {...register("nome")}
+            />
+            <DateBRInput
+              label={`Data de nascimento${idade !== null ? ` (${idade} anos)` : ""}`}
+              error={errors.dataNascimento?.message}
+              {...register("dataNascimento")}
+            />
+            <div className={styles.readonly}>
+              <Lock size={15} className={styles.readonlyIcon} />
+              <span>
+                CPF, turma e mensalidade só a secretaria altera. Fale com a
+                escola se algum deles estiver errado.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Responsáveis</div>
+          <p className={styles.sectionHint}>
+            Quem acompanha {c.nome} no app e quem pode retirá-la na escola.
+          </p>
+          <div className={styles.card}>
+            {responsaveis.fields.map((f, i) => (
+              <div key={f.id} className={styles.repeat}>
+                <div className={styles.repeatHead}>
+                  <span className={styles.repeatTitle}>
+                    Responsável {i + 1}
+                  </span>
+                  {responsaveis.fields.length > 1 && (
+                    <button
+                      type="button"
+                      className={styles.linkDanger}
+                      onClick={() => responsaveis.remove(i)}
+                    >
+                      <Trash2 size={14} /> remover
+                    </button>
+                  )}
+                </div>
+                <Input
+                  label="Nome"
+                  error={errors.responsaveis?.[i]?.nome?.message}
+                  {...register(`responsaveis.${i}.nome`)}
+                />
+                <Controller
+                  control={control}
+                  name={`responsaveis.${i}.cpf`}
+                  render={({ field }) => (
+                    <Input
+                      label="CPF"
+                      placeholder="000.000.000-00"
+                      inputMode="numeric"
+                      error={errors.responsaveis?.[i]?.cpf?.message}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(maskCPF(e.target.value))}
+                      onBlur={field.onBlur}
+                    />
+                  )}
+                />
+                <Select
+                  label="Parentesco"
+                  placeholder="Selecione"
+                  options={PARENTESCOS.map((p) => ({ value: p, label: p }))}
+                  error={errors.responsaveis?.[i]?.parentesco?.message}
+                  {...register(`responsaveis.${i}.parentesco`)}
+                />
+                <Controller
+                  control={control}
+                  name={`responsaveis.${i}.telefone`}
+                  render={({ field }) => (
+                    <Input
+                      label="Telefone"
+                      placeholder="(11) 90000-0000"
+                      inputMode="numeric"
+                      error={errors.responsaveis?.[i]?.telefone?.message}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(maskPhone(e.target.value))
+                      }
+                      onBlur={field.onBlur}
+                    />
+                  )}
+                />
+                {f.usuarioId ? (
+                  <div>
+                    <Input
+                      label="E-mail"
+                      type="email"
+                      readOnly
+                      className={styles.leitura}
+                      {...register(`responsaveis.${i}.email`)}
+                    />
+                    <span className={styles.campoNota}>
+                      <Lock size={12} /> É o e-mail de login no app. Para
+                      trocar, fale com a escola.
+                    </span>
+                  </div>
+                ) : (
                   <Input
                     label="E-mail"
                     type="email"
-                    readOnly
-                    className={styles.leitura}
+                    error={errors.responsaveis?.[i]?.email?.message}
                     {...register(`responsaveis.${i}.email`)}
                   />
+                )}
+                <div>
+                  <label className={styles.check}>
+                    <input
+                      type="checkbox"
+                      disabled
+                      {...register(`responsaveis.${i}.podeRetirar`)}
+                    />
+                    Pode retirar a criança na escola
+                  </label>
                   <span className={styles.campoNota}>
-                    <Lock size={12} /> É o e-mail de login no app. Para trocar,
-                    fale com a escola.
+                    <Lock size={12} /> Só a secretaria autoriza quem pode
+                    retirar a criança.
                   </span>
                 </div>
-              ) : (
-                <Input
-                  label="E-mail"
-                  type="email"
-                  error={errors.responsaveis?.[i]?.email?.message}
-                  {...register(`responsaveis.${i}.email`)}
-                />
-              )}
-              <div>
-                <label className={styles.check}>
-                  <input
-                    type="checkbox"
-                    disabled
-                    {...register(`responsaveis.${i}.podeRetirar`)}
-                  />
-                  Pode retirar a criança na escola
-                </label>
-                <span className={styles.campoNota}>
-                  <Lock size={12} /> Só a secretaria autoriza quem pode retirar
-                  a criança.
-                </span>
               </div>
+            ))}
+            <div className={styles.readonly}>
+              <Lock size={15} className={styles.readonlyIcon} />
+              <span>
+                Só a secretaria adiciona um novo responsável. Fale com a escola
+                para incluir alguém.
+              </span>
             </div>
-          ))}
-          <div className={styles.readonly}>
-            <Lock size={15} className={styles.readonlyIcon} />
-            <span>
-              Só a secretaria adiciona um novo responsável. Fale com a escola
-              para incluir alguém.
-            </span>
           </div>
         </div>
-      </div>
 
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Saúde</div>
-        <p className={styles.sectionHint}>
-          Alergias e medicações aparecem em destaque na agenda diária e para a
-          professora.
-        </p>
-        <div className={styles.card}>
-          <Controller
-            control={control}
-            name="saude.alergias"
-            render={({ field }) => (
-              <TagInput
-                label="Alergias"
-                value={field.value ?? []}
-                onChange={field.onChange}
-                placeholder="Ex.: amendoim — Enter para adicionar"
-                alert
-                hint="Exibidas com destaque para professores e responsáveis."
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="saude.restricoesAlimentares"
-            render={({ field }) => (
-              <TagInput
-                label="Restrições alimentares"
-                value={field.value ?? []}
-                onChange={field.onChange}
-                placeholder="Ex.: sem lactose"
-              />
-            )}
-          />
-
-          {medicacoes.fields.map((f, i) => (
-            <div key={f.id} className={styles.repeat}>
-              <div className={styles.repeatHead}>
-                <span className={styles.repeatTitle}>Medicação {i + 1}</span>
-                <button
-                  type="button"
-                  className={styles.linkDanger}
-                  onClick={() => medicacoes.remove(i)}
-                >
-                  <Trash2 size={14} /> remover
-                </button>
-              </div>
-              <Input
-                label="Medicamento"
-                error={errors.saude?.medicacoesContinuas?.[i]?.nome?.message}
-                {...register(`saude.medicacoesContinuas.${i}.nome`)}
-              />
-              <Input
-                label="Dose"
-                error={errors.saude?.medicacoesContinuas?.[i]?.dose?.message}
-                {...register(`saude.medicacoesContinuas.${i}.dose`)}
-              />
-              <Input
-                label="Horário"
-                type="time"
-                error={errors.saude?.medicacoesContinuas?.[i]?.horario?.message}
-                {...register(`saude.medicacoesContinuas.${i}.horario`)}
-              />
-              <Input
-                label="Observação (opcional)"
-                placeholder="Ex.: só se febre"
-                {...register(`saude.medicacoesContinuas.${i}.observacao`)}
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            className={styles.addBlock}
-            onClick={() =>
-              medicacoes.append({
-                nome: "",
-                dose: "",
-                horario: "",
-                observacao: "",
-              })
-            }
-          >
-            <Plus size={16} /> Adicionar medicação
-          </button>
-
-          <Controller
-            control={control}
-            name="saude.condicoesAtipicas"
-            render={({ field }) => (
-              <TagInput
-                label="Condições atípicas (opcional)"
-                value={field.value ?? []}
-                onChange={field.onChange}
-                placeholder="Ex.: TEA"
-              />
-            )}
-          />
-          <Textarea
-            label="Cuidados especiais (opcional)"
-            rows={3}
-            placeholder="Orientações para a equipe"
-            {...register("saude.cuidadosEspeciais")}
-          />
-          <Textarea
-            label="Observações (opcional)"
-            rows={3}
-            placeholder="Outras informações de saúde"
-            {...register("saude.observacoes")}
-          />
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Mural de fotos</div>
-        <p className={styles.sectionHint}>
-          Controla se {c.nome} pode aparecer nas fotos publicadas pela
-          professora para os responsáveis da turma.
-        </p>
-        <div className={styles.card}>
-          <label className={styles.check}>
-            <input
-              type="checkbox"
-              checked={consentimentoImagem}
-              onChange={(e) => setConsentimentoImagem(e.target.checked)}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Saúde</div>
+          <p className={styles.sectionHint}>
+            Alergias e medicações aparecem em destaque na agenda diária e para a
+            professora.
+          </p>
+          <div className={styles.card}>
+            <Controller
+              control={control}
+              name="saude.alergias"
+              render={({ field }) => (
+                <TagInput
+                  label="Alergias"
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  placeholder="Ex.: amendoim — Enter para adicionar"
+                  alert
+                  hint="Exibidas com destaque para professores e responsáveis."
+                />
+              )}
             />
-            Autorizo a divulgação de imagens de {c.nome} no mural de fotos.
-          </label>
-        </div>
-      </div>
+            <Controller
+              control={control}
+              name="saude.restricoesAlimentares"
+              render={({ field }) => (
+                <TagInput
+                  label="Restrições alimentares"
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  placeholder="Ex.: sem lactose"
+                />
+              )}
+            />
 
-      <div className={styles.footer}>
-        <Button type="button" variant="ghost" onClick={() => router.back()}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando…" : "Salvar alterações"}
-        </Button>
-      </div>
-    </form>
+            {medicacoes.fields.map((f, i) => (
+              <div key={f.id} className={styles.repeat}>
+                <div className={styles.repeatHead}>
+                  <span className={styles.repeatTitle}>Medicação {i + 1}</span>
+                  <button
+                    type="button"
+                    className={styles.linkDanger}
+                    onClick={() => medicacoes.remove(i)}
+                  >
+                    <Trash2 size={14} /> remover
+                  </button>
+                </div>
+                <Input
+                  label="Medicamento"
+                  error={errors.saude?.medicacoesContinuas?.[i]?.nome?.message}
+                  {...register(`saude.medicacoesContinuas.${i}.nome`)}
+                />
+                <Input
+                  label="Dose"
+                  error={errors.saude?.medicacoesContinuas?.[i]?.dose?.message}
+                  {...register(`saude.medicacoesContinuas.${i}.dose`)}
+                />
+                <Input
+                  label="Horário"
+                  type="time"
+                  error={
+                    errors.saude?.medicacoesContinuas?.[i]?.horario?.message
+                  }
+                  {...register(`saude.medicacoesContinuas.${i}.horario`)}
+                />
+                <Input
+                  label="Observação (opcional)"
+                  placeholder="Ex.: só se febre"
+                  {...register(`saude.medicacoesContinuas.${i}.observacao`)}
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              className={styles.addBlock}
+              onClick={() =>
+                medicacoes.append({
+                  nome: "",
+                  dose: "",
+                  horario: "",
+                  observacao: "",
+                })
+              }
+            >
+              <Plus size={16} /> Adicionar medicação
+            </button>
+
+            <Controller
+              control={control}
+              name="saude.condicoesAtipicas"
+              render={({ field }) => (
+                <TagInput
+                  label="Condições atípicas (opcional)"
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  placeholder="Ex.: TEA"
+                />
+              )}
+            />
+            <Textarea
+              label="Cuidados especiais (opcional)"
+              rows={3}
+              placeholder="Orientações para a equipe"
+              {...register("saude.cuidadosEspeciais")}
+            />
+            <Textarea
+              label="Observações (opcional)"
+              rows={3}
+              placeholder="Outras informações de saúde"
+              {...register("saude.observacoes")}
+            />
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Mural de fotos</div>
+          <p className={styles.sectionHint}>
+            Controla se {c.nome} pode aparecer nas fotos publicadas pela
+            professora para os responsáveis da turma.
+          </p>
+          <div className={styles.card}>
+            <label className={styles.check}>
+              <input
+                type="checkbox"
+                checked={consentimentoImagem}
+                onChange={(e) => setConsentimentoImagem(e.target.checked)}
+              />
+              Autorizo a divulgação de imagens de {c.nome} no mural de fotos.
+            </label>
+          </div>
+        </div>
+
+        <div className={styles.footer}>
+          <Button type="button" variant="ghost" onClick={() => router.back()}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Salvando…" : "Salvar alterações"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

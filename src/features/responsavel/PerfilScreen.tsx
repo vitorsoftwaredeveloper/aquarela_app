@@ -26,7 +26,7 @@ export function PerfilScreen() {
   }
 
   return (
-    <div>
+    <div className={styles.perfilGrid}>
       <div className={styles.block}>
         <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
           Meus filhos
@@ -99,41 +99,46 @@ export function PerfilScreen() {
         </div>
       </div>
 
-      <div className={styles.block}>
-        <div className={styles.settingsCard}>
-          <button
-            type="button"
-            className={styles.settingRow}
-            onClick={toggleTheme}
-            aria-pressed={isDark}
-          >
-            <span className={styles.settingIcon}>
-              {isDark ? <Moon size={17} /> : <Sun size={17} />}
-            </span>
-            <span className={styles.settingLabel}>Modo escuro</span>
-            <span
-              className={`${styles.switchTrack} ${isDark ? styles.switchOn : ""}`}
-              aria-hidden
+      <div className={styles.perfilGridSide}>
+        <div className={styles.block}>
+          <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
+            Configurações
+          </div>
+          <div className={styles.settingsCard}>
+            <button
+              type="button"
+              className={styles.settingRow}
+              onClick={toggleTheme}
+              aria-pressed={isDark}
             >
-              <span className={styles.switchThumb} />
-            </span>
-          </button>
-          <Link href="/perfil/notificacoes" className={styles.settingRow}>
-            <span className={styles.settingIcon}>
-              <Bell size={17} />
-            </span>
-            <span className={styles.settingLabel}>Notificações</span>
-            <span className={styles.settingChevron}>
-              <ChevronRight size={18} />
-            </span>
-          </Link>
+              <span className={styles.settingIcon}>
+                {isDark ? <Moon size={17} /> : <Sun size={17} />}
+              </span>
+              <span className={styles.settingLabel}>Modo escuro</span>
+              <span
+                className={`${styles.switchTrack} ${isDark ? styles.switchOn : ""}`}
+                aria-hidden
+              >
+                <span className={styles.switchThumb} />
+              </span>
+            </button>
+            <Link href="/perfil/notificacoes" className={styles.settingRow}>
+              <span className={styles.settingIcon}>
+                <Bell size={17} />
+              </span>
+              <span className={styles.settingLabel}>Notificações</span>
+              <span className={styles.settingChevron}>
+                <ChevronRight size={18} />
+              </span>
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <div className={styles.block}>
-        <button className={styles.signOut} onClick={handleSignOut}>
-          <LogOut size={17} /> Sair da conta
-        </button>
+        <div className={styles.block}>
+          <button className={styles.signOut} onClick={handleSignOut}>
+            <LogOut size={17} /> Sair da conta
+          </button>
+        </div>
       </div>
     </div>
   );

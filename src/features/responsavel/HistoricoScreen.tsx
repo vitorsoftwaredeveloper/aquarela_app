@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Paperclip, ShieldAlert } from "lucide-react";
 import { BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
@@ -15,6 +15,7 @@ const ObsIcon = AGENDA_VISUAL.observacao.icon;
 
 export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const historico = useFetch(() => AgendaService.getHistorico(criancaId));

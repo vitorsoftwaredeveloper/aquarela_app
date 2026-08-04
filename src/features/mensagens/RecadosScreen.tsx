@@ -3,9 +3,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, CheckCheck, Paperclip, Send, Trash2 } from "lucide-react";
-import { Avatar, BackButton, Skeleton, UploadAnexo } from "@/components";
+import {
+  Avatar,
+  BackButton,
+  Skeleton,
+  ThemeToggle,
+  UploadAnexo,
+} from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePageTitle, useHideTopbar } from "@/contexts/PageTitleContext";
+import {
+  usePageTitle,
+  useHideTopbar,
+  useHideTopbarOnDesktop,
+  useWideContent,
+} from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { MensagensService } from "@/services/mensagens";
@@ -37,6 +48,14 @@ const ROTULO_PAPEL: Record<Mensagem["autorPapel"], string> = {
 
 function nomeRemetente(mensagem: Mensagem): string {
   return mensagem.autorNome || ROTULO_PAPEL[mensagem.autorPapel];
+}
+
+function inicialUnica(nome: string): string {
+  const primeiraPalavra = nome
+    .replace(/^prof\.?\s*/i, "")
+    .trim()
+    .split(/\s+/)[0];
+  return (primeiraPalavra?.[0] ?? "?").toUpperCase();
 }
 
 export function RecadosScreen({ criancaId }: { criancaId: string }) {
@@ -205,10 +224,33 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
               : ""),
   );
   useHideTopbar(ehProfessor);
+  useHideTopbarOnDesktop(!ehProfessor);
+  useWideContent(!ehProfessor);
 
   return (
     <div className={styles.tela}>
       <div className={styles.watermark} aria-hidden />
+      {!ehProfessor && (
+        <div className={styles.chatHeaderDesktop}>
+          <span className={styles.chatHeaderAvatar} aria-hidden>
+            {inicialUnica(professorNomeHeader ?? "Professor")}
+          </span>
+          <div className={styles.chatHeaderText}>
+            <div className={styles.chatHeaderName}>
+              {professorNomeHeader ?? "Professor(a)"}
+            </div>
+            <div className={styles.chatHeaderSub}>
+              {[
+                c?.turmaNome ? `Turma ${c.turmaNome}` : null,
+                c?.nome ? `sobre ${c.nome}` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </div>
+          </div>
+          <ThemeToggle />
+        </div>
+      )}
       {user?.role === "professor" ? (
         <div className={styles.pushHeader}>
           <BackButton onClick={() => router.back()} />
@@ -267,9 +309,11 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                   key={mensagem.id}
                   className={`${styles.bolha} ${minha ? styles.bolhaMinha : styles.bolhaDelas}`}
                 >
-                  <span className={styles.remetente}>
-                    {nomeRemetente(mensagem)}
-                  </span>
+                  {!minha && (
+                    <span className={styles.remetente}>
+                      {nomeRemetente(mensagem)}
+                    </span>
+                  )}
                   <p className={styles.bolhaTexto}>{mensagem.corpo}</p>
                   {mensagem.anexos.length > 0 && (
                     <div className={styles.bolhaAnexos}>
@@ -289,7 +333,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                   <div className={styles.bolhaRodape}>
                     <span>{formatarHora(mensagem.createdAt)}</span>
                     {minha && (
-                      <>
+                      <span className={styles.bolhaAcoes}>
                         {mensagem.status === "enviando" ? (
                           <Check size={12} aria-label="Enviando" />
                         ) : (
@@ -304,7 +348,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                         >
                           <Trash2 size={12} />
                         </button>
-                      </>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -343,6 +387,12 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
             placeholder="Escreva um recado…"
             value={corpo}
             onChange={(e) => setCorpo(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                enviar();
+              }
+            }}
             maxLength={2000}
             rows={1}
           />

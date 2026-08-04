@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Bell, BellOff, Share } from "lucide-react";
 import { BackButton, Badge } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import {
   instrucaoReativarNotificacoes,
@@ -26,6 +26,7 @@ const STATUS: Record<
 /** Tela de preferências de notificação (NOT-16) — reutilizada por responsável e professor. */
 export function NotificacoesScreen() {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const { permission, active, enabling, error, requestPermission, disable } =
     useNotifications();

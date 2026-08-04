@@ -5,32 +5,100 @@
   padding: 16px 16px 24px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
 }
-.grupo {
+
+/* Card de evento (lista) */
+.eventCard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--surface-2);
+  box-shadow: 0 6px 20px -8px rgba(31, 41, 51, 0.16);
+}
+.eventCardImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eventCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 12, 16, 0.82) 0%,
+    rgba(10, 12, 16, 0.28) 45%,
+    transparent 70%
+  );
+}
+.eventCardBody {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 3px;
+  text-align: left;
 }
-.grupoHead {
+.eventCardTitle {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14.5px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.eventCardMeta {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.eventCardMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Álbum (detalhe do evento) */
+.albumBody {
+  padding: 16px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.albumHead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.albumMeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.albumDesc {
+  font-size: 13.5px;
+  color: var(--text-soft);
+  line-height: 1.5;
 }
 .grupoTitulo {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 15px;
   color: var(--text);
-}
-.grupoData {
-  font-size: 12px;
-  color: var(--text-dim);
-}
-.grupoDesc {
-  font-size: 12.5px;
-  color: var(--text-soft);
-  margin-top: -4px;
 }
 .grid {
   display: grid;
@@ -86,6 +154,16 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+.lightboxTopBar button {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: transparent;
+  color: #fff;
+}
+.lightboxTopBar button:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: transparent;
+  color: #fff;
 }
 .lightboxImgWrap {
   width: 100%;

@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, Images, X } from "lucide-react";
-import { Skeleton } from "@/components";
-import { usePageTitle } from "@/contexts/PageTitleContext";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Images,
+} from "lucide-react";
+import { BackButton, Skeleton } from "@/components";
+import {
+  useHideTopbar,
+  usePageTitle,
+  useWideContent,
+} from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import type { Evento } from "@/types/evento";
@@ -13,11 +23,7 @@ import styles from "./mural.module.css";
 function formatData(iso: string): string {
   const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" });
 }
 
 interface LightboxState {
@@ -50,21 +56,20 @@ function Lightbox({
 
   if (!foto) return null;
 
+  function fecharSeForaDaFoto(e: React.MouseEvent) {
+    if (e.target === e.currentTarget) onClose();
+  }
+
   return (
     <div
       className={styles.lightbox}
       role="dialog"
       aria-modal="true"
       aria-label={`Foto de ${evento.titulo}`}
+      onClick={fecharSeForaDaFoto}
     >
       <div className={styles.lightboxTopBar}>
-        <button
-          className={styles.lightboxIconBtn}
-          onClick={onClose}
-          aria-label="Fechar"
-        >
-          <X size={20} />
-        </button>
+        <BackButton onClick={onClose} label="Fechar" />
         <a
           className={styles.lightboxIconBtn}
           href={foto.url}
@@ -86,7 +91,7 @@ function Lightbox({
         <ChevronLeft size={22} />
       </button>
 
-      <div className={styles.lightboxImgWrap}>
+      <div className={styles.lightboxImgWrap} onClick={fecharSeForaDaFoto}>
         {foto.url && (
           <img
             src={foto.url}
@@ -117,10 +122,94 @@ function Lightbox({
   );
 }
 
+function EventCard({
+  evento,
+  onAbrir,
+}: {
+  evento: Evento;
+  onAbrir: () => void;
+}) {
+  const capa = evento.fotos[0];
+  return (
+    <button type="button" className={styles.eventCard} onClick={onAbrir}>
+      {capa?.url && (
+        <img src={capa.url} alt="" className={styles.eventCardImg} />
+      )}
+      <span className={styles.eventCardOverlay} aria-hidden />
+      <span className={styles.eventCardBody}>
+        <span className={styles.eventCardTitle}>{evento.titulo}</span>
+        <span className={styles.eventCardMeta}>
+          <span className={styles.eventCardMetaItem}>
+            <Images size={14} /> {evento.fotos.length} fotos
+          </span>
+          <span className={styles.eventCardMetaItem}>
+            <Calendar size={14} /> {formatData(evento.data)}
+          </span>
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function AlbumView({
+  evento,
+  onVoltar,
+  onAbrirFoto,
+}: {
+  evento: Evento;
+  onVoltar: () => void;
+  onAbrirFoto: (index: number) => void;
+}) {
+  useHideTopbar();
+  useWideContent();
+
+  return (
+    <div>
+      <div className={shell.pushHeader}>
+        <BackButton onClick={onVoltar} />
+        <div style={{ flex: 1 }}>
+          <div className={shell.pushTitle}>Álbum</div>
+        </div>
+      </div>
+      <div className={styles.albumBody}>
+        <div className={styles.albumHead}>
+          <span className={styles.grupoTitulo}>{evento.titulo}</span>
+          <span className={styles.albumMeta}>
+            <span className={styles.eventCardMetaItem}>
+              <Images size={13} /> {evento.fotos.length} fotos
+            </span>
+            <span className={styles.eventCardMetaItem}>
+              <Calendar size={13} /> {formatData(evento.data)}
+            </span>
+          </span>
+        </div>
+        {evento.descricao && (
+          <p className={styles.albumDesc}>{evento.descricao}</p>
+        )}
+        <div className={styles.grid}>
+          {evento.fotos.map((foto, i) => (
+            <button
+              key={foto.key}
+              className={styles.thumb}
+              onClick={() => onAbrirFoto(i)}
+              aria-label={`Ver foto ${i + 1} de ${evento.titulo}`}
+            >
+              {foto.url && (
+                <img src={foto.url} alt="" className={styles.thumbImg} />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MuralScreen() {
   const eventos = useFetch(() =>
     EventosService.list({ apenasPublicados: true }),
   );
+  const [albumId, setAlbumId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   const grupos = useMemo(() => {
@@ -129,27 +218,40 @@ export function MuralScreen() {
       .sort((a, b) => b.data.localeCompare(a.data));
   }, [eventos.data]);
 
+  const album = useMemo(
+    () => grupos.find((e) => e._id === albumId) ?? null,
+    [grupos, albumId],
+  );
+
   usePageTitle("Mural de fotos", "Fotos publicadas pela escola");
+
+  if (album) {
+    return (
+      <>
+        <AlbumView
+          evento={album}
+          onVoltar={() => setAlbumId(null)}
+          onAbrirFoto={(index) => setLightbox({ evento: album, index })}
+        />
+        {lightbox && (
+          <Lightbox
+            estado={lightbox}
+            onClose={() => setLightbox(null)}
+            onNavegar={(index) =>
+              setLightbox((atual) => (atual ? { ...atual, index } : atual))
+            }
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <div>
       {eventos.loading ? (
         <div className={styles.lista} role="status" aria-label="Carregando…">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className={styles.grupo}>
-              <Skeleton width="45%" height={15} />
-              <div className={styles.grid}>
-                {Array.from({ length: 6 }).map((_, j) => (
-                  <Skeleton
-                    key={j}
-                    width="100%"
-                    height={0}
-                    radius={12}
-                    style={{ aspectRatio: "1", height: "auto" }}
-                  />
-                ))}
-              </div>
-            </div>
+            <Skeleton key={i} width="100%" height={190} radius={20} />
           ))}
         </div>
       ) : eventos.error ? (
@@ -165,43 +267,13 @@ export function MuralScreen() {
       ) : (
         <div className={styles.lista}>
           {grupos.map((evento) => (
-            <div key={evento._id} className={styles.grupo}>
-              <div className={styles.grupoHead}>
-                <span className={styles.grupoTitulo}>{evento.titulo}</span>
-                <span className={styles.grupoData}>
-                  {formatData(evento.data)}
-                </span>
-              </div>
-              {evento.descricao && (
-                <p className={styles.grupoDesc}>{evento.descricao}</p>
-              )}
-              <div className={styles.grid}>
-                {evento.fotos.map((foto, i) => (
-                  <button
-                    key={foto.key}
-                    className={styles.thumb}
-                    onClick={() => setLightbox({ evento, index: i })}
-                    aria-label={`Ver foto ${i + 1} de ${evento.titulo}`}
-                  >
-                    {foto.url && (
-                      <img src={foto.url} alt="" className={styles.thumbImg} />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <EventCard
+              key={evento._id}
+              evento={evento}
+              onAbrir={() => setAlbumId(evento._id)}
+            />
           ))}
         </div>
-      )}
-
-      {lightbox && (
-        <Lightbox
-          estado={lightbox}
-          onClose={() => setLightbox(null)}
-          onNavegar={(index) =>
-            setLightbox((atual) => (atual ? { ...atual, index } : atual))
-          }
-        />
       )}
     </div>
   );

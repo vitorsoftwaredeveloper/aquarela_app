@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import {
   CheckCircle2,
@@ -11,12 +12,13 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Button, Modal, Skeleton } from "@/components";
-import { usePageTitle } from "@/contexts/PageTitleContext";
+import { usePageHeaderExtra, usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
 import { getApiErrorCode, getApiErrorMessage } from "@/services/apiError";
 import { IS_DEV_DATA } from "@/config/env";
+import { isDesktopViewport } from "@/utils/device";
 import { baixarReciboPdf } from "@/utils/exportRecibo";
 import {
   formatBRL,
@@ -51,9 +53,26 @@ const STATUS_VISUAL: Record<
 };
 
 export function FinanceiroScreen() {
+  const router = useRouter();
   const { active, loading: ctxLoading } = useResponsavel();
   const [paying, setPaying] = useState<Mensalidade | null>(null);
   const [recibo, setRecibo] = useState<Mensalidade | null>(null);
+
+  function abrirPagamento(m: Mensalidade) {
+    if (isDesktopViewport()) {
+      router.push(`/financeiro/${m._id}/pix`);
+      return;
+    }
+    setPaying(m);
+  }
+
+  function abrirComprovante(m: Mensalidade) {
+    if (isDesktopViewport()) {
+      router.push(`/financeiro/${m._id}/comprovante`);
+      return;
+    }
+    setRecibo(m);
+  }
 
   const { data, loading, error, reload } = useFetch(() => {
     if (ctxLoading) return new Promise<Mensalidade[]>(() => {});
@@ -87,6 +106,23 @@ export function FinanceiroScreen() {
               : "")
       : undefined,
   );
+
+  const headerBadges = useMemo(
+    () =>
+      !ctxLoading && !loading && data ? (
+        <div className={styles.finHeaderBadges}>
+          <div className={styles.finHeaderBadge}>
+            <span className={styles.finHeaderBadgeLabel}>Em aberto</span>
+            <span className={styles.finHeaderBadgeValue}>
+              {formatBRL(emAberto)}
+            </span>
+          </div>
+          <span className={styles.finHeaderYearPill}>Ano 2026</span>
+        </div>
+      ) : null,
+    [ctxLoading, loading, data, emAberto],
+  );
+  usePageHeaderExtra(headerBadges);
 
   // Só o carregamento inicial (sem dados) bloqueia a tela. Um reload em
   // background (ex.: `onPaid` após confirmar o PIX) NÃO pode desmontar a lista
@@ -197,14 +233,14 @@ export function FinanceiroScreen() {
                 {m.status === "pago" ? (
                   <button
                     className={styles.receiptBtn}
-                    onClick={() => setRecibo(m)}
+                    onClick={() => abrirComprovante(m)}
                   >
                     <Download size={14} /> Recibo
                   </button>
                 ) : (
                   <button
                     className={styles.payBtn}
-                    onClick={() => setPaying(m)}
+                    onClick={() => abrirPagamento(m)}
                   >
                     Pagar
                   </button>
@@ -242,12 +278,12 @@ export function FinanceiroScreen() {
   );
 }
 
-function formatDataPagamento(iso?: string): string {
+export function formatDataPagamento(iso?: string): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("pt-BR");
 }
 
-function ReciboContent({
+export function ReciboContent({
   mensalidade,
   crianca,
 }: {
@@ -320,7 +356,7 @@ function ReciboContent({
   );
 }
 
-function PixContent({
+export function PixContent({
   mensalidade,
   onPaid,
   onClose,
@@ -471,9 +507,14 @@ function PixContent({
       <div className={styles.pixValue}>{formatBRL(mensalidade.valor)}</div>
       <div className={styles.pixQr}>
         {pagamento ? (
-          <QRCodeSVG value={pagamento.pixCopiaECola} size={188} level="M" />
+          <QRCodeSVG
+            value={pagamento.pixCopiaECola}
+            size={188}
+            level="M"
+            className={styles.pixQrSvg}
+          />
         ) : (
-          <div style={{ width: 188, height: 188 }} />
+          <div style={{ width: "100%", aspectRatio: "1" }} />
         )}
       </div>
       <div className={styles.pixHint}>

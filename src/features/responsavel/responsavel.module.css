@@ -395,6 +395,50 @@
   text-align: center;
 }
 
+.headerChildPill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 5px 14px 5px 5px;
+  border-radius: 999px;
+  border: 1px solid var(--border-08);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.headerChildPill:hover {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-soft-border);
+}
+.headerChildPillText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+.headerChildPillName {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+.headerChildPillHint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.headerChildPillIcon {
+  flex: none;
+  color: var(--text-dim);
+}
+
+.homeGrid {
+  display: block;
+}
+
 /* Blocos de conteúdo */
 .block {
   padding: 18px 16px 0;
@@ -1006,28 +1050,31 @@
   max-width: 680px;
   margin: 0 auto;
   display: flex;
-  gap: 8px;
-  padding: 0 16px 12px;
+  gap: 10px;
+  padding: 18px 16px 14px;
 }
 .freqItem {
   flex: 1;
   background: var(--surface);
   border: 1px solid var(--border-07);
-  border-radius: 12px;
-  padding: 10px 8px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px -8px rgba(31, 41, 51, 0.18);
+  padding: 13px 8px;
   text-align: center;
 }
 .freqValue {
   display: block;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 20px;
+  color: var(--color-primary-link);
 }
 .freqLabel {
   display: block;
-  font-size: 10.5px;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text-soft);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .freqItemAlerta .freqValue {
   color: #c7522b;
@@ -1055,6 +1102,38 @@
   font-weight: 700;
   font-size: 18px;
   margin-top: 2px;
+}
+
+.finHeaderBadges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.finHeaderBadge {
+  text-align: right;
+  line-height: 1.25;
+}
+.finHeaderBadgeLabel {
+  display: block;
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.finHeaderBadgeValue {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--color-primary-link);
+}
+.finHeaderYearPill {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--border-08);
+  border-radius: 999px;
+  padding: 7px 13px;
 }
 .monthList {
   padding: 18px 16px 8px;
@@ -1125,6 +1204,23 @@
   flex: none;
 }
 
+.detailCard {
+  width: 100%;
+  max-width: 440px;
+  margin: 22px auto 0;
+  background: var(--surface);
+  border: 1px solid var(--border-08);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+}
+@media (min-width: 900px) {
+  .detailCard {
+    max-width: 560px;
+    padding: 32px;
+  }
+}
+
 /* PIX (modal) */
 .pix {
   display: flex;
@@ -1143,12 +1239,22 @@
   margin: 2px 0 16px;
 }
 .pixQr {
+  width: 188px;
   background: #fff;
   border: 1px solid rgba(31, 41, 51, 0.1);
   border-radius: 18px;
   padding: 14px;
   box-shadow: 0 8px 24px -10px rgba(31, 41, 51, 0.2);
   line-height: 0;
+}
+.pixQrSvg {
+  width: 100%;
+  height: auto;
+}
+@media (min-width: 900px) {
+  .pixQr {
+    width: 260px;
+  }
 }
 .pixHint {
   font-size: 12.5px;
@@ -1168,6 +1274,7 @@
 }
 .pixCode {
   flex: 1;
+  min-width: 0;
   font-family: monospace;
   font-size: 11px;
   color: var(--text-soft);
@@ -1349,7 +1456,14 @@
   margin-top: 20px;
 }
 
-/* Perfil */
+.perfilGrid {
+  display: block;
+}
+.perfilGridSide {
+  display: flex;
+  flex-direction: column;
+}
+
 .profChildMain {
   flex: 1;
   min-width: 0;
@@ -1618,10 +1732,50 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     align-items: start;
   }
+
+  .childCardMobileOnly {
+    display: none;
+  }
+  .homeGrid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    align-items: start;
+    gap: 8px 24px;
+  }
+
+  .histList,
+  .freqResumo {
+    max-width: 100%;
+  }
+  .histList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: start;
+  }
+
+  .finCards {
+    display: none;
+  }
+
+  .perfilGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 0 24px;
+  }
+
+  .topbarHideDesktop {
+    display: none;
+  }
 }
 
 @media (min-width: 1300px) {
   .content {
     max-width: 1040px;
   }
+}
+
+.contentWide {
+  max-width: none;
+  margin: 0;
 }
