@@ -35,53 +35,6 @@
   color: var(--text-dim);
 }
 
-.chatHeaderDesktop {
-  display: none;
-}
-@media (min-width: 901px) {
-  .chatHeaderDesktop {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 26px;
-    background: color-mix(in srgb, var(--wash-1) 72%, transparent);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-08);
-  }
-}
-.chatHeaderAvatar {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 17px;
-  background: var(--color-secondary-soft);
-  color: var(--color-secondary-strong);
-}
-.chatHeaderText {
-  flex: 1;
-  min-width: 0;
-}
-.chatHeaderName {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
-}
-.chatHeaderSub {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-top: 1px;
-}
-
 .tela {
   position: relative;
   display: flex;
@@ -128,11 +81,16 @@
 }
 
 .bolha {
-  max-width: min(74%, 640px);
+  max-width: min(84%, 480px);
   border-radius: 18px;
   padding: 14px 18px;
   font-size: 14.5px;
   line-height: 1.5;
+}
+@media (min-width: 901px) {
+  .bolha {
+    max-width: min(66%, 760px);
+  }
 }
 .bolhaDelas {
   align-self: flex-start;
@@ -184,13 +142,16 @@
 .bolhaRodape {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 6px;
   margin-top: 6px;
   font-size: 10.5px;
   color: var(--text-mute);
 }
+.bolhaDelas .bolhaRodape {
+  justify-content: flex-start;
+}
 .bolhaMinha .bolhaRodape {
+  justify-content: flex-end;
   color: rgba(255, 255, 255, 0.75);
 }
 .bolhaAcoes {

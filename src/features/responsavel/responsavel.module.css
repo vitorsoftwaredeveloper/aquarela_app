@@ -316,6 +316,9 @@
   gap: 14px;
   margin-left: auto;
 }
+.topbarThemeToggle {
+  display: inline-flex;
+}
 .content {
   flex: 1;
   width: 100%;
@@ -338,7 +341,7 @@
   .menuBtn {
     display: inline-flex;
   }
-  .topbarActions {
+  .topbarThemeToggle {
     display: none;
   }
 }
@@ -349,54 +352,9 @@
   }
 }
 
-/* Seletor de filho */
-.childCard {
-  width: calc(100% - 32px);
-  margin: 6px 16px 0;
-  text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--border-07);
-  border-radius: 18px;
-  box-shadow: 0 6px 20px -8px rgba(31, 41, 51, 0.16);
-  padding: 12px 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--text);
-}
-.childAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 17px;
-  color: #7a4a34;
-  flex: none;
-}
-.childName {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 17px;
-}
-.childSub {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-top: 1px;
-}
-.childHint {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin: 9px 20px 0;
-  text-align: center;
-}
-
-.headerChildPill {
-  display: flex;
+/* Seletor de filho (fica no topbar do shell — visível em toda tela) */
+.childChip {
+  display: inline-flex;
   align-items: center;
   gap: 9px;
   flex: none;
@@ -406,33 +364,65 @@
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
 }
-.headerChildPill:hover {
+.childChip:hover {
   background: var(--color-primary-soft);
   border-color: var(--color-primary-soft-border);
 }
-.headerChildPillText {
+.childChipText {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   line-height: 1.25;
 }
-.headerChildPillName {
+.childChipName {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 13px;
   color: var(--text);
 }
-.headerChildPillHint {
+.childChipHint {
   font-size: 11px;
   color: var(--text-dim);
 }
-.headerChildPillIcon {
+.childChipIcon {
   flex: none;
   color: var(--text-dim);
+}
+/* No mobile sobra só avatar + ícone: o nome da criança já aparece no subtítulo
+   do topbar e o espaço ao lado do título é curto. Precisa vir depois das regras
+   base acima — mesma especificidade, quem vem por último no arquivo vence. */
+@media (max-width: 900px) {
+  .childChipText {
+    display: none;
+  }
+  .childChip {
+    padding: 4px 7px 4px 4px;
+  }
+}
+
+/* Linha de filho — lista do Perfil e folha de troca */
+.childRowText {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.childRowName {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.childRowSub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 1px;
 }
 
 .homeGrid {
@@ -455,8 +445,13 @@
   font-size: 15px;
 }
 .blockCount {
-  font-size: 11.5px;
-  color: var(--text-mute);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--border-08);
+  border-radius: 999px;
+  padding: 2px 9px;
 }
 .stack {
   display: flex;
@@ -472,6 +467,13 @@
   border: 1px solid var(--border-07);
   border-radius: 16px;
   padding: 12px 13px;
+}
+/* Dentro de um .sectionCard os itens sobem um degrau de superfície para não
+   se confundirem com o fundo do próprio cartão (mesma cor = item some).
+   Solto na página (ex.: NotificationOnboarding) o aviso continua em --surface. */
+.sectionCard .aviso {
+  background: var(--surface-2);
+  border-color: var(--border-08);
 }
 .avisoIcon {
   width: 38px;
@@ -528,11 +530,10 @@
 
 /* Agenda de hoje (preview) */
 .todayCard {
-  background: var(--surface);
-  border: 1px solid var(--border-07);
-  border-radius: 18px;
-  padding: 6px 14px;
-  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+  background: var(--surface-2);
+  border: 1px solid var(--border-08);
+  border-radius: 16px;
+  padding: 4px 13px;
 }
 .todayRow {
   display: flex;
@@ -560,37 +561,40 @@
   font-weight: 500;
   margin-top: 1px;
 }
-.agendaPendente {
+.agendaVazia {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: var(--color-primary-soft);
-  border: 1px solid var(--color-primary-soft-border);
-  border-radius: 16px;
-  padding: 13px 14px;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 26px 12px 20px;
 }
-.agendaPendenteText {
-  font-size: 12.5px;
-  line-height: 1.45;
-  color: var(--color-primary-link);
-  font-weight: 500;
+.agendaVaziaIcon {
+  display: flex;
+  color: var(--text-mute);
 }
-.agendaPendenteLink {
+.agendaVaziaText {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.agendaVaziaLink {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  font-family: var(--font-heading);
+  gap: 7px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
-  background: var(--grad-primary);
-  box-shadow: var(--shadow-brand);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-10);
   border-radius: var(--radius-md);
-  padding: 9px 15px;
+  padding: 9px 16px;
 }
-.agendaPendenteLink:hover {
-  color: #fff;
+.agendaVaziaLink:hover {
+  color: var(--color-primary-link);
+  border-color: var(--color-primary-soft-border);
 }
 
 .intercorrenciaAlert {
@@ -601,7 +605,7 @@
   border: 1px solid var(--color-danger);
   border-radius: 16px;
   padding: 12px 13px;
-  margin-bottom: 10px;
+  margin: 6px 0 10px;
 }
 .intercorrenciaIcon {
   width: 34px;
@@ -1083,11 +1087,13 @@
 /* Financeiro */
 .finCards {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 6px 16px 0;
 }
 .finCard {
   flex: 1;
+  min-width: 130px;
   background: var(--surface);
   border: 1px solid var(--border-07);
   border-radius: 15px;
@@ -1103,37 +1109,18 @@
   font-size: 18px;
   margin-top: 2px;
 }
-
-.finHeaderBadges {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* "Dezembro/2026" estoura o card estreito do mobile — lá vale "Dez/26".
+   Depois das regras base de propósito: mesma especificidade, vence a última. */
+.finCardValueShort {
+  display: none;
 }
-.finHeaderBadge {
-  text-align: right;
-  line-height: 1.25;
-}
-.finHeaderBadgeLabel {
-  display: block;
-  font-size: 10.5px;
-  color: var(--text-dim);
-}
-.finHeaderBadgeValue {
-  display: block;
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 14.5px;
-  color: var(--color-primary-link);
-}
-.finHeaderYearPill {
-  flex: none;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-soft);
-  background: var(--surface-2);
-  border: 1px solid var(--border-08);
-  border-radius: 999px;
-  padding: 7px 13px;
+@media (max-width: 900px) {
+  .finCardValueLong {
+    display: none;
+  }
+  .finCardValueShort {
+    display: inline;
+  }
 }
 .monthList {
   padding: 18px 16px 8px;
@@ -1486,7 +1473,7 @@
   justify-content: center;
   border-radius: 11px;
   border: 1px solid var(--border-10);
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--color-primary-link);
   text-decoration: none;
 }
@@ -1497,7 +1484,7 @@
 
 .profChild {
   text-align: left;
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1.5px solid var(--border-08);
   border-radius: 16px;
   padding: 12px 14px;
@@ -1505,7 +1492,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
 }
 .profChildActive {
   border-color: var(--color-secondary);
@@ -1523,12 +1509,36 @@
   color: #7a4a34;
   flex: none;
 }
+.sectionCard {
+  background: var(--surface);
+  border: 1px solid var(--border-07);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+
+.accessBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary-link);
+  background: var(--color-primary-soft);
+  border-radius: 999px;
+  padding: 5px 11px;
+}
+
 .settingsCard {
   background: var(--surface);
   border: 1px solid var(--border-07);
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(31, 41, 51, 0.04);
+}
+.settingsCardTitle {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 14px;
+  border-bottom: 1px solid var(--border-06);
 }
 .settingRow {
   display: flex;
@@ -1733,9 +1743,6 @@
     align-items: start;
   }
 
-  .childCardMobileOnly {
-    display: none;
-  }
   .homeGrid {
     display: grid;
     grid-template-columns: 1.6fr 1fr;
@@ -1753,10 +1760,6 @@
     align-items: start;
   }
 
-  .finCards {
-    display: none;
-  }
-
   .perfilGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1765,6 +1768,18 @@
   }
 
   .topbarHideDesktop {
+    display: none;
+  }
+
+  .sheetOverlay {
+    align-items: center;
+  }
+  .sheet {
+    border-radius: var(--radius-xl);
+    max-height: 78dvh;
+    animation: sheetFadeIn 0.16s ease;
+  }
+  .sheetHandle {
     display: none;
   }
 }

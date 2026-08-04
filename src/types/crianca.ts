@@ -7,6 +7,7 @@ export interface Crianca {
   iniciais: string;
   avatarBg: string;
   fotoUrl?: string;
+  turmaId?: string;
   turmaNome?: string;
   idadeLabel?: string;
   /** "Turma Girassol · 3 anos" — linha de apoio. */

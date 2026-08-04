@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -12,7 +12,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Button, Modal, Skeleton } from "@/components";
-import { usePageHeaderExtra, usePageTitle } from "@/contexts/PageTitleContext";
+import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { FinanceiroService } from "@/services/financeiroService";
@@ -94,6 +94,9 @@ export function FinanceiroScreen() {
     (soma, m) => soma + m.valor,
     0,
   );
+  const proximaMensalidade = meses
+    .filter((m) => m.status !== "pago")
+    .sort((a, b) => a.ano - b.ano || a.mes - b.mes)[0];
 
   usePageTitle(
     "Financeiro",
@@ -107,23 +110,6 @@ export function FinanceiroScreen() {
       : undefined,
   );
 
-  const headerBadges = useMemo(
-    () =>
-      !ctxLoading && !loading && data ? (
-        <div className={styles.finHeaderBadges}>
-          <div className={styles.finHeaderBadge}>
-            <span className={styles.finHeaderBadgeLabel}>Em aberto</span>
-            <span className={styles.finHeaderBadgeValue}>
-              {formatBRL(emAberto)}
-            </span>
-          </div>
-          <span className={styles.finHeaderYearPill}>Ano 2026</span>
-        </div>
-      ) : null,
-    [ctxLoading, loading, data, emAberto],
-  );
-  usePageHeaderExtra(headerBadges);
-
   // Só o carregamento inicial (sem dados) bloqueia a tela. Um reload em
   // background (ex.: `onPaid` após confirmar o PIX) NÃO pode desmontar a lista
   // e o Modal: se desmontar, o PixContent remonta, perde o estado `paid` e
@@ -132,7 +118,7 @@ export function FinanceiroScreen() {
     return (
       <div role="status" aria-label="Carregando…">
         <div className={styles.finCards}>
-          {Array.from({ length: 2 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={styles.finCard}>
               <Skeleton width="60%" height={11} style={{ marginBottom: 6 }} />
               <Skeleton width="45%" height={18} />
@@ -172,8 +158,26 @@ export function FinanceiroScreen() {
           <div className={styles.finCardValue}>{formatBRL(emAberto)}</div>
         </div>
         <div className={styles.finCard}>
-          <div className={styles.finCardLabel}>Ano</div>
+          <div className={styles.finCardLabel}>Ano letivo</div>
           <div className={styles.finCardValue}>2026</div>
+        </div>
+        <div className={styles.finCard}>
+          <div className={styles.finCardLabel}>Próximo vencimento</div>
+          <div className={styles.finCardValue}>
+            {proximaMensalidade ? (
+              <>
+                <span className={styles.finCardValueLong}>
+                  {proximaMensalidade.mesLabel}/{proximaMensalidade.ano}
+                </span>
+                <span className={styles.finCardValueShort}>
+                  {proximaMensalidade.mesShort}/
+                  {String(proximaMensalidade.ano).slice(-2)}
+                </span>
+              </>
+            ) : (
+              "Em dia"
+            )}
+          </div>
         </div>
       </div>
 
@@ -204,51 +208,56 @@ export function FinanceiroScreen() {
           <p>Ainda não há mensalidades geradas para {active.nome} este ano.</p>
         </div>
       ) : (
-        <div className={styles.monthList}>
-          {meses.map((m) => {
-            const v = STATUS_VISUAL[m.status];
-            const StatusIcon =
-              m.status === "pago"
-                ? CheckCircle2
-                : m.status === "atrasado"
-                  ? AlertTriangle
-                  : Clock;
-            return (
-              <div key={m._id} className={styles.monthRow}>
-                <span
-                  className={styles.monthBadge}
-                  style={{ background: v.badgeBg, color: v.badgeFg }}
-                >
-                  {m.mesShort}
-                </span>
-                <div style={{ flex: 1 }}>
-                  <div className={styles.monthName}>{m.mesLabel}</div>
-                  <div className={styles.monthStatus} style={{ color: v.fg }}>
-                    <StatusIcon size={14} />
-                    {m.status === "pago"
-                      ? "Pago"
-                      : `${v.label} · ${formatBRL(m.valor)}`}
+        <>
+          <div className={styles.blockTitle} style={{ margin: "18px 16px 0" }}>
+            Mensalidades
+          </div>
+          <div className={styles.monthList}>
+            {meses.map((m) => {
+              const v = STATUS_VISUAL[m.status];
+              const StatusIcon =
+                m.status === "pago"
+                  ? CheckCircle2
+                  : m.status === "atrasado"
+                    ? AlertTriangle
+                    : Clock;
+              return (
+                <div key={m._id} className={styles.monthRow}>
+                  <span
+                    className={styles.monthBadge}
+                    style={{ background: v.badgeBg, color: v.badgeFg }}
+                  >
+                    {m.mesShort}
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <div className={styles.monthName}>{m.mesLabel}</div>
+                    <div className={styles.monthStatus} style={{ color: v.fg }}>
+                      <StatusIcon size={14} />
+                      {m.status === "pago"
+                        ? "Pago"
+                        : `${v.label} · ${formatBRL(m.valor)}`}
+                    </div>
                   </div>
+                  {m.status === "pago" ? (
+                    <button
+                      className={styles.receiptBtn}
+                      onClick={() => abrirComprovante(m)}
+                    >
+                      <Download size={14} /> Recibo
+                    </button>
+                  ) : (
+                    <button
+                      className={styles.payBtn}
+                      onClick={() => abrirPagamento(m)}
+                    >
+                      Pagar
+                    </button>
+                  )}
                 </div>
-                {m.status === "pago" ? (
-                  <button
-                    className={styles.receiptBtn}
-                    onClick={() => abrirComprovante(m)}
-                  >
-                    <Download size={14} /> Recibo
-                  </button>
-                ) : (
-                  <button
-                    className={styles.payBtn}
-                    onClick={() => abrirPagamento(m)}
-                  >
-                    Pagar
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <Modal

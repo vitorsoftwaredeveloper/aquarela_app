@@ -16,8 +16,11 @@ export function AgendaScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
   useWideContent();
   const router = useRouter();
-  const crianca = useFetch(() => CriancasService.getById(criancaId));
-  const agenda = useFetch(() => AgendaService.getDia(criancaId));
+  const crianca = useFetch(
+    () => CriancasService.getById(criancaId),
+    [criancaId],
+  );
+  const agenda = useFetch(() => AgendaService.getDia(criancaId), [criancaId]);
 
   const c = crianca.data;
   const dia = agenda.data;

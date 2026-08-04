@@ -14,6 +14,7 @@ import {
   usePageTitle,
   useWideContent,
 } from "@/contexts/PageTitleContext";
+import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import type { Evento } from "@/types/evento";
@@ -206,24 +207,36 @@ function AlbumView({
 }
 
 export function MuralScreen() {
-  const eventos = useFetch(() =>
-    EventosService.list({ apenasPublicados: true }),
+  const { active } = useResponsavel();
+  const turmaAtiva = active?.turmaId;
+  const eventos = useFetch(
+    () => EventosService.list({ apenasPublicados: true }),
+    [active?._id],
   );
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
+  // O backend manda os eventos de todas as turmas dos filhos; aqui fica só o
+  // filho ativo (evento sem `turmaId` é da escola inteira e vale pra todos).
+  // Sem turma conhecida não dá pra filtrar — mostra tudo em vez de esvaziar.
   const grupos = useMemo(() => {
     return [...(eventos.data ?? [])]
       .filter((e) => e.fotos.length > 0)
+      .filter((e) => !turmaAtiva || !e.turmaId || e.turmaId === turmaAtiva)
       .sort((a, b) => b.data.localeCompare(a.data));
-  }, [eventos.data]);
+  }, [eventos.data, turmaAtiva]);
 
   const album = useMemo(
     () => grupos.find((e) => e._id === albumId) ?? null,
     [grupos, albumId],
   );
 
-  usePageTitle("Mural de fotos", "Fotos publicadas pela escola");
+  usePageTitle(
+    "Mural de fotos",
+    active
+      ? `Fotos da turma de ${active.nome}`
+      : "Fotos publicadas pela escola",
+  );
 
   if (album) {
     return (
@@ -262,7 +275,11 @@ export function MuralScreen() {
       ) : grupos.length === 0 ? (
         <div className={shell.state}>
           <Images size={26} />
-          <p>Nenhuma foto publicada ainda.</p>
+          <p>
+            {active
+              ? `Nenhuma foto publicada para a turma de ${active.nome} ainda.`
+              : "Nenhuma foto publicada ainda."}
+          </p>
         </div>
       ) : (
         <div className={styles.lista}>

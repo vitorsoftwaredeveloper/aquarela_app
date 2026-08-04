@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePageTitleValue } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { storage } from "@/storage/localStorage";
+import { ChildSwitcher } from "./ChildSwitcher";
 import styles from "./responsavel.module.css";
 
 const SIDEBAR_COLLAPSED_KEY = "responsavel-sidebar-collapsed";
@@ -47,7 +48,7 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { activeId, inadimplencia } = useResponsavel();
-  const { title, subtitle, hideTopbar, hideTopbarDesktop, wide, headerExtra } =
+  const { title, subtitle, hideTopbar, hideTopbarDesktop, wide } =
     usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -229,14 +230,14 @@ export function ResponsavelShell({ children }: { children: React.ReactNode }) {
               </div>
             )}
             <div className={styles.topbarActions}>
-              {headerExtra}
-              <ThemeToggle />
+              <ChildSwitcher />
+              <span className={styles.topbarThemeToggle}>
+                <ThemeToggle />
+              </span>
             </div>
           </header>
         )}
-        <main
-          className={`${styles.content} ${wide ? styles.contentWide : ""}`}
-        >
+        <main className={`${styles.content} ${wide ? styles.contentWide : ""}`}>
           {children}
         </main>
       </div>

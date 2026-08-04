@@ -17,8 +17,14 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
   useWideContent();
   const router = useRouter();
-  const crianca = useFetch(() => CriancasService.getById(criancaId));
-  const historico = useFetch(() => AgendaService.getHistorico(criancaId));
+  const crianca = useFetch(
+    () => CriancasService.getById(criancaId),
+    [criancaId],
+  );
+  const historico = useFetch(
+    () => AgendaService.getHistorico(criancaId),
+    [criancaId],
+  );
   const frequencia = useFetch(
     () => AgendaService.getFrequencia(criancaId),
     [criancaId],

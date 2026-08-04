@@ -16,7 +16,6 @@ interface PageTitleValue {
   hideTopbar?: boolean;
   hideTopbarDesktop?: boolean;
   wide?: boolean;
-  headerExtra?: React.ReactNode;
 }
 
 interface PageTitleStore extends PageTitleValue {
@@ -61,7 +60,6 @@ export function usePageTitleValue(): PageTitleValue {
     hideTopbar: ctx?.hideTopbar,
     hideTopbarDesktop: ctx?.hideTopbarDesktop,
     wide: ctx?.wide,
-    headerExtra: ctx?.headerExtra,
   };
 }
 
@@ -72,15 +70,6 @@ export function usePageTitle(title: string, subtitle?: string) {
   useEffect(() => {
     patchPageTitle?.({ title, subtitle });
   }, [patchPageTitle, title, subtitle]);
-}
-
-export function usePageHeaderExtra(node: React.ReactNode | null) {
-  const ctx = useContext(PageTitleContext);
-  const patchPageTitle = ctx?.patchPageTitle;
-
-  useEffect(() => {
-    patchPageTitle?.({ headerExtra: node });
-  }, [patchPageTitle, node]);
 }
 
 /** Telas de drill-down (fora do menu lateral) chamam isso pra esconder o

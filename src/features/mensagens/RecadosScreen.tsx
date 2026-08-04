@@ -3,18 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, CheckCheck, Paperclip, Send, Trash2 } from "lucide-react";
-import {
-  Avatar,
-  BackButton,
-  Skeleton,
-  ThemeToggle,
-  UploadAnexo,
-} from "@/components";
+import { Avatar, BackButton, Skeleton, UploadAnexo } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   usePageTitle,
   useHideTopbar,
-  useHideTopbarOnDesktop,
   useWideContent,
 } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
@@ -46,23 +39,29 @@ const ROTULO_PAPEL: Record<Mensagem["autorPapel"], string> = {
   responsavel: "Responsável",
 };
 
-function nomeRemetente(mensagem: Mensagem): string {
-  return mensagem.autorNome || ROTULO_PAPEL[mensagem.autorPapel];
-}
-
-function inicialUnica(nome: string): string {
+function primeiroNome(nome: string): string {
   const primeiraPalavra = nome
     .replace(/^prof\.?\s*/i, "")
     .trim()
     .split(/\s+/)[0];
-  return (primeiraPalavra?.[0] ?? "?").toUpperCase();
+  return primeiraPalavra ?? nome;
+}
+
+function nomeRemetente(mensagem: Mensagem): string {
+  const nome = mensagem.autorNome || ROTULO_PAPEL[mensagem.autorPapel];
+  return mensagem.autorPapel === "professor"
+    ? `Tia(o) ${primeiroNome(nome)}`
+    : nome;
 }
 
 export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
   const { user } = useAuth();
-  const crianca = useFetch(() => CriancasService.getById(criancaId));
-  const base = useFetch(() => MensagensService.listar(criancaId));
+  const crianca = useFetch(
+    () => CriancasService.getById(criancaId),
+    [criancaId],
+  );
+  const base = useFetch(() => MensagensService.listar(criancaId), [criancaId]);
   const [enviadas, setEnviadas] = useState<Mensagem[]>([]);
   const [recebidasNovas, setRecebidasNovas] = useState<Mensagem[]>([]);
   const [removidasIds, setRemovidasIds] = useState<Set<string>>(new Set());
@@ -87,15 +86,6 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
     });
     return unicas.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   }, [base.data, recebidasNovas, enviadas, removidasIds]);
-
-  const professorNomeHeader = useMemo(() => {
-    for (let i = mensagens.length - 1; i >= 0; i -= 1) {
-      if (mensagens[i].autorPapel === "professor" && mensagens[i].autorNome) {
-        return mensagens[i].autorNome;
-      }
-    }
-    return null;
-  }, [mensagens]);
 
   useEffect(() => {
     if (mensagens.length === 0) return;
@@ -216,7 +206,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
     ehProfessor ? "" : "Recados",
     ehProfessor
       ? undefined
-      : `Converse com ${professorNomeHeader ?? "os professores"}` +
+      : "Converse com o professor(a)" +
           (c?.nome
             ? ` sobre ${c.nome}`
             : carregandoCrianca
@@ -224,33 +214,11 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
               : ""),
   );
   useHideTopbar(ehProfessor);
-  useHideTopbarOnDesktop(!ehProfessor);
   useWideContent(!ehProfessor);
 
   return (
     <div className={styles.tela}>
       <div className={styles.watermark} aria-hidden />
-      {!ehProfessor && (
-        <div className={styles.chatHeaderDesktop}>
-          <span className={styles.chatHeaderAvatar} aria-hidden>
-            {inicialUnica(professorNomeHeader ?? "Professor")}
-          </span>
-          <div className={styles.chatHeaderText}>
-            <div className={styles.chatHeaderName}>
-              {professorNomeHeader ?? "Professor(a)"}
-            </div>
-            <div className={styles.chatHeaderSub}>
-              {[
-                c?.turmaNome ? `Turma ${c.turmaNome}` : null,
-                c?.nome ? `sobre ${c.nome}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </div>
-          </div>
-          <ThemeToggle />
-        </div>
-      )}
       {user?.role === "professor" ? (
         <div className={styles.pushHeader}>
           <BackButton onClick={() => router.back()} />
@@ -309,7 +277,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                   key={mensagem.id}
                   className={`${styles.bolha} ${minha ? styles.bolhaMinha : styles.bolhaDelas}`}
                 >
-                  {!minha && (
+                  {mensagem.autorPapel === "professor" && (
                     <span className={styles.remetente}>
                       {nomeRemetente(mensagem)}
                     </span>

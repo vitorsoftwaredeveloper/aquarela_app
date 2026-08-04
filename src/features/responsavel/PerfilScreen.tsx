@@ -28,83 +28,58 @@ export function PerfilScreen() {
   return (
     <div className={styles.perfilGrid}>
       <div className={styles.block}>
-        <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
-          Meus filhos
-        </div>
-        <div className={styles.stack}>
-          {criancas.map((c) => {
-            const isActive = c._id === activeId;
-            return (
-              <div
-                key={c._id}
-                className={`${styles.profChild} ${isActive ? styles.profChildActive : ""}`}
-              >
-                <button
-                  type="button"
-                  className={styles.profChildMain}
-                  onClick={() => setActive(c._id)}
+        <div className={styles.sectionCard}>
+          <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
+            Meus filhos
+          </div>
+          <div className={styles.stack}>
+            {criancas.map((c) => {
+              const isActive = c._id === activeId;
+              return (
+                <div
+                  key={c._id}
+                  className={`${styles.profChild} ${isActive ? styles.profChildActive : ""}`}
                 >
-                  <Avatar
-                    nome={c.nome}
-                    fotoUrl={c.fotoUrl}
-                    bg={avatarColors[c._id]}
-                    size={46}
-                  />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span
-                      className={styles.childName}
-                      style={{
-                        display: "block",
-                        color: "var(--text)",
-                        fontSize: 14.5,
-                      }}
-                    >
-                      {c.nome}
+                  <button
+                    type="button"
+                    className={styles.profChildMain}
+                    onClick={() => setActive(c._id)}
+                  >
+                    <Avatar
+                      nome={c.nome}
+                      fotoUrl={c.fotoUrl}
+                      bg={avatarColors[c._id]}
+                      size={46}
+                    />
+                    <span className={styles.childRowText}>
+                      <span className={styles.childRowName}>{c.nome}</span>
+                      <span className={styles.childRowSub}>{c.sub}</span>
                     </span>
-                    <span
-                      style={{
-                        display: "block",
-                        fontSize: 12,
-                        color: "var(--text-dim)",
-                      }}
-                    >
-                      {c.sub}
-                    </span>
-                  </span>
-                  {isActive ? (
-                    <span className={styles.emptyBadge}>Ativo</span>
-                  ) : (
-                    <span
-                      style={{
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        color: "var(--color-primary-link)",
-                      }}
-                    >
-                      Acessar
-                    </span>
-                  )}
-                </button>
-                <Link
-                  href={`/crianca/${c._id}/editar`}
-                  className={styles.profChildEdit}
-                  aria-label={`Editar dados de ${c.nome}`}
-                  title="Editar dados"
-                >
-                  <Pencil size={16} />
-                </Link>
-              </div>
-            );
-          })}
+                    {isActive ? (
+                      <span className={styles.emptyBadge}>Ativo</span>
+                    ) : (
+                      <span className={styles.accessBadge}>Acessar</span>
+                    )}
+                  </button>
+                  <Link
+                    href={`/crianca/${c._id}/editar`}
+                    className={styles.profChildEdit}
+                    aria-label={`Editar dados de ${c.nome}`}
+                    title="Editar dados"
+                  >
+                    <Pencil size={16} />
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       <div className={styles.perfilGridSide}>
         <div className={styles.block}>
-          <div className={styles.blockTitle} style={{ marginBottom: 11 }}>
-            Configurações
-          </div>
           <div className={styles.settingsCard}>
+            <div className={styles.settingsCardTitle}>Configurações</div>
             <button
               type="button"
               className={styles.settingRow}

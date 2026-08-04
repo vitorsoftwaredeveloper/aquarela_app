@@ -7,5 +7,5 @@ export default async function HistoricoPage({
   params: Promise<{ criancaId: string }>;
 }) {
   const { criancaId } = await params;
-  return <HistoricoScreen criancaId={criancaId} />;
+  return <HistoricoScreen key={criancaId} criancaId={criancaId} />;
 }

@@ -7,5 +7,5 @@ export default async function AgendaPage({
   params: Promise<{ criancaId: string }>;
 }) {
   const { criancaId } = await params;
-  return <AgendaScreen criancaId={criancaId} />;
+  return <AgendaScreen key={criancaId} criancaId={criancaId} />;
 }
