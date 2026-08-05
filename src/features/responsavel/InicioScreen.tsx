@@ -89,8 +89,8 @@ export function InicioScreen() {
         </Link>
       )}
       <div className={styles.homeGrid}>
-        <Avisos />
         <AgendaHoje criancaId={active._id} />
+        <Avisos />
       </div>
     </div>
   );

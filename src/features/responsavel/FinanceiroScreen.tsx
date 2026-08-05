@@ -8,10 +8,9 @@ import {
   Clock,
   Download,
   AlertTriangle,
-  Droplet,
   TriangleAlert,
 } from "lucide-react";
-import { Button, Modal, Skeleton } from "@/components";
+import { Button, Logo, Modal, Skeleton } from "@/components";
 import { usePageTitle } from "@/contexts/PageTitleContext";
 import { useResponsavel } from "@/contexts/ResponsavelContext";
 import { useFetch } from "@/hooks/useFetch";
@@ -314,9 +313,9 @@ export function ReciboContent({
 
   return (
     <div className={styles.recibo}>
-      <div className={`${styles.gradHeader} ${styles.reciboHeader}`}>
+      <div className={styles.reciboHeader}>
         <span className={styles.reciboMark} aria-hidden>
-          <Droplet size={20} fill="#fff" strokeWidth={0} />
+          <Logo size={72} />
         </span>
         <div className={styles.reciboTitle}>Comprovante de pagamento</div>
         <div className={styles.reciboSub}>Aquarela Kids · Berçário</div>
@@ -340,15 +339,16 @@ export function ReciboContent({
       <Button
         style={{ width: "100%" }}
         disabled={gerando}
-        onClick={() => {
+        onClick={async () => {
           setGerando(true);
-          setTimeout(() => {
-            baixarReciboPdf(
+          try {
+            await baixarReciboPdf(
               { valor: formatBRL(mensalidade.valor), linhas },
               `recibo-${mensalidade.mesLabel.toLowerCase()}-${mensalidade.ano}.pdf`,
             );
+          } finally {
             setGerando(false);
-          }, 400);
+          }
         }}
       >
         {gerando ? (
