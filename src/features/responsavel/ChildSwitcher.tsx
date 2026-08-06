@@ -76,7 +76,7 @@ export function ChildSwitcher() {
           {chip}
         </button>
       ) : (
-        <span className={styles.childChip}>{chip}</span>
+        <span className={styles.childStatic}>{chip}</span>
       )}
 
       {open &&

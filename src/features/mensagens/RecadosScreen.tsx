@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, CheckCheck, Paperclip, Send, Trash2 } from "lucide-react";
 import { Avatar, BackButton, Skeleton, UploadAnexo } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   usePageTitle,
   useHideTopbar,
@@ -52,12 +53,65 @@ function nomeRemetente(mensagem: Mensagem): string {
   const nome = mensagem.autorNome || ROTULO_PAPEL[mensagem.autorPapel];
   return mensagem.autorPapel === "professor"
     ? `Tia(o) ${primeiroNome(nome)}`
-    : nome;
+    : primeiroNome(nome);
+}
+
+const CORES_REMETENTE_CLARO = [
+  "#2976d4",
+  "#cf4a14",
+  "#15875e",
+  "#a06c00",
+  "#db2f70",
+  "#008300",
+  "#4a3aa7",
+  "#df3231",
+];
+const CORES_REMETENTE_ESCURO = [
+  "#3b89e5",
+  "#dc6434",
+  "#199e70",
+  "#c98500",
+  "#d85e8b",
+  "#009f00",
+  "#9085e9",
+  "#e66767",
+];
+
+function embaralhar<T>(itens: T[]): T[] {
+  const copia = [...itens];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+function useCorPorAutor(mode: "light" | "dark") {
+  const paletaRef = useRef<string[] | null>(null);
+  const indicesRef = useRef(new Map<string, number>());
+  const proximoRef = useRef(0);
+
+  if (!paletaRef.current) {
+    paletaRef.current = embaralhar(
+      mode === "dark" ? CORES_REMETENTE_ESCURO : CORES_REMETENTE_CLARO,
+    );
+  }
+
+  return (autorId: string): string => {
+    const paleta = paletaRef.current!;
+    if (!indicesRef.current.has(autorId)) {
+      indicesRef.current.set(autorId, proximoRef.current % paleta.length);
+      proximoRef.current += 1;
+    }
+    return paleta[indicesRef.current.get(autorId)!];
+  };
 }
 
 export function RecadosScreen({ criancaId }: { criancaId: string }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { mode } = useTheme();
+  const corDoAutor = useCorPorAutor(mode);
   const crianca = useFetch(
     () => CriancasService.getById(criancaId),
     [criancaId],
@@ -133,7 +187,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
     const mensagemOtimista: Mensagem = {
       id: tempId,
       criancaId,
-      autorId: user?.id ?? "",
+      autorId: user?.usuarioId ?? "",
       autorNome: user?.name ?? "Você",
       autorPapel: (user?.role as "professor" | "responsavel") ?? "responsavel",
       corpo: texto,
@@ -275,14 +329,17 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
               </div>
             )}
             {mensagens.map((mensagem) => {
-              const minha = mensagem.autorPapel === user?.role;
+              const minha = mensagem.autorId === user?.usuarioId;
               return (
                 <div
                   key={mensagem.id}
                   className={`${styles.bolha} ${minha ? styles.bolhaMinha : styles.bolhaDelas}`}
                 >
-                  {mensagem.autorPapel === "professor" && (
-                    <span className={styles.remetente}>
+                  {!minha && (
+                    <span
+                      className={styles.remetente}
+                      style={{ color: corDoAutor(mensagem.autorId) }}
+                    >
                       {nomeRemetente(mensagem)}
                     </span>
                   )}
@@ -303,7 +360,6 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                     </div>
                   )}
                   <div className={styles.bolhaRodape}>
-                    <span>{formatarHora(mensagem.createdAt)}</span>
                     {minha && (
                       <span className={styles.bolhaAcoes}>
                         {mensagem.status === "enviando" ? (
@@ -322,6 +378,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                         </button>
                       </span>
                     )}
+                    <span>{formatarHora(mensagem.createdAt)}</span>
                   </div>
                 </div>
               );

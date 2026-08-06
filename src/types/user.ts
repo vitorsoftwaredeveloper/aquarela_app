@@ -4,6 +4,7 @@ export type Role = "admin" | "professor" | "responsavel";
 export interface AppUser {
   /** `sub` do Cognito. */
   id: string;
+  usuarioId?: string;
   email: string;
   name?: string;
   role: Role | null;

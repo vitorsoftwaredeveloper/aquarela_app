@@ -417,6 +417,18 @@
   }
 }
 
+.childStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+@media (max-width: 900px) {
+  .childStatic .childChipText {
+    display: none;
+  }
+}
+
 /* Linha de filho — lista do Perfil e folha de troca */
 .childRowText {
   flex: 1;

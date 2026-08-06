@@ -112,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const me = data?.data ?? data;
         setUser({
           ...base,
+          usuarioId: me?._id ? String(me._id) : undefined,
           name: me?.nome ?? me?.name ?? base.name,
           role: (me?.papel as Role) ?? base.role,
           professorId: me?.professorId,
