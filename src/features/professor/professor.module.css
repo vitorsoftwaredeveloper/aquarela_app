@@ -1450,15 +1450,16 @@
     max-width: 780px;
   }
   .turmaList,
-  .alunoList,
-  .eventoList {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    align-items: start;
-  }
   .planoList {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: start;
+  }
+  .alunoList,
+  .eventoList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+    justify-content: center;
     align-items: start;
   }
   .histList,
@@ -1476,10 +1477,12 @@
   .content {
     max-width: 1040px;
   }
-  .turmaList,
+  .turmaList {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
   .alunoList,
   .eventoList {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 380px));
   }
   .planoList {
     grid-template-columns: repeat(3, 1fr);

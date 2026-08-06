@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Images, Plus } from "lucide-react";
 import { BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import { ProfessorService } from "@/services/professorService";
@@ -21,6 +21,7 @@ function formatData(iso: string): string {
 
 export function MuralTurmaScreen({ turmaId }: { turmaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const eventos = useFetch(() => EventosService.list({ turmaId }), [turmaId]);
   const alunos = useFetch(

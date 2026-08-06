@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, ImagePlus, Send, Trash2 } from "lucide-react";
 import { BackButton, Skeleton, UploadAnexo } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { EventosService } from "@/services/eventos";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -30,6 +30,7 @@ export function EventoMuralDetalheScreen({
   eventoId: string;
 }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const evento = useFetch(
     () => EventosService.getById(eventoId, turmaId),
