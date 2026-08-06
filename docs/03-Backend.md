@@ -194,16 +194,29 @@ Base: `/v1`. Todos exigem JWT, exceto os marcados como público.
 > `PATCH /criancas/{id}/turma`, `DELETE /criancas/{id}` e
 > `DELETE /criancas/{id}/foto` seguem **admin-only**.
 >
-> ⚠️ **`PUT` não sincroniza e-mail de responsável.** Quem provisiona o usuário
-> a partir do e-mail é só o `POST /criancas` (`ensureResponsavelUsuario`); o
-> `PUT` faz `$set` cru em `responsaveis`. Trocar o e-mail ali muda **apenas o
-> array embutido na criança** — Cognito e a coleção `usuarios` ficam com o
-> antigo, então o login e o "esqueci minha senha" continuam no e-mail velho
-> enquanto a escola passa a ver o novo. O vínculo não quebra (`usuarioId` fica
-> intacto), o que torna a divergência silenciosa. Enquanto o backend não
-> bloquear ou sincronizar de verdade (`AdminUpdateUserAttributes` + `usuarios`
-> + verificação do novo endereço), o front trava o campo: e-mail de responsável
-> com `usuarioId` é `readOnly` na tela do responsável.
+> ⚠️ **`PUT` não sincroniza e-mail de responsável já vinculado.** Para um
+> responsável **já existente** no array (casado por CPF, ver abaixo), o `PUT`
+> mantém o `usuarioId` gravado e faz `$set` cru no resto dos campos, sem tocar
+> Cognito/`usuarios`. Trocar o e-mail ali muda **apenas o array embutido na
+> criança** — Cognito e a coleção `usuarios` ficam com o antigo, então o login
+> e o "esqueci minha senha" continuam no e-mail velho enquanto a escola passa
+> a ver o novo. O vínculo não quebra (`usuarioId` fica intacto), o que torna a
+> divergência silenciosa. Enquanto o backend não bloquear ou sincronizar de
+> verdade (`AdminUpdateUserAttributes` + `usuarios` + verificação do novo
+> endereço), o front trava o campo: e-mail de responsável com `usuarioId` é
+> `readOnly` na tela do responsável.
+>
+> **`PUT` cria/vincula o acesso de responsável novo (admin, edição).** Igual
+> ao `POST`: para cada responsável do payload **sem correspondência por CPF**
+> no array atual da criança, o backend chama o mesmo `ensureResponsavelUsuario`
+> (reusa por e-mail se já existir, senão cria Cognito + banco) e grava
+> `usuarioId`. Só acontece quando quem edita é **admin** —
+> `assertMutacaoResponsaveis` já barra `responsavel` de adicionar entrada nova
+> (OPS-01). Resposta do `PUT` passa a ser **`{ crianca, acessosResponsaveis: [{
+> nome, email, senhaTemporaria }] }`**, mesmo formato do `POST` — vazio quando
+> a edição não trouxe responsável novo. `CriancasAdminService.update` (front)
+> devolve esse envelope, e o `CriancaStepper` mostra o mesmo
+> `AcessosResponsavelModal` nos dois fluxos (criação e edição).
 
 > **`POST /criancas` cria/vincula o acesso dos responsáveis.** Para cada responsável, o backend garante um **usuário papel=responsavel** pelo e-mail: reusa se já existir, senão cria (Cognito + banco, senha temporária). Grava `usuarioId` no responsável embutido e adiciona a criança em `usuarios.criancasVinculadas`. CPF duplicado é checado **antes** de criar acessos (evita usuário órfão). Resposta: **`{ crianca, acessosResponsaveis: [{ nome, email, senhaTemporaria }] }`** — as senhas dos acessos **recém-criados** são entregues **uma vez** ao admin (front mostra em modal). Responsáveis cujo usuário já existia não retornam senha.
 >

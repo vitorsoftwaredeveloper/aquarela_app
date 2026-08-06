@@ -66,10 +66,7 @@ export type NovaCriancaPayload = Omit<
 > & { consentimentoLgpd: boolean; consentimentoImagem?: boolean };
 
 export type CriancaEditavelResponsavel = Partial<
-  Omit<
-    NovaCrianca,
-    "cpf" | "turmaId" | "financeiro" | "consentimentoImagem"
-  >
+  Omit<NovaCrianca, "cpf" | "turmaId" | "financeiro" | "consentimentoImagem">
 > & { consentimentoImagem?: boolean };
 
 /** Acesso de responsável criado junto com a criança (senha entregue 1x). */
@@ -81,6 +78,10 @@ export interface AcessoResponsavel {
 
 /** Retorno do create: a criança + acessos de responsável recém-criados. */
 export interface CriancaCriada {
+  crianca: CriancaCadastro;
+  acessosResponsaveis: AcessoResponsavel[];
+}
+export interface CriancaAtualizada {
   crianca: CriancaCadastro;
   acessosResponsaveis: AcessoResponsavel[];
 }

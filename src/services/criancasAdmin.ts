@@ -3,6 +3,7 @@ import { IS_DEV_DATA } from "@/config/env";
 import { devCriancasCadastro } from "./devData";
 import { unwrapList } from "./unwrap";
 import type {
+  CriancaAtualizada,
   CriancaCadastro,
   CriancaCriada,
   FotoUpload,
@@ -69,20 +70,25 @@ export const CriancasAdminService = {
   /**
    * `cpf` é imutável e `turmaId` só muda via `moverTurma` (PATCH dedicado) —
    * o backend rejeita a requisição inteira (`additionalProperties:false`) se
-   * qualquer um dos dois vier no corpo do PUT.
+   * qualquer um dos dois vier no corpo do PUT. Retorna a criança +
+   * `acessosResponsaveis` (senhas temporárias de responsáveis novos que o
+   * admin acabou de adicionar — vazio se ninguém novo entrou).
    */
   async update(
     id: string,
     payload: Omit<NovaCrianca, "cpf" | "turmaId">,
-  ): Promise<CriancaCadastro> {
+  ): Promise<CriancaAtualizada> {
     if (IS_DEV_DATA) {
       const { foto, ...resto } = payload;
       return {
-        ...resto,
-        _id: id,
-        cpf: "",
-        turmaId: "",
-        fotoUrl: dataUrlDaFoto(foto),
+        crianca: {
+          ...resto,
+          _id: id,
+          cpf: "",
+          turmaId: "",
+          fotoUrl: dataUrlDaFoto(foto),
+        },
+        acessosResponsaveis: [],
       };
     }
     const { data } = await api.put(`/criancas/${id}`, payload);

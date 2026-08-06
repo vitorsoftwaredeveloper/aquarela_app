@@ -329,16 +329,25 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
         // inteiro se vierem) — turma muda por endpoint dedicado (PATCH .../turma).
         const { cpf: _cpf, turmaId, ...resto } = values;
         void _cpf;
-        await CriancasAdminService.update(criancaId, {
-          ...resto,
-          dataNascimento,
-          responsaveis,
-          consentimentoImagem,
-          ...(foto ? { foto } : {}),
-        } as unknown as Omit<NovaCrianca, "cpf" | "turmaId">);
+        const { acessosResponsaveis } = await CriancasAdminService.update(
+          criancaId,
+          {
+            ...resto,
+            dataNascimento,
+            responsaveis,
+            consentimentoImagem,
+            ...(foto ? { foto } : {}),
+          } as unknown as Omit<NovaCrianca, "cpf" | "turmaId">,
+        );
 
         if (turmaId && turmaId !== existente.data?.turmaId) {
           await CriancasAdminService.moverTurma(criancaId, turmaId);
+        }
+
+        // Responsável novo adicionado na edição → mostra a senha temporária antes de sair.
+        if (acessosResponsaveis.length > 0) {
+          setAcessos(acessosResponsaveis);
+          return;
         }
       } else {
         const payload = {
@@ -993,8 +1002,9 @@ export function CriancaStepper({ criancaId }: { criancaId?: string }) {
 }
 
 /**
- * Mostra as senhas temporárias dos acessos de responsável criados junto com a
- * criança (entregues UMA vez ao admin). Fechar segue para a lista de crianças.
+ * Mostra as senhas temporárias de acessos de responsável recém-criados
+ * (no cadastro ou na edição, entregues UMA vez ao admin). Fechar segue
+ * para a lista de crianças.
  */
 function AcessosResponsavelModal({
   acessos,
@@ -1193,8 +1203,8 @@ function Resumo({
 
 /**
  * Avisa se o e-mail do responsável já corresponde a um usuário responsável
- * existente (acesso ao app). É informativo: o cadastro da criança não
- * cria o acesso — um usuário papel=responsavel precisa existir para o pai logar.
+ * existente (acesso ao app). É informativo: se não existir, salvar o
+ * cadastro cria o acesso automaticamente (senha temporária exibida ao final).
  */
 function EmailAcessoStatus({
   control,
@@ -1233,7 +1243,7 @@ function EmailAcessoStatus({
       <span>
         {temAcesso
           ? "E-mail já tem acesso ao app (usuário responsável cadastrado)."
-          : "E-mail ainda sem acesso — cadastre um usuário responsável para o pai poder entrar."}
+          : "E-mail ainda sem acesso — ao salvar, o acesso é criado automaticamente."}
       </span>
     </div>
   );
