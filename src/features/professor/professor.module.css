@@ -1461,6 +1461,15 @@
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     align-items: start;
   }
+  .histList,
+  .freqResumo {
+    max-width: 100%;
+  }
+  .histList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: start;
+  }
 }
 
 @media (min-width: 1300px) {
@@ -1475,4 +1484,9 @@
   .planoList {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.contentWide {
+  max-width: none;
+  margin: 0;
 }

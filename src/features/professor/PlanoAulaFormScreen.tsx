@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle } from "lucide-react";
 import { BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { TagInput } from "@/features/admin/criancas/TagInput";
 import { PlanosAulaService } from "@/services/planosAula";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -30,6 +30,7 @@ export function PlanoAulaFormScreen({
   planoId?: string;
 }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const isEdit = !!planoId;
   const [loadError, setLoadError] = useState<string | null>(null);

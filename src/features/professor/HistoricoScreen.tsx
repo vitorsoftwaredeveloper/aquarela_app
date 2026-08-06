@@ -3,15 +3,19 @@
 import { useRouter } from "next/navigation";
 import { Paperclip, ShieldAlert } from "lucide-react";
 import { BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { AgendaService } from "@/services/agendaService";
 import { CriancasService } from "@/services/criancas";
 import { HUMOR_ICON } from "@/types/professorAgenda";
+import { AGENDA_VISUAL } from "../responsavel/agendaVisual";
 import styles from "./professor.module.css";
+
+const ObsIcon = AGENDA_VISUAL.observacao.icon;
 
 export function HistoricoScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const crianca = useFetch(() => CriancasService.getById(criancaId));
   const historico = useFetch(() => AgendaService.getHistorico(criancaId));
@@ -112,6 +116,7 @@ export function HistoricoScreen({ criancaId }: { criancaId: string }) {
                 )}
                 {h.observacoes && (
                   <div className={styles.histObs}>
+                    <ObsIcon size={14} />
                     <span>{h.observacoes}</span>
                   </div>
                 )}

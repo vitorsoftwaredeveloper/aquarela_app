@@ -24,7 +24,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { BackButton, Button, Modal, Skeleton, UploadAnexo } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { CriancasService } from "@/services/criancas";
 import { ProfessorService } from "@/services/professorService";
@@ -58,6 +58,7 @@ const REFEICAO_LABEL: Record<string, string> = Object.fromEntries(
 
 export function RegistrarAgendaScreen({ criancaId }: { criancaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const crianca = useFetch(
     () => CriancasService.getById(criancaId),

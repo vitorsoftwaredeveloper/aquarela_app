@@ -12,7 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { BackButton, Modal, Select, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { PlanosAulaService } from "@/services/planosAula";
 import { ProfessorService } from "@/services/professorService";
@@ -31,6 +31,7 @@ function formatData(iso: string): string {
 /** PED-02 · Planos de aula (professor) — CRUD por turma. */
 export function PlanosAulaScreen({ turmaId }: { turmaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const { data, loading, error, reload } = useFetch(
     () => PlanosAulaService.list(turmaId),

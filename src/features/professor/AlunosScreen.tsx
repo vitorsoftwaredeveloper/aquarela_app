@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Check, CheckCheck, Clock, ShieldAlert } from "lucide-react";
 import { Avatar, BackButton, Skeleton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { sortearCoresAvatar, temCuidados } from "@/types/crianca";
@@ -12,6 +12,7 @@ import styles from "./professor.module.css";
 
 export function AlunosScreen({ turmaId }: { turmaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const { data, loading, error } = useFetch(
     () => ProfessorService.listAlunos(turmaId),

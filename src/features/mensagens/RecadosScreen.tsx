@@ -217,7 +217,7 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
               : ""),
   );
   useHideTopbar(ehProfessor);
-  useWideContent(!ehProfessor);
+  useWideContent();
   useFixedHeightContent();
 
   return (

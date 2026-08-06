@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle } from "lucide-react";
 import { BackButton } from "@/components";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { EventosService } from "@/services/eventos";
 import { getApiErrorMessage } from "@/services/apiError";
 import { eventoSchema, type EventoFormData } from "@/schemas/evento";
@@ -17,6 +17,7 @@ const VAZIO: EventoFormData = { titulo: "", descricao: "", data: "" };
 
 export function NovoEventoScreen({ turmaId }: { turmaId: string }) {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {

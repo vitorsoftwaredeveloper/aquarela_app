@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Download, Share, X } from "lucide-react";
-import { storage } from "@/storage/localStorage";
 import { isIOS, isStandalonePwa } from "@/utils/device";
 import styles from "./InstallPrompt.module.css";
 
@@ -11,20 +10,10 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const DISMISSED_UNTIL_KEY = "installPromptDismissedUntil";
-const DISMISS_DAYS = 7;
-
-function aindaDispensado(): boolean {
-  const until = storage.get<number>(DISMISSED_UNTIL_KEY);
-  return !!until && Date.now() < until;
-}
-
 /**
- * Aviso de "instalar app" — reaparece sozinho após desinstalar porque não
- * depende de detectar a desinstalação: cheque de `isStandalonePwa()` roda a
- * cada carga e, fora do app instalado, sempre volta `false`. O cooldown de
- * dispensa some no `appinstalled`, então uma reinstalação futura começa sem
- * resquício da dispensa anterior.
+ * Aviso de "instalar app" — dispensa vale só pra sessão atual (estado em
+ * memória, sem localStorage). Toda vez que o app abre de novo (nova carga /
+ * novo login) o aviso reaparece, mesmo que o usuário tenha fechado antes.
  */
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
@@ -38,7 +27,7 @@ export function InstallPrompt() {
     if (isIOS()) {
       /* eslint-disable react-hooks/set-state-in-effect */
       setIos(true);
-      if (!aindaDispensado()) setVisible(true);
+      setVisible(true);
       /* eslint-enable react-hooks/set-state-in-effect */
       return;
     }
@@ -46,11 +35,10 @@ export function InstallPrompt() {
     function onBeforeInstallPrompt(e: Event) {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      if (!aindaDispensado()) setVisible(true);
+      setVisible(true);
     }
 
     function onAppInstalled() {
-      storage.remove(DISMISSED_UNTIL_KEY);
       setDeferredPrompt(null);
       setVisible(false);
     }
@@ -64,7 +52,6 @@ export function InstallPrompt() {
   }, []);
 
   const dismiss = useCallback(() => {
-    storage.set(DISMISSED_UNTIL_KEY, Date.now() + DISMISS_DAYS * 24 * 60 * 60 * 1000);
     setVisible(false);
   }, []);
 

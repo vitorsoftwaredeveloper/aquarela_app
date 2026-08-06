@@ -82,7 +82,8 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { title, subtitle, hideTopbar, fixedHeight } = usePageTitleValue();
+  const { title, subtitle, hideTopbar, wide, fixedHeight } =
+    usePageTitleValue();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -221,7 +222,7 @@ export function ProfessorShell({ children }: { children: React.ReactNode }) {
           </header>
         )}
         <main
-          className={`${styles.content} ${fixedHeight ? styles.contentFixed : ""}`}
+          className={`${styles.content} ${wide ? styles.contentWide : ""} ${fixedHeight ? styles.contentFixed : ""}`}
         >
           {children}
         </main>

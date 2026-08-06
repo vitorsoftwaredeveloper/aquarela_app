@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Check, Lock } from "lucide-react";
 import { BackButton, FotoField, Skeleton } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
-import { useHideTopbar } from "@/contexts/PageTitleContext";
+import { useHideTopbar, useWideContent } from "@/contexts/PageTitleContext";
 import { useFetch } from "@/hooks/useFetch";
 import { ProfessorService } from "@/services/professorService";
 import { getApiErrorMessage } from "@/services/apiError";
@@ -22,6 +22,7 @@ import styles from "./professor.module.css";
 /** T-12: professor edita o próprio cadastro (nome, telefone, formação) — nunca o e-mail. */
 export function EditarDadosProfessorScreen() {
   useHideTopbar();
+  useWideContent();
   const router = useRouter();
   const { user } = useAuth();
   const professorId = user?.professorId;
