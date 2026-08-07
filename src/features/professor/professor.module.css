@@ -11,7 +11,7 @@
   --sidebar-active: rgba(255, 255, 255, 0.16);
   --content-pb: calc(28px + env(safe-area-inset-bottom, 0px));
 
-  min-height: 100dvh;
+  min-height: 100svh;
   display: grid;
   grid-template-columns: 244px 1fr;
   background: var(--screen);
@@ -24,7 +24,7 @@
   grid-template-columns: 76px 1fr;
 }
 .shellFixed {
-  height: 100dvh;
+  height: 100svh;
   overflow: hidden;
 }
 .shellFixed .main {
@@ -34,7 +34,7 @@
 .sidebar {
   position: sticky;
   top: 0;
-  height: 100dvh;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   gap: 8px;
