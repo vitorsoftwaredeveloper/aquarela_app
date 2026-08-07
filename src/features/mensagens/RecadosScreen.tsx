@@ -26,9 +26,10 @@ import type { Mensagem } from "@/types/mensagem";
 import styles from "./mensagens.module.css";
 
 function formatarHora(iso: string): string {
-  return new Date(iso).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
+  return new Date(iso).toLocaleTimeString("en-US", {
+    hour: "numeric",
     minute: "2-digit",
+    hour12: true,
   });
 }
 
@@ -361,34 +362,33 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                   )}
                   <div className={styles.bolhaRodape}>
                     {minha && (
-                      <>
-                        {mensagem.status === "enviando" ? (
-                          <Check
-                            size={12}
-                            className={styles.statusIcone}
-                            aria-label="Enviando"
-                          />
-                        ) : (
-                          <CheckCheck
-                            size={12}
-                            className={styles.statusIcone}
-                            aria-label="Enviado"
-                          />
-                        )}
-                        <span className={styles.bolhaAcoes}>
-                          <button
-                            type="button"
-                            className={styles.removerBtn}
-                            onClick={() => remover(mensagem.id)}
-                            disabled={mensagem.status === "enviando"}
-                            aria-label="Remover recado"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </span>
-                      </>
+                      <span className={styles.bolhaAcoes}>
+                        <button
+                          type="button"
+                          className={styles.removerBtn}
+                          onClick={() => remover(mensagem.id)}
+                          disabled={mensagem.status === "enviando"}
+                          aria-label="Remover recado"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </span>
                     )}
                     <span>{formatarHora(mensagem.createdAt)}</span>
+                    {minha &&
+                      (mensagem.status === "enviando" ? (
+                        <Check
+                          size={12}
+                          className={styles.statusIcone}
+                          aria-label="Enviando"
+                        />
+                      ) : (
+                        <CheckCheck
+                          size={12}
+                          className={styles.statusIcone}
+                          aria-label="Enviado"
+                        />
+                      ))}
                   </div>
                 </div>
               );
