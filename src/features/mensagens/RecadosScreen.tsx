@@ -361,22 +361,32 @@ export function RecadosScreen({ criancaId }: { criancaId: string }) {
                   )}
                   <div className={styles.bolhaRodape}>
                     {minha && (
-                      <span className={styles.bolhaAcoes}>
+                      <>
                         {mensagem.status === "enviando" ? (
-                          <Check size={12} aria-label="Enviando" />
+                          <Check
+                            size={12}
+                            className={styles.statusIcone}
+                            aria-label="Enviando"
+                          />
                         ) : (
-                          <CheckCheck size={12} aria-label="Enviado" />
+                          <CheckCheck
+                            size={12}
+                            className={styles.statusIcone}
+                            aria-label="Enviado"
+                          />
                         )}
-                        <button
-                          type="button"
-                          className={styles.removerBtn}
-                          onClick={() => remover(mensagem.id)}
-                          disabled={mensagem.status === "enviando"}
-                          aria-label="Remover recado"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </span>
+                        <span className={styles.bolhaAcoes}>
+                          <button
+                            type="button"
+                            className={styles.removerBtn}
+                            onClick={() => remover(mensagem.id)}
+                            disabled={mensagem.status === "enviando"}
+                            aria-label="Remover recado"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </span>
+                      </>
                     )}
                     <span>{formatarHora(mensagem.createdAt)}</span>
                   </div>

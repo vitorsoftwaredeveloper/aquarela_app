@@ -158,6 +158,10 @@
   justify-content: flex-end;
   color: rgba(255, 255, 255, 0.75);
 }
+.statusIcone {
+  display: inline-flex;
+  flex: none;
+}
 .bolhaAcoes {
   display: inline-flex;
   align-items: center;
