@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { HOME_BY_ROLE, type Role } from "@/types/user";
-import styles from "./RoleGuard.module.css";
+import { Splash } from "../Splash/Splash";
 
 /**
  * Guarda de rota por papel (UX apenas — a autorização real é do backend).
@@ -32,13 +32,10 @@ export function RoleGuard({
     }
   }, [loading, isAuthenticated, user?.role, role, router]);
 
+  // Mesmo splash da restauração de sessão: enquanto o papel não é conhecido (ou
+  // o redirecionamento não terminou) a tela nunca pisca conteúdo de outro papel.
   if (loading || !isAuthenticated || user?.role !== role) {
-    return (
-      <div className={styles.gate} role="status" aria-live="polite">
-        <span className={styles.spinner} aria-hidden />
-        <span className={styles.label}>Carregando…</span>
-      </div>
-    );
+    return <Splash />;
   }
 
   return <>{children}</>;

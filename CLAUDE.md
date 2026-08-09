@@ -66,6 +66,13 @@ Detalhes completos: [`docs/02-Frontend.md`](./docs/02-Frontend.md).
 ## 5. Regras e convenções
 
 - **Auth:** `AuthContext` + Amplify v6. Cada grupo de rota valida o papel (`cognito:groups`) e redireciona. O `idToken` é anexado automaticamente pelo interceptor do `axios`.
+- **Splash de sessão:** enquanto o `AuthContext` restaura a sessão, o app cobre a
+  tela com `components/Splash` (logo + spinner) — montado em `providers.tsx` via
+  `SessionSplash`, com `SessionScript` inline no `<head>` marcando
+  `data-session="restoring" | "anon"` em `<html>` antes do paint. Sem isso o
+  usuário logado via a landing e era "puxado" para o dashboard um instante
+  depois; visitante sem sessão guardada não vê splash nenhum. Detalhes em
+  [`docs/02-Frontend.md` §3](./docs/02-Frontend.md).
 - **Autorização de dado no front é só UX** — a fonte da verdade é o backend. Ex.: responsável só vê o próprio filho; professor só a própria turma. Nunca confie apenas no front.
 - **Nunca faça `return data.data` cru nos services.** Use `unwrapList`/`unwrapItem` (`services/unwrap.ts`) para listas/itens e normalizadores dedicados para objetos compostos (ex.: `normalizarBalanco`). Um payload real fora do formato esperado (`data.resumo` undefined, lista vindo como objeto) derrubava a tela inteira — as fixtures escondiam isso porque tinham o formato perfeito.
 - **Server vs Client Components:** páginas de leitura → Server Components; telas com estado/formulário → `"use client"`.

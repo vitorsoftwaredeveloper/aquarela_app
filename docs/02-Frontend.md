@@ -89,6 +89,39 @@ api.interceptors.request.use(async (config) => {
 });
 ```
 
+### Splash de sessão (tela de carregamento da marca)
+
+Enquanto o `AuthContext` restaura a sessão, o app cobre a tela com
+`components/Splash` (logo Aquarela + spinner, tokens da aplicação). Antes disso,
+quem já estava logado via a landing (ou o login) por um instante e era "puxado"
+para o dashboard quando a sessão terminava de carregar.
+
+Peças:
+
+| Peça | Papel |
+|---|---|
+| `Splash` | visual da tela (logo + spinner + texto), overlay `position: fixed` |
+| `SessionSplash` | montado em `app/providers.tsx`, dentro do `AuthProvider`; some com fade quando `loading` vira `false` |
+| `SessionScript` | script inline no `<head>` (`app/layout.tsx`), no mesmo espírito do `ThemeScript` |
+
+Detalhes que não são acidentais:
+
+- **O splash está no HTML do servidor.** Se dependesse da hidratação, a landing
+  já teria pintado — é exatamente o flash que queríamos matar.
+- **É overlay, não portão:** os filhos continuam montados por baixo, então a
+  landing segue no HTML (SEO) e nada remonta quando o splash sai.
+- **Visitante anônimo não vê splash.** O `SessionScript` procura, antes do
+  primeiro paint, um token do Cognito
+  (`CognitoIdentityServiceProvider.<clientId>.LastAuthUser`) ou a sessão demo
+  (`@aquarela:devSession`) e escreve `data-session="restoring" | "anon"` em
+  `<html>`; em `anon` o CSS esconde o overlay de boot. Na dúvida (erro ao ler o
+  storage) o splash aparece — o certo para quem está logado.
+- **Só o splash de boot obedece ao `data-session`** (prop `boot`). Os outros usos
+  — `RoleGuard` e o redirecionamento pós-login — acontecem depois do load e
+  precisam aparecer mesmo para quem entrou sem sessão.
+- `AuthRedirect` (landing) e `LoginScreen` mostram `<Splash label="Entrando…" />`
+  enquanto o `router.replace` para a home do papel não termina.
+
 ---
 
 ## 4. Camada de estado (Context API)

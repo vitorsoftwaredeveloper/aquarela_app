@@ -4,7 +4,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { configureAmplify } from "@/config/amplify";
-import { InstallPrompt } from "@/components";
+import { InstallPrompt, SessionSplash } from "@/components";
 
 // Configura o Amplify no load do módulo (client), ANTES de qualquer efeito de
 // componente. Se ficasse em useEffect, o efeito do AuthProvider (filho) rodaria
@@ -18,6 +18,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <AuthProvider>
         <NotificationsProvider>{children}</NotificationsProvider>
+        {/* Splash da marca enquanto a sessão é restaurada (overlay, não portão:
+            os filhos seguem montados por baixo). */}
+        <SessionSplash />
       </AuthProvider>
       <InstallPrompt />
     </ThemeProvider>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { caveat, inter, poppins } from "@/lib/fonts";
 import { ThemeScript } from "@/contexts/ThemeContext";
+import { SessionScript } from "@/components/Splash/SessionSplash";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <head>
         <ThemeScript />
+        <SessionScript />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

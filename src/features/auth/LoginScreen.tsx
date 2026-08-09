@@ -18,7 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import type { Role } from "@/types/user";
-import { Button, Input, LogoFull } from "@/components";
+import { Button, Input, LogoFull, Splash } from "@/components";
 import { useAuth } from "@/contexts/AuthContext";
 import { HOME_BY_ROLE } from "@/types/user";
 import {
@@ -96,6 +96,10 @@ export function LoginScreen() {
     }
   }, [isAuthenticated, role, router]);
 
+  // Sessão válida (restaurada ou recém-criada): o efeito acima já está
+  // redirecionando — mostra o splash em vez do formulário, que só piscaria.
+  const redirecting = isAuthenticated && !!role;
+
   function switchMode(next: Mode) {
     setError(null);
     setNotice(null);
@@ -160,6 +164,8 @@ export function LoginScreen() {
       setError(authErrorMessage(err));
     }
   }
+
+  if (redirecting) return <Splash label="Entrando…" />;
 
   return (
     <div className={styles.wrap}>

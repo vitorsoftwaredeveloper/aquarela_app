@@ -12,6 +12,8 @@ export { Modal } from "./Modal/Modal";
 export { Stepper } from "./Stepper/Stepper";
 export { SignOutButton } from "./SignOutButton/SignOutButton";
 export { Logo } from "./Logo/Logo";
+export { Splash } from "./Splash/Splash";
+export { SessionSplash, SessionScript } from "./Splash/SessionSplash";
 export { LogoFull } from "./Logo/LogoFull";
 export { ThemeToggle } from "./ThemeToggle/ThemeToggle";
 export { RoleGuard } from "./RoleGuard/RoleGuard";
